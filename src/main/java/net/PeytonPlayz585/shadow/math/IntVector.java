@@ -19,7 +19,7 @@ public class IntVector implements Cloneable {
 		m_map = new int[blocksize];
 	}
 
-	public IntVector(int blocksize, int increaseSize) 
+	public IntVector(int blocksize, int increaseSize) {
 		m_blocksize = increaseSize;
 		m_mapSize = blocksize;
 		m_map = new int[blocksize];
