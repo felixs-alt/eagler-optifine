@@ -5,6 +5,7 @@ import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.PeytonPlayz585.shadow.opengl.VertexBufferUploader;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
@@ -25,6 +26,7 @@ public class ChunkUpdateManager {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	private final WorldVertexBufferUploader worldVertexUploader;
+	private final VertexBufferUploader vertexUploader = new VertexBufferUploader();
 	private final RegionRenderCacheBuilder renderCache;
 
 	private int chunkUpdatesTotal = 0;
@@ -192,11 +194,13 @@ public class ChunkUpdateManager {
 		}
 	}
 
-	public void uploadChunk(final EnumWorldBlockLayer player, final WorldRenderer chunkRenderer,
-			final RenderChunk compiledChunkIn, final CompiledChunk parCompiledChunk) {
-		this.uploadDisplayList(chunkRenderer,
-				((ListedRenderChunk) compiledChunkIn).getDisplayList(player, parCompiledChunk), compiledChunkIn);
-		chunkRenderer.setTranslation(0.0D, 0.0D, 0.0D);
+	public void uploadChunk(final EnumWorldBlockLayer player, final WorldRenderer p_178503_2_, final RenderChunk chunkRenderer, final CompiledChunk compiledChunkIn) {
+		if(Minecraft.getMinecraft().gameSettings.useVbo) {
+			this.uploadVertexBuffer(p_178503_2_, ((ListedRenderChunk) chunkRenderer).getDisplayList(player, compiledChunkIn));
+		} else {
+			this.uploadDisplayList(p_178503_2_, ((ListedRenderChunk) chunkRenderer).getDisplayList(player, compiledChunkIn), chunkRenderer);
+		}
+		p_178503_2_.setTranslation(0.0D, 0.0D, 0.0D);
 	}
 
 	private void uploadDisplayList(WorldRenderer chunkRenderer, int parInt1, RenderChunk parRenderChunk) {
@@ -206,6 +210,10 @@ public class ChunkUpdateManager {
 		GlStateManager.popMatrix();
 		EaglercraftGPU.glEndList();
 	}
+	
+	private void uploadVertexBuffer(WorldRenderer p_178506_1_, int parInt1) {
+        this.vertexUploader.func_181679_a(p_178506_1_, parInt1);
+    }
 
 	public boolean isAlreadyQueued(RenderChunk update) {
 		for(int i = 0, l = queue.size(); i < l; ++i) {

@@ -821,7 +821,7 @@ public class Minecraft implements IThreadListener {
 									.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate),
 							this.gameSettings.enableVsync ? " vsync" : "",
 							this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? ""
-									: (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds") });
+									: (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), gameSettings.useVbo ? " vbo" : "" });
 			RenderChunk.renderChunksUpdated = 0;
 			this.debugUpdateTime += 1000L;
 			this.fpsCounter = 0;
