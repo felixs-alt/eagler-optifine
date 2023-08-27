@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.opengl.OpenGLManager;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.HString;
 import net.lax1dude.eaglercraft.v1_8.Keyboard;
@@ -27,6 +28,7 @@ import net.lax1dude.eaglercraft.v1_8.minecraft.ChunkUpdateManager;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.v1_8.opengl.OpenGlHelper;
 import net.lax1dude.eaglercraft.v1_8.opengl.VertexFormat;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.DeferredStateManager;
@@ -52,6 +54,7 @@ import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.IRenderChunkFactory;
 import net.minecraft.client.renderer.chunk.ListChunkFactory;
 import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.chunk.VboChunkFactory;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
@@ -193,6 +196,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		this.vboEnabled = false;
 		this.renderContainer = new RenderList();
 		this.renderChunkFactory = new ListChunkFactory();
+		
 		this.generateStars();
 		this.generateSky();
 		this.generateSky2();
@@ -389,7 +393,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			Blocks.leaves2.setGraphicsLevel(mc.gameSettings.shaders || mc.gameSettings.fancyGraphics);
 			BlockModelRenderer.updateAoLightValue();
 			this.renderDistanceChunks = this.mc.gameSettings.renderDistanceChunks;
-
+			
 			if (this.viewFrustum != null) {
 				this.viewFrustum.deleteGlResources();
 			}
@@ -1139,6 +1143,17 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 
 	private void renderBlockLayer(EnumWorldBlockLayer blockLayerIn) {
 		this.mc.entityRenderer.enableLightmap();
+		
+		if (Minecraft.getMinecraft().gameSettings.useVbo) {
+			//OpenGLManager.glEnableClientState(GL_VERTEX_ARRAY);
+            GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            //OpenGLManager.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+            //OpenGLManager.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            //OpenGLManager.glEnableClientState(GL_COLOR_ARRAY);
+        }
+		
 		this.renderContainer.renderChunkLayer(blockLayerIn);
 		this.mc.entityRenderer.disableLightmap();
 	}
