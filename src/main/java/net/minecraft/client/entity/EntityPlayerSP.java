@@ -1,5 +1,6 @@
 package net.minecraft.client.entity;
 
+import net.FatalCodes.shadow.Shadow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -594,6 +595,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 	 * to react to sunlight and start to burn.
 	 */
 	public void onLivingUpdate() {
+		Shadow.moduleManager.onUpdate();
 		if (this.sprintingTicksLeft > 0) {
 			--this.sprintingTicksLeft;
 			if (this.sprintingTicksLeft == 0) {

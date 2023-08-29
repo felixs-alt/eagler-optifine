@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import net.FatalCodes.shadow.Shadow;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.Mouse;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
@@ -1267,6 +1268,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		}
 
 		this.mc.mcProfiler.endStartSection("hand");
+		Shadow.moduleManager.onRender();
 		if (this.renderHand) {
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
 			this.renderHand(partialTicks, pass);

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.Validate;
 
 import com.google.common.collect.Lists;
 
+import net.FatalCodes.shadow.Shadow;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.HString;
@@ -455,6 +456,7 @@ public class Minecraft implements IThreadListener {
 		SkinPreviewRenderer.initialize();
 		this.checkGLError("Post startup");
 		this.ingameGUI = new GuiIngame(this);
+		Shadow.ShadowClientStartup();
 
 		ServerList.initServerList(this);
 		EaglerProfile.read();
@@ -1377,6 +1379,7 @@ public class Minecraft implements IThreadListener {
 					if (this.currentScreen != null) {
 						this.currentScreen.handleKeyboardInput();
 					} else {
+						Shadow.moduleManager.onKey(k);
 						if (k == 1 || (k > -1 && k == this.gameSettings.keyBindClose.getKeyCode())) {
 							this.displayInGameMenu();
 						}
