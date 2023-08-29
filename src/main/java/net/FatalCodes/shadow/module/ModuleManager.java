@@ -2,16 +2,25 @@ package net.FatalCodes.shadow.module;
 
 import java.util.ArrayList;
 
+import net.FatalCodes.shadow.module.hud.ClickGui;
+import net.FatalCodes.shadow.module.hud.Drag;
+import net.FatalCodes.shadow.module.pvp.AutoWtap;
+import net.FatalCodes.shadow.module.pvp.NoHurtCam;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 
 public class ModuleManager {
 	
-	private static ArrayList<Module> mods;
+	public static ArrayList<Module> mods;
 	
 	public ModuleManager() {
 		mods = new ArrayList<Module>();
+		newMod(new ClickGui());
+		newMod(new Drag());
 
+		//PVP
+		newMod(new NoHurtCam());
+		newMod(new AutoWtap());
 	}
 	
 	public static void newMod(Module m) {
@@ -47,5 +56,14 @@ public class ModuleManager {
 		
 		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(message));
 	}
+
+    public ArrayList<Module> modsInCategory(Category c){
+        ArrayList<Module> inCategory = new ArrayList<>();
+        for(Module m : this.mods){
+            if(m.category == c)
+                inCategory.add(m);
+        }
+        return inCategory;
+    }
 
 }

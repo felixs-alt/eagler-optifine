@@ -5,6 +5,9 @@ import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import net.FatalCodes.shadow.Shadow;
+import net.FatalCodes.shadow.module.RenderModule;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
 
@@ -48,6 +51,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
+import net.FatalCodes.shadow.module.Module;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -303,6 +307,12 @@ public class GuiIngame extends Gui {
 		} else {
 			this.overlayPlayerList.updatePlayerList(true);
 			this.overlayPlayerList.renderPlayerlist(i, scoreboard, scoreobjective1);
+		}
+
+		for(Module m : Shadow.moduleManager.mods) {
+			if(m.isToggled() && m instanceof RenderModule) {
+				((RenderModule)m).draw();
+			}
 		}
 
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
