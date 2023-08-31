@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomSky;
 import net.PeytonPlayz585.shadow.opengl.OpenGLManager;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.HString;
@@ -1357,6 +1358,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			float f16 = 1.0F - this.theWorld.getRainStrength(partialTicks);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, f16);
 			GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
+			CustomSky.renderSky(this.theWorld, this.renderEngine, this.theWorld.getCelestialAngle(partialTicks), f16);
 			GlStateManager.rotate(this.theWorld.getCelestialAngle(partialTicks) * 360.0F, 1.0F, 0.0F, 0.0F);
 			float f17 = 30.0F;
 			this.renderEngine.bindTexture(locationSunPng);
@@ -1396,7 +1398,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			GlStateManager.disableTexture2D();
 			GlStateManager.color(0.0F, 0.0F, 0.0F);
 			double d0 = this.mc.thePlayer.getPositionEyes(partialTicks).yCoord - this.theWorld.getHorizon();
-			if (d0 < 0.0D) {
+			if (d0 < 0.0D && !CustomSky.hasSkyLayers(this.theWorld)) {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(0.0F, 12.0F, 0.0F);
 				GlStateManager.callList(this.glSkyList2);

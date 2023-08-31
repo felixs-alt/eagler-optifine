@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomSky;
 import net.lax1dude.eaglercraft.v1_8.ArrayUtils;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
@@ -197,6 +198,9 @@ public class GameSettings {
 	//Main Menu Settings
 	public float ofAoLevel = 1.0F;
 	public boolean useVbo = false;
+	
+	//Quality Settings
+	public boolean ofCustomSky = true;
 	
 	//Optifine Animations
 	public int ofAnimatedWater = 0;
@@ -555,6 +559,11 @@ public class GameSettings {
             this.useVbo = !this.useVbo;
             this.mc.renderGlobal.loadRenderers();
         }
+        
+        if (parOptions == GameSettings.Options.CUSTOM_SKY) {
+            this.ofCustomSky = !this.ofCustomSky;
+            CustomSky.update();
+        }
 
 		this.saveOptions();
 	}
@@ -624,6 +633,8 @@ public class GameSettings {
 			return this.mc.isFullScreen();
 		case USE_VBO:
 			return this.useVbo;
+		case CUSTOM_SKY:
+			return this.ofCustomSky;
 		default:
 			return false;
 		}
@@ -748,7 +759,9 @@ public class GameSettings {
             return this.ofAnimatedTextures ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.USE_VBO) {
 			return this.useVbo ? s + "ON" : s + "OFF";
-		} else {
+		} else if (parOptions == GameSettings.Options.CUSTOM_SKY) {
+            return this.ofCustomSky ? s + "ON" : s + "OFF";
+        } else {
 			return s;
 		}
 	}
@@ -1106,6 +1119,10 @@ public class GameSettings {
                     if (astring[0].equals("useVbo")) {
                         this.useVbo = astring[1].equals("true");
                     }
+                    
+                    if (astring[0].equals("ofCustomSky") && astring.length >= 2) {
+                        this.ofCustomSky = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1232,6 +1249,7 @@ public class GameSettings {
             printwriter.println("ofAnimatedTextures:" + this.ofAnimatedTextures);
             printwriter.println("ofAoLevel:" + this.ofAoLevel);
             printwriter.println("useVbo:" + this.useVbo);
+            printwriter.println("ofCustomSky:" + this.ofCustomSky);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1393,7 +1411,8 @@ public class GameSettings {
         ANIMATED_TERRAIN("Terrain Animated", false, false),
         ANIMATED_TEXTURES("Textures Animated", false, false),
         AO_LEVEL("Smooth Lighting Level", true, false),
-        USE_VBO("Use VBOs", false, false);
+        USE_VBO("Use VBOs", false, false),
+        CUSTOM_SKY("Custom Sky", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

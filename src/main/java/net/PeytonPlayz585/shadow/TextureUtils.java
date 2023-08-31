@@ -1,5 +1,9 @@
 package net.PeytonPlayz585.shadow;
 
+import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.util.ResourceLocation;
+
 public class TextureUtils {
 	
 	static TextureMap texturemap = new TextureMap();
@@ -23,6 +27,60 @@ public class TextureUtils {
     public static String s1 = "minecraft:items/";
     public static String iconCompass = texturemap.getSpriteSafe(s1 + "compass");
     public static String iconClock = texturemap.getSpriteSafe(s1 + "clock");
+    
+    public static String fixResourcePath(String p_fixResourcePath_0_, String p_fixResourcePath_1_) {
+        String s = "assets/minecraft/";
+
+        if (p_fixResourcePath_0_.startsWith(s)) {
+            p_fixResourcePath_0_ = p_fixResourcePath_0_.substring(s.length());
+            return p_fixResourcePath_0_;
+        } else if (p_fixResourcePath_0_.startsWith("./")) {
+            p_fixResourcePath_0_ = p_fixResourcePath_0_.substring(2);
+
+            if (!p_fixResourcePath_1_.endsWith("/")) {
+                p_fixResourcePath_1_ = p_fixResourcePath_1_ + "/";
+            }
+
+            p_fixResourcePath_0_ = p_fixResourcePath_1_ + p_fixResourcePath_0_;
+            return p_fixResourcePath_0_;
+        } else {
+            if (p_fixResourcePath_0_.startsWith("/~")) {
+                p_fixResourcePath_0_ = p_fixResourcePath_0_.substring(1);
+            }
+
+            String s1 = "mcpatcher/";
+
+            if (p_fixResourcePath_0_.startsWith("~/")) {
+                p_fixResourcePath_0_ = p_fixResourcePath_0_.substring(2);
+                p_fixResourcePath_0_ = s1 + p_fixResourcePath_0_;
+                return p_fixResourcePath_0_;
+            } else if (p_fixResourcePath_0_.startsWith("/")) {
+                p_fixResourcePath_0_ = s1 + p_fixResourcePath_0_.substring(1);
+                return p_fixResourcePath_0_;
+            } else {
+                return p_fixResourcePath_0_;
+            }
+        }
+    }
+    
+    public static String getBasePath(String p_getBasePath_0_) {
+        int i = p_getBasePath_0_.lastIndexOf(47);
+        return i < 0 ? "" : p_getBasePath_0_.substring(0, i);
+    }
+    
+    public static ITextureObject getTexture(ResourceLocation p_getTexture_0_) {
+        ITextureObject itextureobject = Config.getTextureManager().getTexture(p_getTexture_0_);
+
+        if (itextureobject != null) {
+            return itextureobject;
+        } else if (!Config.hasResource(p_getTexture_0_)) {
+            return null;
+        } else {
+            SimpleTexture simpletexture = new SimpleTexture(p_getTexture_0_);
+            Config.getTextureManager().loadTexture(p_getTexture_0_, simpletexture);
+            return simpletexture;
+        }
+    }
     
     static class TextureMap {
     	
