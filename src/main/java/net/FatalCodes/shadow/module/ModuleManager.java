@@ -2,6 +2,7 @@ package net.FatalCodes.shadow.module;
 
 import java.util.ArrayList;
 
+import net.FatalCodes.shadow.event.Event;
 import net.FatalCodes.shadow.module.hud.ClickGui;
 import net.FatalCodes.shadow.module.hud.Drag;
 import net.FatalCodes.shadow.module.pvp.AutoWtap;
@@ -66,4 +67,11 @@ public class ModuleManager {
         return inCategory;
     }
 
+	public static void onEvent(Event e) {
+        for(Module m : mods) {
+            if(!m.isToggled())
+                continue;
+            m.onEvent(e);
+        }
+    }
 }

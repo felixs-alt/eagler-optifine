@@ -8,6 +8,7 @@ import java.util.List;
 
 import de.Hero.settings.Setting;
 import net.FatalCodes.shadow.Shadow;
+import net.FatalCodes.shadow.event.Event;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
@@ -107,5 +108,9 @@ public class Module {
 	protected void sendPacket(Packet p) {
 		player().sendQueue.addToSendQueue(p);
 	}
+
+    public void onEvent(Event e) {
+        
+    }
 	
 }

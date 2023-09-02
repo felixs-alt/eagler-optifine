@@ -1636,6 +1636,7 @@ public class Minecraft implements IThreadListener {
 			this.myNetworkManager.processReceivedPackets();
 		}
 
+
 		if (this.theWorld != null) {
 			++joinWorldTickCounter;
 			if (bungeeOutdatedMsgTimer > 0) {

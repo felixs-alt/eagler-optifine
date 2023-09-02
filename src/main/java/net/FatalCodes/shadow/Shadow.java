@@ -2,6 +2,7 @@ package net.FatalCodes.shadow;
 
 import de.Hero.clickgui.ClickGui;
 import de.Hero.settings.SettingsManager;
+import net.FatalCodes.shadow.event.Event;
 import net.FatalCodes.shadow.module.ModuleManager;
 
 public class Shadow {
