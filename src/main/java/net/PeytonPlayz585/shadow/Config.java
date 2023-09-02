@@ -109,6 +109,22 @@ public class Config {
     public static boolean isBetterGrassFancy() {
         return Minecraft.getMinecraft().gameSettings.ofBetterGrass == 2;
     }
+    
+    public static boolean isFogFancy() {
+        return Minecraft.getMinecraft().gameSettings.ofFogType == 2;
+    }
+
+    public static boolean isFogFast() {
+        return Minecraft.getMinecraft().gameSettings.ofFogType == 1;
+    }
+
+    public static boolean isFogOff() {
+        return Minecraft.getMinecraft().gameSettings.ofFogType == 3;
+    }
+    
+    public static float getFogStart() {
+        return Minecraft.getMinecraft().gameSettings.ofFogStart;
+    }
 
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);

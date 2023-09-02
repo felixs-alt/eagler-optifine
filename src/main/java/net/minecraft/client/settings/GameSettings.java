@@ -190,7 +190,6 @@ public class GameSettings {
 	public boolean hudStats = false;
 	public boolean hud24h = false;
 	public boolean chunkFix = true;
-	public boolean fog = true;
 	public int fxaa = 0;
 	public boolean shaders = false;
 	public boolean shadersAODisable = false;
@@ -200,6 +199,8 @@ public class GameSettings {
 	//Main Menu Settings
 	public float ofAoLevel = 1.0F;
 	public boolean useVbo = false;
+	public int ofFogType = 1;
+	public float ofFogStart = 0.8F;
 	
 	//Quality Settings
 	public boolean ofCustomSky = true;
@@ -462,11 +463,7 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.CHUNK_FIX) {
 			this.chunkFix = !this.chunkFix;
 		}
-
-		if (parOptions == GameSettings.Options.FOG) {
-			this.fog = !this.fog;
-		}
-
+		
 		if (parOptions == GameSettings.Options.FXAA) {
 			this.fxaa = (this.fxaa + parInt1) % 3;
 		}
@@ -585,6 +582,33 @@ public class GameSettings {
 
             this.mc.renderGlobal.loadRenderers();
         }
+		
+		if (parOptions == GameSettings.Options.FOG_FANCY) {
+            switch (this.ofFogType) {
+                case 1:
+                    this.ofFogType = 2;
+                    break;
+
+                case 2:
+                    this.ofFogType = 3;
+                    break;
+
+                case 3:
+                    this.ofFogType = 1;
+                    break;
+
+                default:
+                    this.ofFogType = 1;
+            }
+        }
+		
+		if (parOptions == GameSettings.Options.FOG_START) {
+            this.ofFogStart += 0.2F;
+
+            if (this.ofFogStart > 0.81F) {
+                this.ofFogStart = 0.2F;
+            }
+        }
 
 		this.saveOptions();
 	}
@@ -648,8 +672,6 @@ public class GameSettings {
 			return this.hud24h;
 		case CHUNK_FIX:
 			return this.chunkFix;
-		case FOG:
-			return this.fog;
 		case FULLSCREEN:
 			return this.mc.isFullScreen();
 		case USE_VBO:
@@ -797,7 +819,23 @@ public class GameSettings {
                 default:
                     return s + "OFF";
             } 
-		} else {
+		} else if (parOptions == GameSettings.Options.FOG_FANCY) {
+            switch (this.ofFogType) {
+                case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                case 3:
+                    return s + "OFF";
+
+                default:
+                    return s + "OFF";
+            }
+        } else if (parOptions == GameSettings.Options.FOG_START) {
+            return s + this.ofFogStart;
+        } else {
 			return s;
 		}
 	}
@@ -1058,10 +1096,6 @@ public class GameSettings {
 						this.chunkFix = astring[1].equals("true");
 					}
 
-					if (astring[0].equals("fog")) {
-						this.fog = astring[1].equals("true");
-					}
-
 					if (astring[0].equals("fxaa")) {
 						this.fxaa = (astring[1].equals("true") || astring[1].equals("false")) ? 0
 								: Integer.parseInt(astring[1]);
@@ -1169,6 +1203,23 @@ public class GameSettings {
                         this.ofBetterGrass = Integer.valueOf(astring[1]).intValue();
                         this.ofBetterGrass = Config.limit(this.ofBetterGrass, 1, 3);
                     }
+					
+					if (astring[0].equals("ofFogType") && astring.length >= 2) {
+                        this.ofFogType = Integer.valueOf(astring[1]).intValue();
+                        this.ofFogType = Config.limit(this.ofFogType, 1, 3);
+                    }
+					
+					if (astring[0].equals("ofFogStart") && astring.length >= 2) {
+                        this.ofFogStart = Float.valueOf(astring[1]).floatValue();
+
+                        if (this.ofFogStart < 0.2F) {
+                            this.ofFogStart = 0.2F;
+                        }
+
+                        if (this.ofFogStart > 0.81F) {
+                            this.ofFogStart = 0.8F;
+                        }
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1273,7 +1324,6 @@ public class GameSettings {
 			printwriter.println("hudStats:" + this.hudStats);
 			printwriter.println("hud24h:" + this.hud24h);
 			printwriter.println("chunkFix:" + this.chunkFix);
-			printwriter.println("fog:" + this.fog);
 			printwriter.println("fxaa:" + this.fxaa);
 			printwriter.println("fastMath:" + this.fastMath);
 			printwriter.println("shaders:" + this.shaders);
@@ -1298,6 +1348,8 @@ public class GameSettings {
             printwriter.println("ofCustomSky:" + this.ofCustomSky);
 			printwriter.println("ofClearWater:" + this.ofClearWater);
 			printwriter.println("ofBetterGrass:" + this.ofBetterGrass);
+			printwriter.println("ofFogType:" + this.ofFogType);
+			printwriter.println("ofFogStart:" + this.ofFogStart);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1440,7 +1492,7 @@ public class GameSettings {
 		HUD_COORDS("options.hud.coords", false, true), HUD_STATS("options.hud.stats", false, true),
 		HUD_WORLD("options.hud.world", false, true), HUD_PLAYER("options.hud.player", false, true),
 		HUD_24H("options.hud.24h", false, true), CHUNK_FIX("options.chunkFix", false, true),
-		FOG("options.fog", false, true), FXAA("options.fxaa", false, false),
+		FXAA("options.fxaa", false, false),
 		FULLSCREEN("options.fullscreen", false, true), FAST_MATH("options.fastMath", false, false),
 		ANIMATED_WATER("Water Animated", false, false),
         ANIMATED_LAVA("Lava Animated", false, false),
@@ -1462,7 +1514,9 @@ public class GameSettings {
         USE_VBO("Use VBOs", false, false),
         CUSTOM_SKY("Custom Sky", false, false),
 		CLEAR_WATER("Clear Water", false, false),
-		BETTER_GRASS("Better Grass", false, false);
+		BETTER_GRASS("Better Grass", false, false),
+		FOG_FANCY("Fog", false, false),
+		FOG_START("Fog Start", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

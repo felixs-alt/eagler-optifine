@@ -173,6 +173,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	private int frameCount;
 	private GameOverlayFramebuffer overlayFramebuffer;
 	private float eagPartialTicks = 0.0f;
+	public boolean fogStandard = false;
 
 	public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn) {
 		this.useShader = false;
@@ -582,6 +583,15 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	 */
 	private void setupCameraTransform(float partialTicks, int pass) {
 		this.farPlaneDistance = (float) (this.mc.gameSettings.renderDistanceChunks * 16);
+		
+		if (Config.isFogFancy()) {
+            this.farPlaneDistance *= 0.95F;
+        }
+
+        if (Config.isFogFast()) {
+            this.farPlaneDistance *= 0.83F;
+        }
+		
 		GlStateManager.matrixMode(GL_PROJECTION);
 		GlStateManager.loadIdentity();
 		float f = 0.07F;
@@ -1725,6 +1735,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	private void setupFog(int partialTicks, float parFloat1) {
 		Entity entity = this.mc.getRenderViewEntity();
 		boolean flag = false;
+		this.fogStandard = false;
 		if (entity instanceof EntityPlayer) {
 			flag = ((EntityPlayer) entity).capabilities.isCreativeMode;
 		}
@@ -1735,21 +1746,26 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		Block block = ActiveRenderInfo.getBlockAtEntityViewpoint(this.mc.theWorld, entity, parFloat1);
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).isPotionActive(Potion.blindness)) {
-			float f1 = 5.0F;
-			int i = ((EntityLivingBase) entity).getActivePotionEffect(Potion.blindness).getDuration();
-			if (i < 20) {
-				f1 = 5.0F + (this.farPlaneDistance - 5.0F) * (1.0F - (float) i / 20.0F);
-			}
+			float f2 = 5.0F;
+            int i = ((EntityLivingBase)entity).getActivePotionEffect(Potion.blindness).getDuration();
 
-			GlStateManager.setFog(GL_LINEAR);
-			if (partialTicks == -1) {
-				GlStateManager.setFogStart(0.0F);
-				GlStateManager.setFogEnd(f1 * 0.8F);
-			} else {
-				GlStateManager.setFogStart(f1 * 0.25F);
-				GlStateManager.setFogEnd(f1);
-			}
-			EaglercraftGPU.glFogi('\u855a', '\u855b');
+            if (i < 20) {
+                f2 = 5.0F + (this.farPlaneDistance - 5.0F) * (1.0F - (float)i / 20.0F);
+            }
+
+            GlStateManager.setFog(9729);
+
+            if (partialTicks == -1) {
+                GlStateManager.setFogStart(0.0F);
+                GlStateManager.setFogEnd(f2 * 0.8F);
+            } else {
+                GlStateManager.setFogStart(f2 * 0.25F);
+                GlStateManager.setFogEnd(f2);
+            }
+
+            if (Config.isFogFancy()) {
+                EaglercraftGPU.glFogi(34138, 34139);
+            }
 		} else if (this.cloudFog) {
 			GlStateManager.setFog(GL_EXP);
 			GlStateManager.setFogDensity(0.1F);
@@ -1768,22 +1784,26 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		} else if (block.getMaterial() == Material.lava) {
 			GlStateManager.setFog(GL_EXP);
 			GlStateManager.setFogDensity(2.0F);
-		} else if (!this.mc.gameSettings.fog) {
-			GlStateManager.setFog(GL_EXP);
-			GlStateManager.setFogDensity(0.0F);
 		} else {
 			GlStateManager.setFogDensity(0.001F);
 			float f = this.farPlaneDistance;
+			this.fogStandard = true;
 			GlStateManager.setFog(GL_LINEAR);
 			if (partialTicks == -1) {
 				GlStateManager.setFogStart(0.0F);
 				GlStateManager.setFogEnd(f);
 			} else {
-				GlStateManager.setFogStart(f * 0.75F);
-				GlStateManager.setFogEnd(f);
+				GlStateManager.setFogStart(f * Config.getFogStart());
+                GlStateManager.setFogEnd(f);
 			}
+			
+			if (Config.isFogFancy()) {
+				EaglercraftGPU.glFogi(34138, 34139);
+            }
 
-			EaglercraftGPU.glFogi('\u855a', '\u855b');
+            if (Config.isFogFast()) {
+            	EaglercraftGPU.glFogi(34138, 34140);
+            }
 
 			if (this.mc.theWorld.provider.doesXZShowFog((int) entity.posX, (int) entity.posZ)) {
 				GlStateManager.setFogStart(f * 0.05F);

@@ -184,6 +184,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	private double prevRenderSortY;
 	private double prevRenderSortZ;
 	private boolean displayListEntitiesDirty = true;
+	private int renderDistance = 0;
+    private int renderDistanceSq = 0;
 
 	public RenderGlobal(Minecraft mcIn) {
 		this.mc = mcIn;
@@ -394,6 +396,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			Blocks.leaves2.setGraphicsLevel(mc.gameSettings.shaders || mc.gameSettings.fancyGraphics);
 			BlockModelRenderer.updateAoLightValue();
 			this.renderDistanceChunks = this.mc.gameSettings.renderDistanceChunks;
+			this.renderDistance = this.renderDistanceChunks * 16;
+            this.renderDistanceSq = this.renderDistance * this.renderDistance;
 			
 			if (this.viewFrustum != null) {
 				this.viewFrustum.deleteGlResources();
@@ -514,6 +518,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			this.theWorld.theProfiler.endStartSection("global");
 			List list = this.theWorld.getLoadedEntityList();
 			this.countEntitiesTotal = list.size();
+			if (Config.isFogOff() && this.mc.entityRenderer.fogStandard) {
+                GlStateManager.disableFog();
+            }
 
 			if (!DeferredStateManager.isDeferredRenderer()) {
 				for (int i = 0; i < this.theWorld.weatherEffects.size(); ++i) {
@@ -999,14 +1006,28 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	}
 
 	private RenderChunk func_181562_a(BlockPos parBlockPos, RenderChunk parRenderChunk, EnumFacing parEnumFacing) {
-		BlockPos blockpos = parRenderChunk.func_181701_a(parEnumFacing);
-		return MathHelper
-				.abs_int(parBlockPos.getX() - blockpos.getX()) > this.renderDistanceChunks * 16
-						? null
-						: (blockpos.getY() >= 0 && blockpos.getY() < 256
-								? (MathHelper.abs_int(parBlockPos.getZ() - blockpos.getZ()) > this.renderDistanceChunks
-										* 16 ? null : this.viewFrustum.getRenderChunk(blockpos))
-								: null);
+		BlockPos blockpos = parRenderChunk.getPositionOffset16(parEnumFacing);
+
+        if (blockpos.getY() >= 0 && blockpos.getY() < 256) {
+            int i = MathHelper.abs_int(parBlockPos.getX() - blockpos.getX());
+            int j = MathHelper.abs_int(parBlockPos.getZ() - blockpos.getZ());
+
+            if (Config.isFogOff()) {
+                if (i > this.renderDistance || j > this.renderDistance) {
+                    return null;
+                }
+            } else {
+                int k = i * i + j * j;
+
+                if (k > this.renderDistanceSq) {
+                    return null;
+                }
+            }
+
+            return this.viewFrustum.getRenderChunk(blockpos);
+        } else {
+            return null;
+        }
 	}
 
 	private void fixTerrainFrustum(double x, double y, double z) {
@@ -1098,6 +1119,10 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 				this.renderContainer.addRenderChunk(renderchunk, blockLayerIn);
 			}
 		}
+		
+		if (Config.isFogOff() && this.mc.entityRenderer.fogStandard) {
+            GlStateManager.disableFog();
+        }
 
 		this.mc.mcProfiler.endStartSection("render_" + blockLayerIn);
 		this.renderBlockLayer(blockLayerIn);
