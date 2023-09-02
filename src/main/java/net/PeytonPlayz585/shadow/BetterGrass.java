@@ -16,9 +16,9 @@ import net.minecraft.world.IBlockAccess;
 
 public class BetterGrass {
     private static IBakedModel modelEmpty = new SimpleBakedModel(new ArrayList(), new ArrayList(), false, false, (EaglerTextureAtlasSprite)null, (ItemCameraTransforms)null);
-    private static IBakedModel modelCubeMycelium = null;
-    private static IBakedModel modelCubeGrassSnowy = null;
-    private static IBakedModel modelCubeGrass = null;
+    private static IBakedModel modelCubeMycelium = BlockModelUtils.makeModelCube((String)"minecraft:blocks/mycelium_top", -1);
+    private static IBakedModel modelCubeGrassSnowy = BlockModelUtils.makeModelCube((String)"minecraft:blocks/snow", -1);
+    private static IBakedModel modelCubeGrass = BlockModelUtils.makeModelCube((String)"minecraft:blocks/grass_top", 0);
 
     public static void update() {
         modelCubeGrass = BlockModelUtils.makeModelCube((String)"minecraft:blocks/grass_top", 0);

@@ -39,7 +39,7 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.network.play.client.C15PacketClientSettings;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
-
+import net.PeytonPlayz585.shadow.BetterGrass;
 import net.PeytonPlayz585.shadow.ClearWater;
 
 /**+
@@ -580,6 +580,8 @@ public class GameSettings {
             if (this.ofBetterGrass > 3) {
                 this.ofBetterGrass = 1;
             }
+            
+            BetterGrass.update();
 
             this.mc.renderGlobal.loadRenderers();
         }
