@@ -3,7 +3,7 @@ package net.minecraft.client.renderer;
 import java.util.BitSet;
 import java.util.List;
 
-import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.*;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.DeferredStateManager;
@@ -77,9 +77,9 @@ public class BlockModelRenderer {
 		}
 	}
 
-	public boolean renderModelAmbientOcclusion(IBlockAccess blockAccessIn, IBakedModel modelIn, Block blockIn,
-			BlockPos blockPosIn, WorldRenderer worldRendererIn, boolean checkSides) {
+	public boolean renderModelAmbientOcclusion(IBlockAccess blockAccessIn, IBakedModel modelIn, Block blockIn, BlockPos blockPosIn, WorldRenderer worldRendererIn, boolean checkSides) {
 		boolean flag = false;
+		RenderEnv renderenv = null;
 		float[] afloat = new float[EnumFacing.values().length * 2];
 		BitSet bitset = new BitSet(3);
 		BlockModelRenderer.AmbientOcclusionFace blockmodelrenderer$ambientocclusionface = new BlockModelRenderer.AmbientOcclusionFace();
@@ -89,8 +89,16 @@ public class BlockModelRenderer {
 			if (!list.isEmpty()) {
 				BlockPos blockpos = blockPosIn.offset(enumfacing);
 				if (!checkSides || blockIn.shouldSideBeRendered(blockAccessIn, blockpos, enumfacing)) {
-					this.renderModelAmbientOcclusionQuads(blockAccessIn, blockIn, blockPosIn, worldRendererIn, list,
-							afloat, bitset, blockmodelrenderer$ambientocclusionface);
+
+					if (renderenv == null) {
+                        renderenv = RenderEnv.getInstance(blockAccessIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn);
+                    }
+
+					if (!renderenv.isBreakingAnimation(list) && Config.isBetterGrass()) {
+                        list = BetterGrass.getFaceQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, list);
+                    }
+
+					this.renderModelAmbientOcclusionQuads(blockAccessIn, blockIn, blockPosIn, worldRendererIn, list, afloat, bitset, blockmodelrenderer$ambientocclusionface);
 					flag = true;
 				}
 			}
@@ -110,6 +118,7 @@ public class BlockModelRenderer {
 			BlockPos blockPosIn, WorldRenderer worldRendererIn, boolean checkSides) {
 		boolean isDeferred = DeferredStateManager.isDeferredRenderer();
 		boolean flag = false;
+		RenderEnv renderenv = null;
 		float[] afloat = isDeferred ? new float[EnumFacing.values().length * 2] : null;
 		BitSet bitset = new BitSet(3);
 
@@ -119,9 +128,17 @@ public class BlockModelRenderer {
 			if (!list.isEmpty()) {
 				BlockPos blockpos = blockPosIn.offsetEvenFaster(enumfacing, pointer);
 				if (!checkSides || blockIn.shouldSideBeRendered(blockAccessIn, blockpos, enumfacing)) {
+
+					if (renderenv == null) {
+                        renderenv = RenderEnv.getInstance(blockAccessIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn);
+                    }
+
+					if (!renderenv.isBreakingAnimation(list) && Config.isBetterGrass()) {
+                        list = BetterGrass.getFaceQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, list);
+                    }
+
 					int i = blockIn.getMixedBrightnessForBlock(blockAccessIn, blockpos);
-					this.renderModelStandardQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, i, false,
-							worldRendererIn, list, bitset, afloat);
+					this.renderModelStandardQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, i, false, worldRendererIn, list, bitset, afloat);
 					flag = true;
 				}
 			}
@@ -489,7 +506,7 @@ public class BlockModelRenderer {
         return parFloat1 == 0.2F ? aoLightValueOpaque : parFloat1;
     }
 
-	class AmbientOcclusionFace {
+	public static class AmbientOcclusionFace {
 		
 		private final float[] vertexColorMultiplier = new float[4];
         private final int[] vertexBrightness = new int[4];

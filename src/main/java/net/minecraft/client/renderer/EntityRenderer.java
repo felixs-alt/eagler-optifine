@@ -87,6 +87,8 @@ import net.minecraft.util.Vec3i;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeGenBase;
 
+import net.PeytonPlayz585.shadow.Config;
+
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -1759,6 +1761,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			} else {
 				GlStateManager.setFogDensity(0.1F - (float) EnchantmentHelper.getRespiration(entity) * 0.03F);
 			}
+
+			if (Config.isClearWater()) {
+                GlStateManager.setFogDensity(0.02F);
+            }
 		} else if (block.getMaterial() == Material.lava) {
 			GlStateManager.setFog(GL_EXP);
 			GlStateManager.setFogDensity(2.0F);

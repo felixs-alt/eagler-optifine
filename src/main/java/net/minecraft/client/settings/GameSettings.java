@@ -40,6 +40,8 @@ import net.minecraft.network.play.client.C15PacketClientSettings;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 
+import net.PeytonPlayz585.shadow.ClearWater;
+
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -201,6 +203,8 @@ public class GameSettings {
 	
 	//Quality Settings
 	public boolean ofCustomSky = true;
+	public boolean ofClearWater = false;
+	public int ofBetterGrass = 3;
 	
 	//Optifine Animations
 	public int ofAnimatedWater = 0;
@@ -565,6 +569,21 @@ public class GameSettings {
             CustomSky.update();
         }
 
+		if (parOptions == GameSettings.Options.CLEAR_WATER) {
+            this.ofClearWater = !this.ofClearWater;
+            this.updateWaterOpacity();
+        }
+
+		if (parOptions == GameSettings.Options.BETTER_GRASS) {
+            ++this.ofBetterGrass;
+
+            if (this.ofBetterGrass > 3) {
+                this.ofBetterGrass = 1;
+            }
+
+            this.mc.renderGlobal.loadRenderers();
+        }
+
 		this.saveOptions();
 	}
 
@@ -635,6 +654,8 @@ public class GameSettings {
 			return this.useVbo;
 		case CUSTOM_SKY:
 			return this.ofCustomSky;
+		case CLEAR_WATER:
+			return this.ofClearWater;
 		default:
 			return false;
 		}
@@ -761,7 +782,20 @@ public class GameSettings {
 			return this.useVbo ? s + "ON" : s + "OFF";
 		} else if (parOptions == GameSettings.Options.CUSTOM_SKY) {
             return this.ofCustomSky ? s + "ON" : s + "OFF";
-        } else {
+        } else if (parOptions == GameSettings.Options.CLEAR_WATER) {
+            return this.ofClearWater ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.BETTER_GRASS) {
+            switch (this.ofBetterGrass) {
+            	case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                default:
+                    return s + "OFF";
+            } 
+		} else {
 			return s;
 		}
 	}
@@ -1124,6 +1158,16 @@ public class GameSettings {
                         this.ofCustomSky = Boolean.valueOf(astring[1]).booleanValue();
                     }
 
+					if (astring[0].equals("ofClearWater") && astring.length >= 2) {
+                        this.ofClearWater = Boolean.valueOf(astring[1]).booleanValue();
+                        this.updateWaterOpacity();
+                    }
+
+					if (astring[0].equals("ofBetterGrass") && astring.length >= 2) {
+                        this.ofBetterGrass = Integer.valueOf(astring[1]).intValue();
+                        this.ofBetterGrass = Config.limit(this.ofBetterGrass, 1, 3);
+                    }
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1250,6 +1294,8 @@ public class GameSettings {
             printwriter.println("ofAoLevel:" + this.ofAoLevel);
             printwriter.println("useVbo:" + this.useVbo);
             printwriter.println("ofCustomSky:" + this.ofCustomSky);
+			printwriter.println("ofClearWater:" + this.ofClearWater);
+			printwriter.println("ofBetterGrass:" + this.ofBetterGrass);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1412,7 +1458,9 @@ public class GameSettings {
         ANIMATED_TEXTURES("Textures Animated", false, false),
         AO_LEVEL("Smooth Lighting Level", true, false),
         USE_VBO("Use VBOs", false, false),
-        CUSTOM_SKY("Custom Sky", false, false);
+        CUSTOM_SKY("Custom Sky", false, false),
+		CLEAR_WATER("Clear Water", false, false),
+		BETTER_GRASS("Better Grass", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
@@ -1512,5 +1560,9 @@ public class GameSettings {
         this.ofDrippingWaterLava = p_setAllAnimations_1_;
         this.ofAnimatedTerrain = p_setAllAnimations_1_;
         this.ofAnimatedTextures = p_setAllAnimations_1_;
+    }
+
+	private void updateWaterOpacity() {
+        ClearWater.updateWaterOpacity(this, this.mc.theWorld);
     }
 }

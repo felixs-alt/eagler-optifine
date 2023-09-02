@@ -98,6 +98,18 @@ public class Config {
         return Minecraft.getMinecraft().gameSettings.ofCustomSky;
     }
 
+    public static boolean isClearWater() {
+        return Minecraft.getMinecraft().gameSettings.ofClearWater;
+    }
+
+    public static boolean isBetterGrass() {
+        return Minecraft.getMinecraft().gameSettings.ofBetterGrass != 3;
+    }
+
+    public static boolean isBetterGrassFancy() {
+        return Minecraft.getMinecraft().gameSettings.ofBetterGrass == 2;
+    }
+
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);
     }

@@ -2,8 +2,7 @@ package net.minecraft.client.gui;
 
 import java.io.IOException;
 
-import net.PeytonPlayz585.shadow.GuiAnimations;
-import net.PeytonPlayz585.shadow.GuiShaders;
+import net.PeytonPlayz585.shadow.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
@@ -132,6 +131,10 @@ public class GuiVideoSettings extends GuiScreen {
             if(parGuiButton.id == 231) {
             	this.mc.displayGuiScreen(new GuiShaders(this));
             }
+
+			if(parGuiButton.id == 202) {
+				this.mc.displayGuiScreen(new GuiQuality(this));
+			}
 
             if (this.guiGameSettings.guiScale != i) {
                 ScaledResolution scaledresolution = new ScaledResolution(this.mc);
