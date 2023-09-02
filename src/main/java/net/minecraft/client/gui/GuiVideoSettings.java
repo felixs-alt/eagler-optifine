@@ -1,9 +1,6 @@
 package net.minecraft.client.gui;
 
-import java.io.IOException;
-
-import net.PeytonPlayz585.shadow.*;
-import net.minecraft.client.Minecraft;
+import net.PeytonPlayz585.shadow.gui.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 

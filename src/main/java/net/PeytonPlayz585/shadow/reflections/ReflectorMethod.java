@@ -1,8 +1,10 @@
-package net.PeytonPlayz585.shadow;
+package net.PeytonPlayz585.shadow.reflections;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.PeytonPlayz585.shadow.Config;
 
 public class ReflectorMethod {
   private ReflectorClass reflectorClass;

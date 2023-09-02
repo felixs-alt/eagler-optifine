@@ -1,4 +1,6 @@
-package net.PeytonPlayz585.shadow;
+package net.PeytonPlayz585.shadow.reflections;
+
+import net.PeytonPlayz585.shadow.Config;
 
 public class ReflectorClass {
   private String targetClassName;

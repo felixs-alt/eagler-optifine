@@ -1,4 +1,4 @@
-package net.PeytonPlayz585.shadow;
+package net.PeytonPlayz585.shadow.gui;
 
 import java.io.IOException;
 

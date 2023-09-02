@@ -1,6 +1,8 @@
-package net.PeytonPlayz585.shadow;
+package net.PeytonPlayz585.shadow.reflections;
 
 import java.lang.reflect.Field;
+
+import net.PeytonPlayz585.shadow.Config;
 
 public class FieldLocatorName implements IFieldLocator {
   private ReflectorClass reflectorClass = null;

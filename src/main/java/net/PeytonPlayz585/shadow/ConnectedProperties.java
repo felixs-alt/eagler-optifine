@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import net.PeytonPlayz585.shadow.math.MathUtils;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.client.Minecraft;

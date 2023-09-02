@@ -1,4 +1,4 @@
-package net.PeytonPlayz585.shadow;
+package net.PeytonPlayz585.shadow.reflections;
 
 public class ReflectorFields {
   private ReflectorClass reflectorClass;

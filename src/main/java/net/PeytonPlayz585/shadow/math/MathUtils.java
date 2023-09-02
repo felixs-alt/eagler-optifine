@@ -1,4 +1,4 @@
-package net.PeytonPlayz585.shadow;
+package net.PeytonPlayz585.shadow.math;
 
 public class MathUtils {
     public static int getAverage(int[] p_getAverage_0_) {
