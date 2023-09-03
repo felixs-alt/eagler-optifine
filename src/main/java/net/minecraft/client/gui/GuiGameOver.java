@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
@@ -81,7 +82,11 @@ public class GuiGameOver extends GuiScreen implements GuiYesNoCallback {
 			if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled()) {
 				this.mc.theWorld.sendQuittingDisconnectingPacket();
 				this.mc.loadWorld((WorldClient) null);
-				this.mc.displayGuiScreen(new GuiMainMenu());
+				if(!this.mc.gameSettings.secret) {
+					this.mc.displayGuiScreen(new GuiMainMenu());
+				} else {
+					this.mc.displayGuiScreen(new GuiSecretMainMenu());
+				}
 			} else {
 				GuiYesNo guiyesno = new GuiYesNo(this, I18n.format("deathScreen.quit.confirm", new Object[0]), "",
 						I18n.format("deathScreen.titleScreen", new Object[0]),
@@ -97,7 +102,11 @@ public class GuiGameOver extends GuiScreen implements GuiYesNoCallback {
 		if (flag) {
 			this.mc.theWorld.sendQuittingDisconnectingPacket();
 			this.mc.loadWorld((WorldClient) null);
-			this.mc.displayGuiScreen(new GuiMainMenu());
+			if(!this.mc.gameSettings.secret) {
+				this.mc.displayGuiScreen(new GuiMainMenu());
+			} else {
+				this.mc.displayGuiScreen(new GuiSecretMainMenu());
+			}
 		} else {
 			this.mc.thePlayer.respawnPlayer();
 			this.mc.displayGuiScreen((GuiScreen) null);

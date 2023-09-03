@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.minecraft.client.resources.I18n;
 
 /**+
@@ -40,7 +41,11 @@ public class GuiMemoryErrorScreen extends GuiScreen {
 	 */
 	protected void actionPerformed(GuiButton parGuiButton) {
 		if (parGuiButton.id == 0) {
-			this.mc.displayGuiScreen(new GuiMainMenu());
+			if(!this.mc.gameSettings.secret) {
+				this.mc.displayGuiScreen(new GuiMainMenu());
+			} else {
+				this.mc.displayGuiScreen(new GuiSecretMainMenu());
+			}
 		} else if (parGuiButton.id == 1) {
 			this.mc.shutdown();
 		}

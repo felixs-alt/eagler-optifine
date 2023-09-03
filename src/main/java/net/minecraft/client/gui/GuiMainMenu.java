@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
@@ -96,6 +97,11 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 	private static ResourceLocation backgroundTexture = null;
 
 	public GuiMainMenu() {
+		if(Minecraft.getMinecraft().gameSettings.secret) {
+			this.mc.displayGuiScreen(new GuiSecretMainMenu());
+			return;
+		}
+		
 		this.splashText = "missingno";
 		BufferedReader bufferedreader = null;
 

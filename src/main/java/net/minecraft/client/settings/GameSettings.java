@@ -224,6 +224,9 @@ public class GameSettings {
     public boolean ofDrippingWaterLava = true;
     public boolean ofAnimatedTerrain = true;
     public boolean ofAnimatedTextures = true;
+    
+    //Super Secret Setting :>
+    public boolean secret = false;
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -1220,6 +1223,10 @@ public class GameSettings {
                             this.ofFogStart = 0.8F;
                         }
                     }
+					
+					if (astring[0].equals("secret") && astring.length >= 2) {
+                        this.secret = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1350,6 +1357,7 @@ public class GameSettings {
 			printwriter.println("ofBetterGrass:" + this.ofBetterGrass);
 			printwriter.println("ofFogType:" + this.ofFogType);
 			printwriter.println("ofFogStart:" + this.ofFogStart);
+			printwriter.print("secret:" + this.secret);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());

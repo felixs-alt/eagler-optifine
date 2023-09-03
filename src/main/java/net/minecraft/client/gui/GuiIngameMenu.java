@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.Mouse;
 import net.minecraft.client.gui.achievement.GuiAchievements;
 import net.minecraft.client.gui.achievement.GuiStats;
@@ -69,10 +70,18 @@ public class GuiIngameMenu extends GuiScreen {
 			parGuiButton.enabled = false;
 			this.mc.theWorld.sendQuittingDisconnectingPacket();
 			this.mc.loadWorld((WorldClient) null);
-			if (flag) {
-				this.mc.displayGuiScreen(new GuiMainMenu());
+			if(!this.mc.gameSettings.secret) {
+				if (flag) {
+					this.mc.displayGuiScreen(new GuiMainMenu());
+				} else {
+					this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+				}
 			} else {
-				this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+				if (flag) {
+					this.mc.displayGuiScreen(new GuiSecretMainMenu());
+				} else {
+					this.mc.displayGuiScreen(new GuiMultiplayer(new GuiSecretMainMenu()));
+				}
 			}
 		case 2:
 		case 3:

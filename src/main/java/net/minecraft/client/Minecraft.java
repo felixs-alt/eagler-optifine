@@ -19,6 +19,7 @@ import org.apache.commons.lang3.Validate;
 import com.google.common.collect.Lists;
 
 import net.FatalCodes.shadow.Shadow;
+import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.HString;
@@ -461,11 +462,18 @@ public class Minecraft implements IThreadListener {
 		ServerList.initServerList(this);
 		EaglerProfile.read();
 
-		if (this.serverName != null) {
-			this.displayGuiScreen(new GuiScreenEditProfile(
-					new GuiConnecting(new GuiMainMenu(), this, this.serverName, this.serverPort)));
+		if(!this.gameSettings.secret) {
+			if (this.serverName != null) {
+				this.displayGuiScreen(new GuiScreenEditProfile(new GuiConnecting(new GuiMainMenu(), this, this.serverName, this.serverPort)));
+			} else {
+				this.displayGuiScreen(new GuiScreenEditProfile(new GuiMainMenu()));
+			}
 		} else {
-			this.displayGuiScreen(new GuiScreenEditProfile(new GuiMainMenu()));
+			if (this.serverName != null) {
+				this.displayGuiScreen(new GuiScreenEditProfile(new GuiConnecting(new GuiSecretMainMenu(), this, this.serverName, this.serverPort)));
+			} else {
+				this.displayGuiScreen(new GuiScreenEditProfile(new GuiSecretMainMenu()));
+			}
 		}
 
 		this.renderEngine.deleteTexture(this.mojangLogo);
@@ -651,19 +659,37 @@ public class Minecraft implements IThreadListener {
 	 * screen.
 	 */
 	public void displayGuiScreen(GuiScreen guiScreenIn) {
+		
+		if(guiScreenIn instanceof GuiMainMenu && this.gameSettings.secret) {
+			guiScreenIn = new GuiSecretMainMenu();
+		} else if(guiScreenIn instanceof GuiSecretMainMenu && !this.gameSettings.secret) {
+			guiScreenIn = new GuiMainMenu();
+		}
+		
 		if (this.currentScreen != null) {
 			this.currentScreen.onGuiClosed();
 		}
 
 		if (guiScreenIn == null && this.theWorld == null) {
-			guiScreenIn = new GuiMainMenu();
+			if(!this.gameSettings.secret) {
+				guiScreenIn = new GuiMainMenu();
+			} else {
+				guiScreenIn = new GuiSecretMainMenu();
+			}
 		} else if (guiScreenIn == null && this.thePlayer.getHealth() <= 0.0F) {
 			guiScreenIn = new GuiGameOver();
 		}
 
-		if (guiScreenIn instanceof GuiMainMenu) {
-			this.gameSettings.showDebugInfo = false;
-			this.ingameGUI.getChatGUI().clearChatMessages();
+		if(!this.gameSettings.secret) {
+			if (guiScreenIn instanceof GuiMainMenu) {
+				this.gameSettings.showDebugInfo = false;
+				this.ingameGUI.getChatGUI().clearChatMessages();
+			}
+		} else {
+			if (guiScreenIn instanceof GuiSecretMainMenu) {
+				this.gameSettings.showDebugInfo = false;
+				this.ingameGUI.getChatGUI().clearChatMessages();
+			}
 		}
 
 		this.currentScreen = (GuiScreen) guiScreenIn;
@@ -2101,15 +2127,11 @@ public class Minecraft implements IThreadListener {
 	}
 
 	public MusicTicker.MusicType getAmbientMusicType() {
-		return this.thePlayer != null ? (this.thePlayer.worldObj.provider instanceof WorldProviderHell
-				? MusicTicker.MusicType.NETHER
-				: (this.thePlayer.worldObj.provider instanceof WorldProviderEnd
-						? (BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? MusicTicker.MusicType.END_BOSS
-								: MusicTicker.MusicType.END)
-						: (this.thePlayer.capabilities.isCreativeMode && this.thePlayer.capabilities.allowFlying
-								? MusicTicker.MusicType.CREATIVE
-								: MusicTicker.MusicType.GAME)))
-				: MusicTicker.MusicType.MENU;
+		if(!this.gameSettings.secret) {
+			return this.thePlayer != null ? (this.thePlayer.worldObj.provider instanceof WorldProviderHell ? MusicTicker.MusicType.NETHER : (this.thePlayer.worldObj.provider instanceof WorldProviderEnd ? (BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? MusicTicker.MusicType.END_BOSS : MusicTicker.MusicType.END) : (this.thePlayer.capabilities.isCreativeMode && this.thePlayer.capabilities.allowFlying ? MusicTicker.MusicType.CREATIVE : MusicTicker.MusicType.GAME))) : MusicTicker.MusicType.MENU;
+		} else {
+			return this.thePlayer != null ? (this.thePlayer.worldObj.provider instanceof WorldProviderHell ? MusicTicker.MusicType.NETHER : (this.thePlayer.worldObj.provider instanceof WorldProviderEnd ? (BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? MusicTicker.MusicType.END_BOSS : MusicTicker.MusicType.END) : (this.thePlayer.capabilities.isCreativeMode && this.thePlayer.capabilities.allowFlying ? MusicTicker.MusicType.CREATIVE : MusicTicker.MusicType.GAME))) : MusicTicker.MusicType.MENU_SECRET;
+		}
 	}
 
 	public void dispatchKeypresses() {

@@ -1,6 +1,7 @@
 package net.minecraft.client.gui;
 
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
+import net.lax1dude.eaglercraft.v1_8.Keyboard;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.EaglerDeferredPipeline;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.gui.GuiShaderConfig;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.gui.GuiShadersNotSupported;
@@ -38,10 +39,15 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 	private GuiLockIconButton field_175356_r;
 	protected String field_146442_a = "Options";
 	private GuiButton broadcastSettings;
+	private boolean secret;
 
 	public GuiOptions(GuiScreen parGuiScreen, GameSettings parGameSettings) {
+		secret = false;
 		this.field_146441_g = parGuiScreen;
 		this.game_settings_1 = parGameSettings;
+		if(Keyboard.isKeyDown(42)) {
+			secret = true;
+		}
 	}
 
 	/**+
@@ -89,8 +95,11 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 
 		this.buttonList.add(new GuiButton(110, this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20,
 				I18n.format("options.skinCustomisation", new Object[0])));
-		this.buttonList.add(new GuiButton(8675309, this.width / 2 + 5, this.height / 6 + 48 - 6, 150, 20,
-				I18n.format("shaders.gui.optionsButton")));
+		GuiButton button;
+		this.buttonList.add(button = new GuiButton(8675309, this.width / 2 + 5, this.height / 6 + 48 - 6, 150, 20, "Super Secret Settings"));
+		if(!secret) {
+			button.enabled = false;
+		}
 		this.buttonList.add(new GuiButton(106, this.width / 2 - 155, this.height / 6 + 72 - 6, 150, 20,
 				I18n.format("options.sounds", new Object[0])));
 		this.buttonList.add(broadcastSettings = new GuiButton(107, this.width / 2 + 5, this.height / 6 + 72 - 6, 150,
@@ -174,12 +183,14 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 			}
 
 			if (parGuiButton.id == 8675309) {
-				if (EaglerDeferredPipeline.isSupported()) {
-					this.mc.displayGuiScreen(new GuiShaderConfig(this));
-				} else {
-					this.mc.displayGuiScreen(new GuiShadersNotSupported(this,
-							I18n.format(EaglerDeferredPipeline.getReasonUnsupported())));
-				}
+//				if (EaglerDeferredPipeline.isSupported()) {
+//					this.mc.displayGuiScreen(new GuiShaderConfig(this));
+//				} else {
+//					this.mc.displayGuiScreen(new GuiShadersNotSupported(this,
+//							I18n.format(EaglerDeferredPipeline.getReasonUnsupported())));
+//				}
+				mc.gameSettings.secret = !mc.gameSettings.secret;
+				mc.gameSettings.saveOptions();
 			}
 
 			if (parGuiButton.id == 101) {

@@ -78,6 +78,7 @@ public class MusicTicker implements ITickable {
 
 	public static enum MusicType {
 		MENU(new ResourceLocation("minecraft:music.menu"), 20, 600),
+		MENU_SECRET(new ResourceLocation("minecraft:music.menu.secret"), 0, 0),
 		GAME(new ResourceLocation("minecraft:music.game"), 12000, 24000),
 		CREATIVE(new ResourceLocation("minecraft:music.game.creative"), 1200, 3600),
 		CREDITS(new ResourceLocation("minecraft:music.game.end.credits"), Integer.MAX_VALUE, Integer.MAX_VALUE),

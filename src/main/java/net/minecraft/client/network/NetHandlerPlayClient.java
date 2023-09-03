@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftUUID;
 
@@ -715,8 +717,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 			this.gameController
 					.displayGuiScreen(new GuiDisconnected(this.guiScreenServer, "disconnect.lost", ichatcomponent));
 		} else {
-			this.gameController.displayGuiScreen(
-					new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), "disconnect.lost", ichatcomponent));
+			if(!Minecraft.getMinecraft().gameSettings.secret) {
+				this.gameController.displayGuiScreen(new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), "disconnect.lost", ichatcomponent));
+			} else {
+				this.gameController.displayGuiScreen(new GuiDisconnected(new GuiMultiplayer(new GuiSecretMainMenu()), "disconnect.lost", ichatcomponent));
+			}
 		}
 	}
 
