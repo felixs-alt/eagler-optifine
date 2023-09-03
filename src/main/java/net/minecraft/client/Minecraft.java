@@ -19,6 +19,7 @@ import org.apache.commons.lang3.Validate;
 import com.google.common.collect.Lists;
 
 import net.FatalCodes.shadow.Shadow;
+import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
@@ -1744,6 +1745,7 @@ public class Minecraft implements IThreadListener {
 		this.mcSoundHandler.stopSounds();
 		this.theWorld = worldClientIn;
 		if (worldClientIn != null) {
+			Config.worldClient = worldClientIn;
 			if (this.renderGlobal != null) {
 				this.renderGlobal.setWorldAndLoadRenderers(worldClientIn);
 			}

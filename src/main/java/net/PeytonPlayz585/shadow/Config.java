@@ -12,6 +12,7 @@ import net.PeytonPlayz585.shadow.reflections.Reflector;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultResourcePack;
 import net.minecraft.client.resources.IResource;
@@ -26,6 +27,12 @@ public class Config {
 	private static final Logger LOGGER = LogManager.getLogger();
 	
 	private static DefaultResourcePack defaultResourcePackLazy = null;
+	
+	//Chunk Loading Fix
+	public static boolean chunkFix = true;
+	public static boolean chunkFixNether = false;
+	public static boolean chunkFixEnd = false;
+	public static WorldClient worldClient = null;
 	
 	public static boolean isAnimatedWater() {
         return Minecraft.getMinecraft().gameSettings.ofAnimatedWater != 2;
@@ -369,5 +376,34 @@ public class Config {
 	public static TextureManager getTextureManager() {
         return Minecraft.getMinecraft().getTextureManager();
     }
+	
+	public static void fixChunkLoading() {
+		if (chunkFix) {
+            if (worldClient != null) {
+                Minecraft.getMinecraft().renderGlobal.loadRenderers();
+                Minecraft.getMinecraft().renderGlobal.setWorldAndLoadRenderers(worldClient);
+                worldClient.updateBlocks();
+                chunkFix = false;
+            }
+        }
+
+        if (chunkFixNether) {
+            if (worldClient != null) {
+                Minecraft.getMinecraft().renderGlobal.loadRenderers();
+                Minecraft.getMinecraft().renderGlobal.setWorldAndLoadRenderers(worldClient);
+                worldClient.updateBlocks();
+                chunkFixNether = false;
+            }
+        }
+
+        if (chunkFixEnd) {
+            if (worldClient != null) {
+                Minecraft.getMinecraft().renderGlobal.loadRenderers();
+                Minecraft.getMinecraft().renderGlobal.setWorldAndLoadRenderers(worldClient);
+                worldClient.updateBlocks();
+                chunkFixEnd = false;
+            }
+        }
+	}
 	
 }

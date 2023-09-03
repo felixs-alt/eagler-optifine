@@ -1,5 +1,7 @@
 package net.minecraft.world;
 
+import net.PeytonPlayz585.shadow.Config;
+
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -19,6 +21,13 @@ package net.minecraft.world;
  * 
  */
 public class WorldProviderSurface extends WorldProvider {
+	
+	@Override
+	public void registerWorldChunkManager() {
+		Config.chunkFix = true;
+		super.registerWorldChunkManager();
+	}
+	
 	/**+
 	 * Returns the dimension's name, e.g. "The End", "Nether", or
 	 * "Overworld".
