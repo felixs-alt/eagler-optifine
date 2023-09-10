@@ -82,10 +82,6 @@ public class GameSettings {
 	public boolean anaglyph;
 	public boolean fboEnable = true;
 	public int limitFramerate = 260;
-	/**+
-	 * Clouds flag
-	 */
-	public int clouds = 1;
 	public boolean fancyGraphics = false;
 	/**+
 	 * Smooth Lighting
@@ -199,6 +195,12 @@ public class GameSettings {
 	public boolean ofCustomSky = true;
 	public boolean ofClearWater = false;
 	public int ofBetterGrass = 3;
+	
+	//Detail Settings
+	/** Clouds flag */
+    public int clouds = 2;
+	public int ofClouds = 0;
+	public float ofCloudsHeight = 0.0F;
 	
 	//Optifine Animations
 	public int ofAnimatedWater = 0;
@@ -347,6 +349,11 @@ public class GameSettings {
             this.ofAoLevel = parFloat1;
             this.mc.renderGlobal.loadRenderers();
         }
+		
+		if (parOptions == GameSettings.Options.CLOUD_HEIGHT) {
+            this.ofCloudsHeight = parFloat1;
+            this.mc.renderGlobal.resetClouds();
+        }
 	}
 
 	/**+
@@ -368,10 +375,6 @@ public class GameSettings {
 
 		if (parOptions == GameSettings.Options.VIEW_BOBBING) {
 			this.viewBobbing = !this.viewBobbing;
-		}
-
-		if (parOptions == GameSettings.Options.RENDER_CLOUDS) {
-			this.clouds = (this.clouds + parInt1) % 3;
 		}
 
 		if (parOptions == GameSettings.Options.FORCE_UNICODE_FONT) {
@@ -635,6 +638,17 @@ public class GameSettings {
                 this.ofChunkUpdates = 1;
             }
         }
+		
+		if (parOptions == GameSettings.Options.CLOUDS) {
+            ++this.ofClouds;
+
+            if (this.ofClouds > 3) {
+                this.ofClouds = 0;
+            }
+
+            this.updateRenderClouds();
+            this.mc.renderGlobal.resetClouds();
+        }
 
 		this.saveOptions();
 	}
@@ -653,7 +667,8 @@ public class GameSettings {
 				: (parOptions == GameSettings.Options.MIPMAP_LEVELS ? (float) this.mipmapLevels
 				: (parOptions == GameSettings.Options.RENDER_DISTANCE ? (float) this.renderDistanceChunks
 				: (parOptions == GameSettings.Options.AO_LEVEL ? this.ofAoLevel
-				: 0.0F))))))))))));
+				: (parOptions == GameSettings.Options.CLOUD_HEIGHT ? this.ofCloudsHeight
+				: 0.0F)))))))))))));
 	}
 
 	public boolean getOptionOrdinalValue(GameSettings.Options parOptions) {
@@ -738,7 +753,6 @@ public class GameSettings {
 			return parOptions == GameSettings.Options.SENSITIVITY ? (f == 0.0F ? s + I18n.format("options.sensitivity.min", new Object[0]) : (f == 1.0F ? s + I18n.format("options.sensitivity.max", new Object[0]) : s + (int) (f * 200.0F) + "%"))
 				: (parOptions == GameSettings.Options.FOV ? (f1 == 70.0F ? s + I18n.format("options.fov.min", new Object[0]) : (f1 == 110.0F ? s + I18n.format("options.fov.max", new Object[0]) : s + (int) f1))
 				: (parOptions == GameSettings.Options.FRAMERATE_LIMIT ? (f1 == parOptions.valueMax ? s + I18n.format("options.framerateLimit.max", new Object[0]) : s + (int) f1 + " fps")
-				: (parOptions == GameSettings.Options.RENDER_CLOUDS ? (f1 == parOptions.valueMin ? s + I18n.format("options.cloudHeight.min", new Object[0]) : s + ((int) f1 + 128))
 				: (parOptions == GameSettings.Options.GAMMA ? (f == 0.0F ? s + I18n.format("options.gamma.min", new Object[0]) : (f == 1.0F ? s + I18n.format("options.gamma.max", new Object[0]) : s + "+" + (int) (f * 100.0F) + "%"))
 				: (parOptions == GameSettings.Options.SATURATION ? s + (int) (f * 400.0F) + "%"
 				: (parOptions == GameSettings.Options.CHAT_OPACITY ? s + (int) (f * 90.0F + 10.0F) + "%"
@@ -749,6 +763,7 @@ public class GameSettings {
 				: (parOptions == GameSettings.Options.RENDER_DISTANCE ? s + (int) f1 + (f1 == 1.0F ? " chunk" : " chunks")
 				: (parOptions == GameSettings.Options.MIPMAP_LEVELS ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
 				: (parOptions == GameSettings.Options.AO_LEVEL ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
+			    : (parOptions == GameSettings.Options.CLOUD_HEIGHT ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
 				: "yee")))))))))))));
 		} else if (parOptions.getEnumBoolean()) {
 			boolean flag = this.getOptionOrdinalValue(parOptions);
@@ -761,8 +776,6 @@ public class GameSettings {
 			return s + getTranslation(PARTICLES, this.particleSetting);
 		} else if (parOptions == GameSettings.Options.AMBIENT_OCCLUSION) {
 			return s + getTranslation(AMBIENT_OCCLUSIONS, this.ambientOcclusion);
-		} else if (parOptions == GameSettings.Options.RENDER_CLOUDS) {
-			return s + getTranslation(field_181149_aW, this.clouds);
 		} else if (parOptions == GameSettings.Options.GRAPHICS) {
 			if (this.fancyGraphics) {
 				return s + I18n.format("options.graphics.fancy", new Object[0]);
@@ -883,6 +896,20 @@ public class GameSettings {
             return this.ofSmoothFps ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.CHUNK_UPDATES) {
             return s + this.ofChunkUpdates;
+        } else if (parOptions == GameSettings.Options.CLOUDS) {
+            switch (this.ofClouds) {
+                case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                case 3:
+                    return s + "OFF";
+
+                default:
+                    return s + "Default";
+            }
         } else {
 			return s;
 		}
@@ -970,16 +997,6 @@ public class GameSettings {
 							this.ambientOcclusion = 0;
 						} else {
 							this.ambientOcclusion = Integer.parseInt(astring[1]);
-						}
-					}
-
-					if (astring[0].equals("renderClouds")) {
-						if (astring[1].equals("true")) {
-							this.clouds = 2;
-						} else if (astring[1].equals("false")) {
-							this.clouds = 0;
-						} else if (astring[1].equals("fast")) {
-							this.clouds = 1;
 						}
 					}
 
@@ -1294,6 +1311,17 @@ public class GameSettings {
                         this.ofChunkUpdates = Integer.valueOf(astring[1]).intValue();
                         this.ofChunkUpdates = Config.limit(this.ofChunkUpdates, 1, 5);
                     }
+					
+					if (astring[0].equals("ofClouds") && astring.length >= 2) {
+                        this.ofClouds = Integer.valueOf(astring[1]).intValue();
+                        this.ofClouds = Config.limit(this.ofClouds, 0, 3);
+                        this.updateRenderClouds();
+                    }
+					
+					if (astring[0].equals("ofCloudsHeight") && astring.length >= 2) {
+                        this.ofCloudsHeight = Float.valueOf(astring[1]).floatValue();
+                        this.ofCloudsHeight = Config.limit(this.ofCloudsHeight, 0.0F, 1.0F);
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1351,17 +1379,6 @@ public class GameSettings {
 			printwriter.println("difficulty:" + this.difficulty.getDifficultyId());
 			printwriter.println("fancyGraphics:" + this.fancyGraphics);
 			printwriter.println("ao:" + this.ambientOcclusion);
-			switch (this.clouds) {
-			case 0:
-				printwriter.println("renderClouds:false");
-				break;
-			case 1:
-				printwriter.println("renderClouds:fast");
-				break;
-			case 2:
-				printwriter.println("renderClouds:true");
-			}
-
 			printwriter.println("resourcePacks:" + toJSONArray(this.resourcePacks));
 			printwriter.println("incompatibleResourcePacks:" + toJSONArray(this.field_183018_l));
 			printwriter.println("lastServer:" + this.lastServer);
@@ -1440,6 +1457,8 @@ public class GameSettings {
 			}
 			printwriter.println("ofSmoothFps:" + this.ofSmoothFps);
 			printwriter.println("ofChunkUpdates:" + this.ofChunkUpdates);
+			printwriter.println("ofClouds:" + this.ofClouds);
+			printwriter.println("ofCloudsHeight:" + this.ofCloudsHeight);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1521,11 +1540,7 @@ public class GameSettings {
 
 		this.sendSettingsToServer();
 	}
-
-	public int func_181147_e() {
-		return this.renderDistanceChunks >= 4 ? this.clouds : 0;
-	}
-
+	
 	public boolean func_181148_f() {
 		return this.field_181150_U;
 	}
@@ -1548,8 +1563,7 @@ public class GameSettings {
 		VIEW_BOBBING("options.viewBobbing", false, true), 
 		ANAGLYPH("options.anaglyph", false, true),
 		FRAMERATE_LIMIT("options.framerateLimit", true, false, 10.0F, 260.0F, 10.0F),
-		FBO_ENABLE("options.fboEnable", false, true), 
-		RENDER_CLOUDS("options.renderClouds", false, false),
+		FBO_ENABLE("options.fboEnable", false, true),
 		GRAPHICS("options.graphics", false, false), 
 		AMBIENT_OCCLUSION("options.ao", false, false),
 		GUI_SCALE("options.guiScale", false, false),
@@ -1609,7 +1623,9 @@ public class GameSettings {
 		FOG_START("Fog Start", false, false),
 		SHADER_PROFILE("Profile", false, false),
 		SMOOTH_FPS("Smooth FPS", false, false),
-		CHUNK_UPDATES("Chunk Updates", false, false);
+		CHUNK_UPDATES("Chunk Updates", false, false),
+		CLOUDS("Clouds", false, false),
+		CLOUD_HEIGHT("Cloud Height", true, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
@@ -1713,5 +1729,28 @@ public class GameSettings {
 
 	private void updateWaterOpacity() {
         ClearWater.updateWaterOpacity(this, this.mc.theWorld);
+    }
+	
+	private void updateRenderClouds() {
+        switch (this.ofClouds) {
+            case 1:
+                this.clouds = 1;
+                break;
+
+            case 2:
+                this.clouds = 2;
+                break;
+
+            case 3:
+                this.clouds = 0;
+                break;
+
+            default:
+                if (this.fancyGraphics) {
+                    this.clouds = 2;
+                } else {
+                    this.clouds = 1;
+                }
+        }
     }
 }

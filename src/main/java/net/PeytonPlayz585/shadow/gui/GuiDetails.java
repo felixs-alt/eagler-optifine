@@ -8,14 +8,15 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 
-public class GuiPerformance extends GuiScreen {
+public class GuiDetails extends GuiScreen {
     private GuiScreen prevScreen;
     protected String title;
     private GameSettings settings;
-    private static GameSettings.Options[] enumOptions = new GameSettings.Options[] {GameSettings.Options.SMOOTH_FPS, GameSettings.Options.FAST_MATH, GameSettings.Options.CHUNK_UPDATES};
-
-    public GuiPerformance(GuiScreen p_i52_1_) {
-        this.prevScreen = p_i52_1_;
+    //private static GameSettings.Options[] enumOptions = new GameSettings.Options[] {GameSettings.Options.CLOUDS, GameSettings.Options.CLOUD_HEIGHT, GameSettings.Options.TREES, GameSettings.Options.RAIN, GameSettings.Options.SKY, GameSettings.Options.STARS, GameSettings.Options.SUN_MOON, GameSettings.Options.SHOW_CAPES, GameSettings.Options.TRANSLUCENT_BLOCKS, GameSettings.Options.HELD_ITEM_TOOLTIPS, GameSettings.Options.DROPPED_ITEMS, GameSettings.Options.ENTITY_SHADOWS, GameSettings.Options.VIGNETTE, GameSettings.Options.DYNAMIC_FOV};
+    private static GameSettings.Options[] enumOptions = new GameSettings.Options[] { GameSettings.Options.CLOUDS, GameSettings.Options.CLOUD_HEIGHT};
+    
+    public GuiDetails(GuiScreen p_i47_1_) {
+        this.prevScreen = p_i47_1_;
         this.settings = Minecraft.getMinecraft().gameSettings;
     }
 
@@ -24,7 +25,7 @@ public class GuiPerformance extends GuiScreen {
      * window resizes, the buttonList is cleared beforehand.
      */
     public void initGui() {
-        this.title = I18n.format("Performance Settings", new Object[0]);
+        this.title = I18n.format("Detail Settings", new Object[0]);
         this.buttonList.clear();
 
         for (int i = 0; i < enumOptions.length; ++i) {

@@ -174,6 +174,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	private GameOverlayFramebuffer overlayFramebuffer;
 	private float eagPartialTicks = 0.0f;
 	public boolean fogStandard = false;
+	private float clipDistance = 128.0F;
 
 	public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn) {
 		this.useShader = false;
@@ -598,16 +599,24 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		if (this.mc.gameSettings.anaglyph) {
 			GlStateManager.translate((float) (-(pass * 2 - 1)) * f, 0.0F, 0.0F);
 		}
+		
+		this.clipDistance = this.farPlaneDistance * 2.0F;
+
+        if (this.clipDistance < 173.0F) {
+            this.clipDistance = 173.0F;
+        }
+
+        if (this.mc.theWorld.provider.getDimensionId() == 1) {
+            this.clipDistance = 256.0F;
+        }
 
 		if (this.cameraZoom != 1.0D) {
 			GlStateManager.translate((float) this.cameraYaw, (float) (-this.cameraPitch), 0.0F);
 			GlStateManager.scale(this.cameraZoom, this.cameraZoom, 1.0D);
 		}
 
-		float farPlane = this.farPlaneDistance * 2.0f * MathHelper.SQRT_2;
-		GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true),
-				(float) this.mc.displayWidth / (float) this.mc.displayHeight, 0.05F, farPlane);
-		DeferredStateManager.setGBufferNearFarPlanes(0.05f, farPlane);
+		GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance);
+		DeferredStateManager.setGBufferNearFarPlanes(0.05f, clipDistance);
 		GlStateManager.matrixMode(GL_MODELVIEW);
 		GlStateManager.loadIdentity();
 		if (this.mc.gameSettings.anaglyph) {
@@ -1159,23 +1168,20 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			this.mc.mcProfiler.endStartSection("sky");
 			GlStateManager.matrixMode(GL_PROJECTION);
 			GlStateManager.loadIdentity();
-			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true),
-					(float) this.mc.displayWidth / (float) this.mc.displayHeight, 0.05F, this.farPlaneDistance * 4.0F);
+			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance);
 			GlStateManager.matrixMode(GL_MODELVIEW);
 			renderglobal.renderSky(partialTicks, pass);
 			GlStateManager.matrixMode(GL_PROJECTION);
 			GlStateManager.loadIdentity();
-			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true),
-					(float) this.mc.displayWidth / (float) this.mc.displayHeight, 0.05F,
-					this.farPlaneDistance * MathHelper.SQRT_2);
+			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance);
 			GlStateManager.matrixMode(GL_MODELVIEW);
 		}
 
 		this.setupFog(0, partialTicks);
 		GlStateManager.shadeModel(GL_SMOOTH);
-		if (entity.posY + (double) entity.getEyeHeight() < 128.0D) {
-			this.renderCloudsCheck(renderglobal, partialTicks, pass);
-		}
+		if (entity.posY + (double)entity.getEyeHeight() < 128.0D + (double)(this.mc.gameSettings.ofCloudsHeight * 128.0F)) {
+            this.renderCloudsCheck(renderglobal, partialTicks, pass);
+        }
 
 		this.mc.mcProfiler.endStartSection("prepareterrain");
 		this.setupFog(0, partialTicks);
@@ -1280,10 +1286,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		GlStateManager.enableCull();
 		GlStateManager.disableBlend();
 		GlStateManager.disableFog();
-		if (entity.posY + (double) entity.getEyeHeight() >= 128.0D) {
-			this.mc.mcProfiler.endStartSection("aboveClouds");
-			this.renderCloudsCheck(renderglobal, partialTicks, pass);
-		}
+		if (entity.posY + (double)entity.getEyeHeight() >= 128.0D + (double)(this.mc.gameSettings.ofCloudsHeight * 128.0F)) {
+            this.mc.mcProfiler.endStartSection("aboveClouds");
+            this.renderCloudsCheck(renderglobal, partialTicks, pass);
+        }
 
 		this.mc.mcProfiler.endStartSection("hand");
 		Shadow.moduleManager.onRender();
@@ -1296,26 +1302,22 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	}
 
 	private void renderCloudsCheck(RenderGlobal renderGlobalIn, float partialTicks, int pass) {
-		if (this.mc.gameSettings.func_181147_e() != 0) {
-			this.mc.mcProfiler.endStartSection("clouds");
-			GlStateManager.matrixMode(GL_PROJECTION);
-			GlStateManager.loadIdentity();
-			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true),
-					(float) this.mc.displayWidth / (float) this.mc.displayHeight, 0.05F, this.farPlaneDistance * 4.0F);
-			GlStateManager.matrixMode(GL_MODELVIEW);
-			GlStateManager.pushMatrix();
-			this.setupFog(0, partialTicks);
-			renderGlobalIn.renderClouds(partialTicks, pass);
-			GlStateManager.disableFog();
-			GlStateManager.popMatrix();
-			GlStateManager.matrixMode(GL_PROJECTION);
-			GlStateManager.loadIdentity();
-			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true),
-					(float) this.mc.displayWidth / (float) this.mc.displayHeight, 0.05F,
-					this.farPlaneDistance * MathHelper.SQRT_2);
-			GlStateManager.matrixMode(GL_MODELVIEW);
-		}
-
+		if (this.mc.gameSettings.renderDistanceChunks >= 4 && !Config.isCloudsOff()) {
+            this.mc.mcProfiler.endStartSection("clouds");
+            GlStateManager.matrixMode(5889);
+            GlStateManager.loadIdentity();
+            GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance * 4.0F);
+            GlStateManager.matrixMode(5888);
+            GlStateManager.pushMatrix();
+            this.setupFog(0, partialTicks);
+            renderGlobalIn.renderClouds(partialTicks, pass);
+            GlStateManager.disableFog();
+            GlStateManager.popMatrix();
+            GlStateManager.matrixMode(5889);
+            GlStateManager.loadIdentity();
+            GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance);
+            GlStateManager.matrixMode(5888);
+        }
 	}
 
 	private void addRainParticles() {
