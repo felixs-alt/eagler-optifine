@@ -1261,7 +1261,7 @@ public class Minecraft implements IThreadListener {
 		this.mcProfiler.endStartSection("textures");
 		if (!this.isGamePaused) {
 			this.renderEngine.tick();
-			GlStateManager.viewport(0, 0, displayWidth, displayHeight); // to be safe
+			//GlStateManager.viewport(0, 0, displayWidth, displayHeight); // to be safe
 		}
 
 		if (this.currentScreen == null && this.thePlayer != null) {

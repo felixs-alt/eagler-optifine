@@ -258,13 +258,15 @@ public class Scoreboard {
 	 * memberships and broadcasts the deletion to all players
 	 */
 	public void removeTeam(ScorePlayerTeam parScorePlayerTeam) {
-		this.teams.remove(parScorePlayerTeam.getRegisteredName());
+		if(parScorePlayerTeam != null) {
+			this.teams.remove(parScorePlayerTeam.getRegisteredName());
 
-		for (String s : parScorePlayerTeam.getMembershipCollection()) {
-			this.teamMemberships.remove(s);
+			for (String s : parScorePlayerTeam.getMembershipCollection()) {
+				this.teamMemberships.remove(s);
+			}
+
+			this.func_96513_c(parScorePlayerTeam);
 		}
-
-		this.func_96513_c(parScorePlayerTeam);
 	}
 
 	/**+
@@ -303,13 +305,13 @@ public class Scoreboard {
 	 * is thrown.
 	 */
 	public void removePlayerFromTeam(String parString1, ScorePlayerTeam parScorePlayerTeam) {
-		if (this.getPlayersTeam(parString1) != parScorePlayerTeam) {
-			throw new IllegalStateException(
-					"Player is either on another team or not on any team. Cannot remove from team \'"
-							+ parScorePlayerTeam.getRegisteredName() + "\'.");
-		} else {
-			this.teamMemberships.remove(parString1);
-			parScorePlayerTeam.getMembershipCollection().remove(parString1);
+		if(parScorePlayerTeam != null) {
+			if (this.getPlayersTeam(parString1) != parScorePlayerTeam) {
+				throw new IllegalStateException("Player is either on another team or not on any team. Cannot remove from team \'" + parScorePlayerTeam.getRegisteredName() + "\'.");
+			} else {
+				this.teamMemberships.remove(parString1);
+				parScorePlayerTeam.getMembershipCollection().remove(parString1);
+			}
 		}
 	}
 
