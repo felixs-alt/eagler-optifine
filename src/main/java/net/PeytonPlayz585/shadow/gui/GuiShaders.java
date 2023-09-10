@@ -29,7 +29,7 @@ public class GuiShaders extends GuiScreen {
 		this.buttonList.add(new GuiButton(6, j1 / 4 * 3 - k1 / 2, height - 25, k1, j, I18n.format("gui.done", new Object[0])));
 		this.buttonList.add(button = new GuiButton(201, j1 / 4 - k1 / 2, height - 25, k1, j, "Shaders Folder"));
 		button.enabled = false;
-		this.buttonList.add(shaderProfile = new GuiOptionButton(201, k, height - 25, shaderProfile2, Minecraft.getMinecraft().gameSettings.getKeyBinding(shaderProfile2)));
+		this.buttonList.add(shaderProfile = new GuiOptionButton(201, k, height - 25, i, j, shaderProfile2, Minecraft.getMinecraft().gameSettings.getKeyBinding(shaderProfile2)));
 		shaderProfile.enabled = Minecraft.getMinecraft().gameSettings.shaders;
 		this.list = new GuiShaders.List(this.mc);
 		this.list.registerScrollButtons(7, 8);

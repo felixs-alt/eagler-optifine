@@ -17,6 +17,7 @@ import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.DeferredStateManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -71,8 +72,8 @@ public class RenderChunk {
 	public ShadowFrustumState shadowLOD0InFrustum = ShadowFrustumState.OUTSIDE;
 	public ShadowFrustumState shadowLOD1InFrustum = ShadowFrustumState.OUTSIDE;
 	public ShadowFrustumState shadowLOD2InFrustum = ShadowFrustumState.OUTSIDE;
-	//private EnumMap<EnumFacing, BlockPos> field_181702_p = Maps.newEnumMap(EnumFacing.class);
 	private BlockPos[] positionOffsets16 = new BlockPos[EnumFacing.VALUES.length];
+	private boolean playerUpdate = false;
 
 	public RenderChunk(World worldIn, RenderGlobal renderGlobalIn, BlockPos blockPosIn, int indexIn) {
 		this.world = worldIn;
@@ -300,11 +301,32 @@ public class RenderChunk {
 
 	public void setNeedsUpdate(boolean needsUpdateIn) {
 		this.needsUpdate = needsUpdateIn;
+
+        if (this.needsUpdate) {
+            if (this.isWorldPlayerUpdate()) {
+                this.playerUpdate = true;
+            }
+        } else {
+            this.playerUpdate = false;
+        }
 	}
 
 	public boolean isNeedsUpdate() {
 		return this.needsUpdate;
 	}
+	
+	private boolean isWorldPlayerUpdate() {
+        if (this.world instanceof WorldClient) {
+            WorldClient worldclient = (WorldClient)this.world;
+            return worldclient.isPlayerUpdate();
+        } else {
+            return false;
+        }
+    }
+	
+	public boolean isPlayerUpdate() {
+        return this.playerUpdate;
+    }
 
 	public BlockPos func_181701_a(EnumFacing p_181701_1_) {
         return this.getPositionOffset16(p_181701_1_);

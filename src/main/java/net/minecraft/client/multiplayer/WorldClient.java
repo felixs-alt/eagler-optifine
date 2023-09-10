@@ -1,5 +1,6 @@
 package net.minecraft.client.multiplayer;
 
+import net.PeytonPlayz585.shadow.other.PlayerControllerOF;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -72,6 +73,7 @@ public class WorldClient extends World {
 	private final Set<Entity> entitySpawnQueue = Sets.newHashSet();
 	private final Minecraft mc = Minecraft.getMinecraft();
 	private final Set<ChunkCoordIntPair> previousActiveChunkSet = Sets.newHashSet();
+	private boolean playerUpdate = false;
 
 	public WorldClient(NetHandlerPlayClient parNetHandlerPlayClient, WorldSettings parWorldSettings, int parInt1,
 			EnumDifficulty parEnumDifficulty, Profiler parProfiler) {
@@ -85,6 +87,10 @@ public class WorldClient extends World {
 		this.mapStorage = new SaveDataMemoryStorage();
 		this.calculateInitialSkylight();
 		this.calculateInitialWeather();
+		
+		if (this.mc.playerController != null && this.mc.playerController.getClass() == PlayerControllerMP.class) {
+            this.mc.playerController = new PlayerControllerOF(this.mc, parNetHandlerPlayClient);
+        }
 	}
 
 	/**+
@@ -428,4 +434,30 @@ public class WorldClient extends World {
 
 		super.setWorldTime(i);
 	}
+	
+	/**
+     * Sets the block state at a given location. Flag 1 will cause a block update. Flag 2 will send the change to
+     * clients (you almost always want this). Flag 4 prevents the block from being re-rendered, if this is a client
+     * world. Flags can be added together.
+     */
+	@Override
+    public boolean setBlockState(BlockPos pos, IBlockState newState, int flags) {
+        this.playerUpdate = this.isPlayerActing();
+        boolean flag = super.setBlockState(pos, newState, flags);
+        this.playerUpdate = false;
+        return flag;
+    }
+
+    private boolean isPlayerActing() {
+        if (this.mc.playerController instanceof PlayerControllerOF) {
+            PlayerControllerOF playercontrollerof = (PlayerControllerOF)this.mc.playerController;
+            return playercontrollerof.isActing();
+        } else {
+            return false;
+        }
+    }
+	
+	public boolean isPlayerUpdate() {
+        return this.playerUpdate;
+    }
 }

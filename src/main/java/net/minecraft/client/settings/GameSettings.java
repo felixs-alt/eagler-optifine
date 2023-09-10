@@ -73,14 +73,6 @@ public class GameSettings {
 			"options.particles.minimal" };
 	private static final String[] AMBIENT_OCCLUSIONS = new String[] { "options.ao.off", "options.ao.min",
 			"options.ao.max" };
-	private static final String[] STREAM_COMPRESSIONS = new String[] { "options.stream.compression.low",
-			"options.stream.compression.medium", "options.stream.compression.high" };
-	private static final String[] STREAM_CHAT_MODES = new String[] { "options.stream.chat.enabled.streaming",
-			"options.stream.chat.enabled.always", "options.stream.chat.enabled.never" };
-	private static final String[] STREAM_CHAT_FILTER_MODES = new String[] { "options.stream.chat.userFilter.all",
-			"options.stream.chat.userFilter.subs", "options.stream.chat.userFilter.mods" };
-	private static final String[] STREAM_MIC_MODES = new String[] { "options.stream.mic_toggle.mute",
-			"options.stream.mic_toggle.talk" };
 	private static final String[] field_181149_aW = new String[] { "options.off", "options.graphics.fast",
 			"options.graphics.fancy" };
 	public float mouseSensitivity = 0.5F;
@@ -225,6 +217,10 @@ public class GameSettings {
     public boolean ofDrippingWaterLava = true;
     public boolean ofAnimatedTerrain = true;
     public boolean ofAnimatedTextures = true;
+    
+    //Performance Settings
+    public boolean ofSmoothFps = false;
+    public int ofChunkUpdates = 1;
     
     //Super Secret Setting :>
     public boolean secret = false;
@@ -627,6 +623,18 @@ public class GameSettings {
 			Shaders shader = new Shaders();
 			shader.updateShaderProfile(profile);
 		}
+		
+		if (parOptions == GameSettings.Options.SMOOTH_FPS) {
+            this.ofSmoothFps = !this.ofSmoothFps;
+        }
+		
+		if (parOptions == GameSettings.Options.CHUNK_UPDATES) {
+            ++this.ofChunkUpdates;
+
+            if (this.ofChunkUpdates > 5) {
+                this.ofChunkUpdates = 1;
+            }
+        }
 
 		this.saveOptions();
 	}
@@ -698,6 +706,8 @@ public class GameSettings {
 			return this.ofCustomSky;
 		case CLEAR_WATER:
 			return this.ofClearWater;
+		case SMOOTH_FPS:
+			return this.ofSmoothFps;
 		default:
 			return false;
 		}
@@ -757,7 +767,6 @@ public class GameSettings {
 			if (this.fancyGraphics) {
 				return s + I18n.format("options.graphics.fancy", new Object[0]);
 			} else {
-				String s1 = "options.graphics.fast";
 				return s + I18n.format("options.graphics.fast", new Object[0]);
 			}
 		} else if (parOptions == GameSettings.Options.FXAA) {
@@ -870,6 +879,10 @@ public class GameSettings {
         		default:
         			return s + "Low";
         	}
+        } else if (parOptions == GameSettings.Options.SMOOTH_FPS) {
+            return this.ofSmoothFps ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.CHUNK_UPDATES) {
+            return s + this.ofChunkUpdates;
         } else {
 			return s;
 		}
@@ -1272,6 +1285,15 @@ public class GameSettings {
 						}
 						System.out.println("Loaded Shader Profile: " + this.profile);
 					}
+					
+					if (astring[0].equals("ofSmoothFps") && astring.length >= 2) {
+                        this.ofSmoothFps = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+					
+					if (astring[0].equals("ofChunkUpdates") && astring.length >= 2) {
+                        this.ofChunkUpdates = Integer.valueOf(astring[1]).intValue();
+                        this.ofChunkUpdates = Config.limit(this.ofChunkUpdates, 1, 5);
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1402,24 +1424,22 @@ public class GameSettings {
 			printwriter.println("ofBetterGrass:" + this.ofBetterGrass);
 			printwriter.println("ofFogType:" + this.ofFogType);
 			printwriter.println("ofFogStart:" + this.ofFogStart);
-			//printwriter.print("secret:" + this.secret);
 			switch(this.profile) {
 				case 1:
 					printwriter.println("profile:low");
 					break;
-					
 				case 2:
 					printwriter.println("profile:mid");
 					break;
-					
 				case 3:
 					printwriter.println("profile:high");
 					break;
-					
 				case 4:
 					printwriter.println("profile:ultra");
 					break;
 			}
+			printwriter.println("ofSmoothFps:" + this.ofSmoothFps);
+			printwriter.println("ofChunkUpdates:" + this.ofChunkUpdates);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1587,7 +1607,9 @@ public class GameSettings {
 		BETTER_GRASS("Better Grass", false, false),
 		FOG_FANCY("Fog", false, false),
 		FOG_START("Fog Start", false, false),
-		SHADER_PROFILE("Profile", false, false);
+		SHADER_PROFILE("Profile", false, false),
+		SMOOTH_FPS("Smooth FPS", false, false),
+		CHUNK_UPDATES("Chunk Updates", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

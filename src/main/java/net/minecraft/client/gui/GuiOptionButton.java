@@ -36,6 +36,11 @@ public class GuiOptionButton extends GuiButton {
 		super(parInt1, parInt2, parInt3, 150, 20, parString1);
 		this.enumOptions = parOptions;
 	}
+	
+	public GuiOptionButton(int parInt1, int parInt2, int parInt3, int parInt4, int parInt5, GameSettings.Options parOptions, String parString1) {
+		super(parInt1, parInt2, parInt3, parInt4, parInt5, parString1);
+		this.enumOptions = parOptions;
+	}
 
 	public GameSettings.Options returnEnumOptions() {
 		return this.enumOptions;

@@ -1190,6 +1190,12 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		}
 
 		this.mc.mcProfiler.endStartSection("terrain");
+		
+		if (this.mc.gameSettings.ofSmoothFps && pass > 0) {
+            this.mc.mcProfiler.endStartSection("finish");
+            this.mc.mcProfiler.endStartSection("terrain");
+        }
+		
 		GlStateManager.matrixMode(GL_MODELVIEW);
 		GlStateManager.pushMatrix();
 		GlStateManager.disableAlpha();
