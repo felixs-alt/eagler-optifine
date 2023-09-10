@@ -22,8 +22,7 @@ public class VertexBuffer {
     		EaglercraftGPU.glNewList(parInt1, GL_COMPILE);
 			VertexFormat fmt = p_181722_1_.getVertexFormat();
 			ByteBuffer buf = p_181722_1_.getByteBuffer();
-			EaglercraftGPU.renderBuffer(buf.position(0), fmt.eaglercraftAttribBits, 7, p_181722_1_.getVertexCount());
-			p_181722_1_.reset();
+			EaglercraftGPU.renderBuffer(buf, fmt.eaglercraftAttribBits, 7, p_181722_1_.getVertexCount());
 			EaglercraftGPU.glEndList();
     	}
     }

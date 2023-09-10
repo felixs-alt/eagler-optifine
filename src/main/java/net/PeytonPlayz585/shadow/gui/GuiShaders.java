@@ -2,32 +2,35 @@ package net.PeytonPlayz585.shadow.gui;
 
 import java.io.IOException;
 
+import net.PeytonPlayz585.shadow.shaders.Shaders;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.settings.GameSettings;
 
 public class GuiShaders extends GuiScreen {
 	protected GuiScreen parentScreen;
 	private GuiShaders.List list;
-	GuiButton shaderOptions = null;
+	GuiButton shaderProfile = null;
 
 	public GuiShaders(GuiScreen screen) {
 		this.parentScreen = screen;
 	}
 
 	public void initGui() {
+		GameSettings.Options shaderProfile2 = GameSettings.Options.SHADER_PROFILE;
 		this.buttonList.clear();
 		int i = 120;
         int j = 20;
-        int k = this.width - i - 10;
-        int j1 = this.width - i - 20;
+        int k = width - i - 10;
+        int j1 = width - i - 20;
         int k1 = Math.min(150, j1 / 2 - 10);
         GuiButton button;
-		this.buttonList.add(new GuiButton(6, j1 / 4 * 3 - k1 / 2, this.height - 25, k1, j, I18n.format("gui.done", new Object[0])));
-		this.buttonList.add(button = new GuiButton(201, j1 / 4 - k1 / 2, this.height - 25, k1, j, "Shaders Folder"));
+		this.buttonList.add(new GuiButton(6, j1 / 4 * 3 - k1 / 2, height - 25, k1, j, I18n.format("gui.done", new Object[0])));
+		this.buttonList.add(button = new GuiButton(201, j1 / 4 - k1 / 2, height - 25, k1, j, "Shaders Folder"));
 		button.enabled = false;
-		this.buttonList.add(shaderOptions = new GuiButton(203, k, this.height - 25, i, j, "Shader Options"));
-		shaderOptions.enabled = Minecraft.getMinecraft().gameSettings.shaders;
+		this.buttonList.add(shaderProfile = new GuiOptionButton(201, k, height - 25, shaderProfile2, Minecraft.getMinecraft().gameSettings.getKeyBinding(shaderProfile2)));
+		shaderProfile.enabled = Minecraft.getMinecraft().gameSettings.shaders;
 		this.list = new GuiShaders.List(this.mc);
 		this.list.registerScrollButtons(7, 8);
 	}
@@ -40,7 +43,18 @@ public class GuiShaders extends GuiScreen {
 	protected void actionPerformed(GuiButton parGuiButton) {
 		if(parGuiButton.enabled) {
 			if(parGuiButton.id == 6) {
+				if(Shaders.shaderProfileChanged) {
+					Minecraft.getMinecraft().loadingScreen.eaglerShowRefreshResources();
+					Minecraft.getMinecraft().refreshResources();
+				}
+				Shaders.shaderProfileChanged = false;
+				Minecraft.getMinecraft().gameSettings.saveOptions();
 				Minecraft.getMinecraft().displayGuiScreen(parentScreen);
+			}
+			
+			if(parGuiButton.id == 201) {
+				mc.gameSettings.setOptionValue(((GuiOptionButton)parGuiButton).returnEnumOptions(), 1);
+				parGuiButton.displayString = mc.gameSettings.getKeyBinding(GameSettings.Options.getEnumOptions(74));
 			}
 		}
 	}
@@ -49,7 +63,7 @@ public class GuiShaders extends GuiScreen {
 		this.drawDefaultBackground();
         this.list.drawScreen(i, j, f);
         
-        this.drawCenteredString(this.fontRendererObj, "Shaders", this.width / 2, 15, 16777215);
+        this.drawCenteredString(this.fontRendererObj, "Shaders", width / 2, 15, 16777215);
         
         super.drawScreen(i, j, f);
 	}
@@ -58,7 +72,7 @@ public class GuiShaders extends GuiScreen {
 	    java.util.Map<Integer, String> languageMap = new java.util.HashMap<>();
 
 		public List(Minecraft mcIn) {
-			super(mcIn, GuiShaders.this.width - 120 - 20, GuiShaders.this.height, 30, GuiShaders.this.height - 50, 16);
+			super(mcIn, GuiShaders.width - 120 - 20, GuiShaders.height, 30, GuiShaders.height - 50, 16);
 			
 			languageMap.put(1, "OFF");
 			languageMap.put(2, "High Performance PBR");
@@ -80,7 +94,7 @@ public class GuiShaders extends GuiScreen {
 				Minecraft.getMinecraft().loadingScreen.eaglerShowRefreshResources();
 				Minecraft.getMinecraft().refreshResources();
 				Minecraft.getMinecraft().gameSettings.saveOptions();
-				shaderOptions.enabled = false;
+				shaderProfile.enabled = false;
 				GuiShaders.this.updateScreen();
 			} else if(i == 1 && Minecraft.getMinecraft().gameSettings.shaders) {
 				return;
@@ -89,7 +103,7 @@ public class GuiShaders extends GuiScreen {
 			    Minecraft.getMinecraft().loadingScreen.eaglerShowRefreshResources();
 				Minecraft.getMinecraft().refreshResources();
 				Minecraft.getMinecraft().gameSettings.saveOptions();
-				shaderOptions.enabled = true;
+				shaderProfile.enabled = true;
 				GuiShaders.this.updateScreen();
 			}
 		}

@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.CustomSky;
+import net.PeytonPlayz585.shadow.shaders.Shaders;
 import net.lax1dude.eaglercraft.v1_8.ArrayUtils;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
@@ -227,6 +228,9 @@ public class GameSettings {
     
     //Super Secret Setting :>
     public boolean secret = false;
+    
+    //Shaders
+    public int profile = 1;
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -612,6 +616,17 @@ public class GameSettings {
                 this.ofFogStart = 0.2F;
             }
         }
+		
+		if(parOptions == GameSettings.Options.SHADER_PROFILE) {
+			++this.profile;
+			
+			if(this.profile > 4) {
+				this.profile = 1;
+			}
+			
+			Shaders shader = new Shaders();
+			shader.updateShaderProfile(profile);
+		}
 
 		this.saveOptions();
 	}
@@ -838,6 +853,23 @@ public class GameSettings {
             }
         } else if (parOptions == GameSettings.Options.FOG_START) {
             return s + this.ofFogStart;
+        } else if (parOptions == GameSettings.Options.SHADER_PROFILE) {
+        	switch (this.profile) {
+        		case 1:
+        			return s + "Low";
+        			
+        		case 2:
+        			return s + "Medium";
+        			
+        		case 3:
+        			return s + "High";
+        			
+        		case 4:
+        			return s + "Ultra";
+        			
+        		default:
+        			return s + "Low";
+        	}
         } else {
 			return s;
 		}
@@ -1227,6 +1259,19 @@ public class GameSettings {
 					if (astring[0].equals("secret") && astring.length >= 2) {
                         this.secret = Boolean.valueOf(astring[1]).booleanValue();
                     }
+					
+					if (astring[0].equals("profile")) {
+						if (astring[1].equals("low")) {
+							this.profile = 1;
+						} else if (astring[1].equals("mid")) {
+							this.profile = 2;
+						} else if (astring[1].equals("high")) {
+							this.profile = 3;
+						} else if(astring[1].equals("ultra")) {
+							this.profile = 4;
+						}
+						System.out.println("Loaded Shader Profile: " + this.profile);
+					}
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1357,7 +1402,24 @@ public class GameSettings {
 			printwriter.println("ofBetterGrass:" + this.ofBetterGrass);
 			printwriter.println("ofFogType:" + this.ofFogType);
 			printwriter.println("ofFogStart:" + this.ofFogStart);
-			printwriter.print("secret:" + this.secret);
+			//printwriter.print("secret:" + this.secret);
+			switch(this.profile) {
+				case 1:
+					printwriter.println("profile:low");
+					break;
+					
+				case 2:
+					printwriter.println("profile:mid");
+					break;
+					
+				case 3:
+					printwriter.println("profile:high");
+					break;
+					
+				case 4:
+					printwriter.println("profile:ultra");
+					break;
+			}
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1524,7 +1586,8 @@ public class GameSettings {
 		CLEAR_WATER("Clear Water", false, false),
 		BETTER_GRASS("Better Grass", false, false),
 		FOG_FANCY("Fog", false, false),
-		FOG_START("Fog Start", false, false);
+		FOG_START("Fog Start", false, false),
+		SHADER_PROFILE("Profile", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
