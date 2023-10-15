@@ -83,12 +83,6 @@ public class Timer {
 			this.elapsedTicks = 10;
 		}
 
-		int fastMathSetting = Minecraft.getMinecraft().gameSettings.fastMath;
-		if (fastMathSetting > 0) {
-			float f = fastMathSetting == 2 ? 16.0f : 64.0f;
-			this.renderPartialTicks = ((int) (this.elapsedPartialTicks * f) / f);
-		} else {
-			this.renderPartialTicks = this.elapsedPartialTicks;
-		}
+		this.renderPartialTicks = this.elapsedPartialTicks;
 	}
 }

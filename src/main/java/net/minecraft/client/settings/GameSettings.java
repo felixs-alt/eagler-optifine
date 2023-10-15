@@ -184,7 +184,6 @@ public class GameSettings {
 	public boolean shaders = false;
 	public boolean shadersAODisable = false;
 	public EaglerDeferredConfig deferredShaderConf = new EaglerDeferredConfig();
-	public int fastMath = 1;
 	
 	//Main Menu Settings
 	public float ofAoLevel = 1.0F;
@@ -225,6 +224,7 @@ public class GameSettings {
     //Performance Settings
     public boolean ofSmoothFps = false;
     public int ofChunkUpdates = 1;
+    public static boolean ofFastMath = true;
     
     //Super Secret Setting :>
     public boolean secret = false;
@@ -484,10 +484,6 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.FULLSCREEN) {
 			this.mc.toggleFullscreen();
 		}
-
-		if (parOptions == GameSettings.Options.FAST_MATH) {
-			this.fastMath = (this.fastMath + parInt1) % 3;
-		}
 		
 		if (parOptions == GameSettings.Options.ANIMATED_WATER) {
             ++this.ofAnimatedWater;
@@ -661,6 +657,11 @@ public class GameSettings {
             this.ofDynamicLights = nextValue(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
             DynamicLights.removeLights(this.mc.renderGlobal);
         }
+		
+		if (parOptions == GameSettings.Options.FAST_MATH) {
+            ofFastMath = !ofFastMath;
+            MathHelper.fastMath = ofFastMath;
+        }
 
 		this.saveOptions();
 	}
@@ -735,6 +736,8 @@ public class GameSettings {
 			return this.ofClearWater;
 		case SMOOTH_FPS:
 			return this.ofSmoothFps;
+		case FAST_MATH:
+			return ofFastMath;
 		default:
 			return false;
 		}
@@ -802,8 +805,6 @@ public class GameSettings {
 			} else {
 				return s + I18n.format("options.off");
 			}
-		} else if (parOptions == GameSettings.Options.FAST_MATH) {
-			return s + I18n.format("options.fastMath." + this.fastMath);
 		} else if (parOptions == GameSettings.Options.ANIMATED_WATER) {
             switch (this.ofAnimatedWater) {
                 case 1:
@@ -925,6 +926,8 @@ public class GameSettings {
         } else if (parOptions == GameSettings.Options.DYNAMIC_LIGHTS) {
             int k = indexOf(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
             return s + getTranslation(KEYS_DYNAMIC_LIGHTS, k);
+        } else if (parOptions == GameSettings.Options.FAST_MATH) {
+            return ofFastMath ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1180,11 +1183,7 @@ public class GameSettings {
 						this.fxaa = (astring[1].equals("true") || astring[1].equals("false")) ? 0
 								: Integer.parseInt(astring[1]);
 					}
-
-					if (astring[0].equals("fastMath")) {
-						this.fastMath = Integer.parseInt(astring[1]);
-					}
-
+					
 					for (KeyBinding keybinding : this.keyBindings) {
 						if (astring[0].equals("key_" + keybinding.getKeyDescription())) {
 							keybinding.setKeyCode(Integer.parseInt(astring[1]));
@@ -1342,6 +1341,11 @@ public class GameSettings {
                         this.ofDynamicLights = Integer.valueOf(astring[1]).intValue();
                         this.ofDynamicLights = limit(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
                     }
+					
+					if (astring[0].equals("ofFastMath") && astring.length >= 2) {
+                        ofFastMath = Boolean.valueOf(astring[1]).booleanValue();
+                        MathHelper.fastMath = ofFastMath;
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1436,7 +1440,6 @@ public class GameSettings {
 			printwriter.println("hud24h:" + this.hud24h);
 			printwriter.println("chunkFix:" + this.chunkFix);
 			printwriter.println("fxaa:" + this.fxaa);
-			printwriter.println("fastMath:" + this.fastMath);
 			printwriter.println("shaders:" + this.shaders);
 			printwriter.println("ofAnimatedWater:" + this.ofAnimatedWater);
             printwriter.println("ofAnimatedLava:" + this.ofAnimatedLava);
@@ -1480,6 +1483,7 @@ public class GameSettings {
 			printwriter.println("ofClouds:" + this.ofClouds);
 			printwriter.println("ofCloudsHeight:" + this.ofCloudsHeight);
 			printwriter.println("ofDynamicLights:" + this.ofDynamicLights);
+			printwriter.println("ofFastMath:" + ofFastMath);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1605,7 +1609,8 @@ public class GameSettings {
 		STREAM_BYTES_PER_PIXEL("options.stream.bytesPerPixel", true, false),
 		STREAM_VOLUME_MIC("options.stream.micVolumne", true, false),
 		STREAM_VOLUME_SYSTEM("options.stream.systemVolume", true, false),
-		STREAM_KBPS("options.stream.kbps", true, false), STREAM_FPS("options.stream.fps", true, false),
+		STREAM_KBPS("options.stream.kbps", true, false), 
+		STREAM_FPS("options.stream.fps", true, false),
 		STREAM_COMPRESSION("options.stream.compression", false, false),
 		STREAM_SEND_METADATA("options.stream.sendMetadata", false, true),
 		STREAM_CHAT_ENABLED("options.stream.chat.enabled", false, false),
@@ -1613,12 +1618,17 @@ public class GameSettings {
 		STREAM_MIC_TOGGLE_BEHAVIOR("options.stream.micToggleBehavior", false, false),
 		BLOCK_ALTERNATIVES("options.blockAlternatives", false, true),
 		REDUCED_DEBUG_INFO("options.reducedDebugInfo", false, true),
-		ENTITY_SHADOWS("options.entityShadows", false, true), HUD_FPS("options.hud.fps", false, true),
-		HUD_COORDS("options.hud.coords", false, true), HUD_STATS("options.hud.stats", false, true),
-		HUD_WORLD("options.hud.world", false, true), HUD_PLAYER("options.hud.player", false, true),
-		HUD_24H("options.hud.24h", false, true), CHUNK_FIX("options.chunkFix", false, true),
+		ENTITY_SHADOWS("options.entityShadows", false, true), 
+		HUD_FPS("options.hud.fps", false, true),
+		HUD_COORDS("options.hud.coords", false, true), 
+		HUD_STATS("options.hud.stats", false, true),
+		HUD_WORLD("options.hud.world", false, true), 
+		HUD_PLAYER("options.hud.player", false, true),
+		HUD_24H("options.hud.24h", false, true), 
+		CHUNK_FIX("options.chunkFix", false, true),
 		FXAA("options.fxaa", false, false),
-		FULLSCREEN("options.fullscreen", false, true), FAST_MATH("options.fastMath", false, false),
+		FULLSCREEN("options.fullscreen", false, true), 
+		FAST_MATH("options.fastMath", false, true),
 		ANIMATED_WATER("Water Animated", false, false),
         ANIMATED_LAVA("Lava Animated", false, false),
         ANIMATED_FIRE("Fire Animated", false, false),

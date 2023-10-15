@@ -54,7 +54,7 @@ public class GuiShaders extends GuiScreen {
 			
 			if(parGuiButton.id == 201) {
 				mc.gameSettings.setOptionValue(((GuiOptionButton)parGuiButton).returnEnumOptions(), 1);
-				parGuiButton.displayString = mc.gameSettings.getKeyBinding(GameSettings.Options.getEnumOptions(74));
+				parGuiButton.displayString = mc.gameSettings.getKeyBinding(GameSettings.Options.SHADER_PROFILE);
 			}
 		}
 	}
