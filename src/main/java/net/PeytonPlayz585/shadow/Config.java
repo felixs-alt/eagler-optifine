@@ -418,4 +418,15 @@ public class Config {
         }
 	}
 	
+	public static boolean isDynamicLights() {
+        return Minecraft.getMinecraft().gameSettings.ofDynamicLights != 3;
+    }
+
+    public static boolean isDynamicLightsFast() {
+        return Minecraft.getMinecraft().gameSettings.ofDynamicLights == 1;
+    }
+    
+    public static boolean isDynamicHandLight() {
+        return !isDynamicLights() ? false : true;
+    }
 }

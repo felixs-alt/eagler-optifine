@@ -3,6 +3,7 @@ package net.minecraft.client.renderer;
 import net.minecraft.client.renderer.chunk.IRenderChunkFactory;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -141,7 +142,7 @@ public class ViewFrustum {
 
 	}
 
-	protected RenderChunk getRenderChunk(BlockPos pos) {
+	public RenderChunk getRenderChunk(BlockPos pos) {
 		int i = MathHelper.bucketInt(pos.getX(), 16);
 		int j = MathHelper.bucketInt(pos.getY(), 16);
 		int k = MathHelper.bucketInt(pos.getZ(), 16);
@@ -162,4 +163,13 @@ public class ViewFrustum {
 			return null;
 		}
 	}
+	
+	public RenderChunk getRenderChunk(RenderChunk p_getRenderChunk_1_, EnumFacing p_getRenderChunk_2_) {
+        if (p_getRenderChunk_1_ == null) {
+            return null;
+        } else {
+            BlockPos blockpos = p_getRenderChunk_1_.func_181701_a(p_getRenderChunk_2_);
+            return getRenderChunk(blockpos);
+        }
+    }
 }

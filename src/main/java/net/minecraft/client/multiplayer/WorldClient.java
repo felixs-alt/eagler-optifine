@@ -1,5 +1,7 @@
 package net.minecraft.client.multiplayer;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.DynamicLights;
 import net.PeytonPlayz585.shadow.other.PlayerControllerOF;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import java.util.Set;
@@ -434,6 +436,17 @@ public class WorldClient extends World {
 
 		super.setWorldTime(i);
 	}
+	
+	@Override
+	public int getCombinedLight(BlockPos pos, int lightValue) {
+        int i = super.getCombinedLight(pos, lightValue);
+
+        if (Config.isDynamicLights()) {
+            i = DynamicLights.getCombinedLight(pos, i);
+        }
+
+        return i;
+    }
 	
 	/**
      * Sets the block state at a given location. Flag 1 will cause a block update. Flag 2 will send the change to

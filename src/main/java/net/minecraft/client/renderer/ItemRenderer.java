@@ -2,6 +2,8 @@ package net.minecraft.client.renderer;
 
 import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.DynamicLights;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
@@ -108,11 +110,15 @@ public class ItemRenderer {
 	}
 
 	private void func_178109_a(AbstractClientPlayer clientPlayer) {
-		int i = this.mc.theWorld.getCombinedLight(new BlockPos(clientPlayer.posX,
-				clientPlayer.posY + (double) clientPlayer.getEyeHeight(), clientPlayer.posZ), 0);
-		float f = (float) (i & '\uffff');
-		float f1 = (float) (i >> 16);
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, f, f1);
+		int i = this.mc.theWorld.getCombinedLight(new BlockPos(clientPlayer.posX, clientPlayer.posY + (double)clientPlayer.getEyeHeight(), clientPlayer.posZ), 0);
+
+        if (Config.isDynamicLights()) {
+            i = DynamicLights.getCombinedLight(this.mc.getRenderViewEntity(), i);
+        }
+
+        float f = (float)(i & 65535);
+        float f1 = (float)(i >> 16);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, f, f1);
 	}
 
 	private void func_178110_a(EntityPlayerSP entityplayerspIn, float partialTicks) {

@@ -2,6 +2,8 @@ package net.minecraft.client.renderer;
 
 import java.util.Arrays;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.DynamicLights;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -50,15 +52,21 @@ public class RegionRenderCache extends ChunkCache {
 		return this.chunkArray[i][j].getTileEntity(blockpos, Chunk.EnumCreateEntityType.QUEUED);
 	}
 
-	public int getCombinedLight(BlockPos blockpos, int i) {
-		int j = this.getPositionIndex(blockpos);
-		int k = this.combinedLights[j];
-		if (k == -1) {
-			k = super.getCombinedLight(blockpos, i);
-			this.combinedLights[j] = k;
-		}
+	public int getCombinedLight(BlockPos pos, int lightValue) {
+		int i = this.getPositionIndex(pos);
+        int j = this.combinedLights[i];
 
-		return k;
+        if (j == -1) {
+            j = super.getCombinedLight(pos, lightValue);
+
+            if (Config.isDynamicLights() && !this.getBlockState(pos).getBlock().isOpaqueCube()) {
+                j = DynamicLights.getCombinedLight(pos, j);
+            }
+
+            this.combinedLights[i] = j;
+        }
+
+        return j;
 	}
 
 	public IBlockState getBlockState(BlockPos blockpos) {

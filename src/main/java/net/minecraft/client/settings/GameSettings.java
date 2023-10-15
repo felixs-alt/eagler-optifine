@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.CustomSky;
+import net.PeytonPlayz585.shadow.DynamicLights;
 import net.PeytonPlayz585.shadow.shaders.Shaders;
 import net.lax1dude.eaglercraft.v1_8.ArrayUtils;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
@@ -195,6 +196,7 @@ public class GameSettings {
 	public boolean ofCustomSky = true;
 	public boolean ofClearWater = false;
 	public int ofBetterGrass = 3;
+	public int ofDynamicLights = 3;
 	
 	//Detail Settings
 	/** Clouds flag */
@@ -229,6 +231,11 @@ public class GameSettings {
     
     //Shaders
     public int profile = 1;
+    
+    
+    //Other...
+    private static final int[] OF_DYNAMIC_LIGHTS = new int[] {3, 1, 2};
+    private static final String[] KEYS_DYNAMIC_LIGHTS = new String[] {"options.off", "options.graphics.fast", "options.graphics.fancy"};
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -649,6 +656,11 @@ public class GameSettings {
             this.updateRenderClouds();
             this.mc.renderGlobal.resetClouds();
         }
+		
+		if (parOptions == GameSettings.Options.DYNAMIC_LIGHTS) {
+            this.ofDynamicLights = nextValue(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
+            DynamicLights.removeLights(this.mc.renderGlobal);
+        }
 
 		this.saveOptions();
 	}
@@ -910,6 +922,9 @@ public class GameSettings {
                 default:
                     return s + "Default";
             }
+        } else if (parOptions == GameSettings.Options.DYNAMIC_LIGHTS) {
+            int k = indexOf(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
+            return s + getTranslation(KEYS_DYNAMIC_LIGHTS, k);
         } else {
 			return s;
 		}
@@ -1322,6 +1337,11 @@ public class GameSettings {
                         this.ofCloudsHeight = Float.valueOf(astring[1]).floatValue();
                         this.ofCloudsHeight = Config.limit(this.ofCloudsHeight, 0.0F, 1.0F);
                     }
+					
+					if (astring[0].equals("ofDynamicLights") && astring.length >= 2) {
+                        this.ofDynamicLights = Integer.valueOf(astring[1]).intValue();
+                        this.ofDynamicLights = limit(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1459,6 +1479,7 @@ public class GameSettings {
 			printwriter.println("ofChunkUpdates:" + this.ofChunkUpdates);
 			printwriter.println("ofClouds:" + this.ofClouds);
 			printwriter.println("ofCloudsHeight:" + this.ofCloudsHeight);
+			printwriter.println("ofDynamicLights:" + this.ofDynamicLights);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1625,7 +1646,8 @@ public class GameSettings {
 		SMOOTH_FPS("Smooth FPS", false, false),
 		CHUNK_UPDATES("Chunk Updates", false, false),
 		CLOUDS("Clouds", false, false),
-		CLOUD_HEIGHT("Cloud Height", true, false);
+		CLOUD_HEIGHT("Cloud Height", true, false),
+		DYNAMIC_LIGHTS("Dynamic Lights", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
@@ -1705,6 +1727,37 @@ public class GameSettings {
 			return parFloat1;
 		}
 	}
+	
+	private static int limit(int p_limit_0_, int[] p_limit_1_) {
+        int i = indexOf(p_limit_0_, p_limit_1_);
+        return i < 0 ? p_limit_1_[0] : p_limit_0_;
+    }
+
+    private static int indexOf(int p_indexOf_0_, int[] p_indexOf_1_) {
+        for (int i = 0; i < p_indexOf_1_.length; ++i) {
+            if (p_indexOf_1_[i] == p_indexOf_0_) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static int nextValue(int p_nextValue_0_, int[] p_nextValue_1_) {
+        int i = indexOf(p_nextValue_0_, p_nextValue_1_);
+
+        if (i < 0) {
+            return p_nextValue_1_[0];
+        } else {
+            ++i;
+
+            if (i >= p_nextValue_1_.length) {
+                i = 0;
+            }
+
+            return p_nextValue_1_[i];
+        }
+    }
 	
 	public void setAllAnimations(boolean p_setAllAnimations_1_) {
         int i = p_setAllAnimations_1_ ? 0 : 2;

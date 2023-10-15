@@ -12,6 +12,7 @@ import java.util.Map;
 
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.CustomSky;
+import net.PeytonPlayz585.shadow.DynamicLights;
 import net.PeytonPlayz585.shadow.opengl.OpenGLManager;
 import net.PeytonPlayz585.shadow.other.CloudRenderer;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
@@ -138,7 +139,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	 */
 	private List<RenderGlobal.ContainerLocalRenderInformation> renderInfos = Lists.newArrayListWithCapacity(69696);
 	private final Set<TileEntity> field_181024_n = Sets.newHashSet();
-	private ViewFrustum viewFrustum;
+	public ViewFrustum viewFrustum;
 	/**+
 	 * The star GL Call list
 	 */
@@ -379,6 +380,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		this.frustumUpdatePosChunkZ = Integer.MIN_VALUE;
 		this.renderManager.set(worldClientIn);
 		this.theWorld = worldClientIn;
+		
+		if (Config.isDynamicLights()) {
+            DynamicLights.clear();
+        }
+		
 		if (worldClientIn != null) {
 			worldClientIn.addWorldAccess(this);
 			this.loadRenderers();
@@ -402,6 +408,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			Blocks.leaves.setGraphicsLevel(mc.gameSettings.shaders || mc.gameSettings.fancyGraphics);
 			Blocks.leaves2.setGraphicsLevel(mc.gameSettings.shaders || mc.gameSettings.fancyGraphics);
 			BlockModelRenderer.updateAoLightValue();
+			
+			if (Config.isDynamicLights()) {
+                DynamicLights.clear();
+            }
+			
 			this.renderDistanceChunks = this.mc.gameSettings.renderDistanceChunks;
 			this.renderDistance = this.renderDistanceChunks * 16;
             this.renderDistanceSq = this.renderDistance * this.renderDistance;
@@ -847,6 +858,10 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			this.frustumUpdatePosChunkZ = viewEntity.chunkCoordZ;
 			this.viewFrustum.updateChunkPositions(viewEntity.posX, viewEntity.posZ);
 		}
+		
+		if (Config.isDynamicLights()) {
+            DynamicLights.update(this);
+        }
 
 		this.theWorld.theProfiler.endStartSection("renderlistcamera");
 		double d3 = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * partialTicks;
@@ -2235,6 +2250,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	 * tracker.
 	 */
 	public void onEntityAdded(Entity var1) {
+		
+		if (Config.isDynamicLights()) {
+            DynamicLights.entityAdded(var1, this);
+        }
+		
 	}
 
 	/**+
@@ -2244,6 +2264,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	 * entity tracker.
 	 */
 	public void onEntityRemoved(Entity var1) {
+		
+		if (Config.isDynamicLights()) {
+            DynamicLights.entityRemoved(var1, this);
+        }
+		
 	}
 
 	/**+
@@ -2532,4 +2557,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		return "" + Minecraft.getDebugFPS() + "fps | C: " + j + "/" + i + ", E: " + this.countEntitiesRendered + "+" + k
 				+ ", " + renderDispatcher.getDebugInfo();
 	}
+	
+	public WorldClient getWorld() {
+        return this.theWorld;
+    }
 }
