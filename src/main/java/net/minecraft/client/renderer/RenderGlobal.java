@@ -554,6 +554,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			}
 
 			this.theWorld.theProfiler.endStartSection("entities");
+			boolean flag4 = this.mc.gameSettings.fancyGraphics;
+            this.mc.gameSettings.fancyGraphics = Config.isDroppedItemsFancy();
 
 			label738: for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation : this.renderInfos) {
 				Chunk chunk = this.theWorld.getChunkFromBlockCoords(
@@ -602,6 +604,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 				}
 			}
 
+			this.mc.gameSettings.fancyGraphics = flag4;
 			this.theWorld.theProfiler.endStartSection("blockentities");
 			RenderHelper.enableStandardItemLighting();
 

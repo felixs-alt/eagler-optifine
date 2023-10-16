@@ -8,6 +8,7 @@ import java.util.List;
 
 import net.FatalCodes.shadow.Shadow;
 import net.FatalCodes.shadow.module.RenderModule;
+import net.PeytonPlayz585.shadow.Config;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
 
@@ -807,44 +808,46 @@ public class GuiIngame extends Gui {
 	 * light level.
 	 */
 	public void renderVignette(float parFloat1, int scaledWidth, int scaledHeight) {
-		parFloat1 = 1.0F - parFloat1;
-		parFloat1 = MathHelper.clamp_float(parFloat1, 0.0F, 1.0F);
-		WorldBorder worldborder = this.mc.theWorld.getWorldBorder();
-		float f = (float) worldborder.getClosestDistance(this.mc.thePlayer);
-		double d0 = Math.min(worldborder.getResizeSpeed() * (double) worldborder.getWarningTime() * 1000.0D,
-				Math.abs(worldborder.getTargetSize() - worldborder.getDiameter()));
-		double d1 = Math.max((double) worldborder.getWarningDistance(), d0);
-		if ((double) f < d1) {
-			f = 1.0F - (float) ((double) f / d1);
-		} else {
-			f = 0.0F;
-		}
+		if (!Config.isVignetteEnabled()) {
+            GlStateManager.enableDepth();
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        } else {
+        	parFloat1 = 1.0F - parFloat1;
+			parFloat1 = MathHelper.clamp_float(parFloat1, 0.0F, 1.0F);
+			WorldBorder worldborder = this.mc.theWorld.getWorldBorder();
+			float f = (float) worldborder.getClosestDistance(this.mc.thePlayer);
+			double d0 = Math.min(worldborder.getResizeSpeed() * (double) worldborder.getWarningTime() * 1000.0D, Math.abs(worldborder.getTargetSize() - worldborder.getDiameter()));
+			double d1 = Math.max((double) worldborder.getWarningDistance(), d0);
+			if ((double) f < d1) {
+				f = 1.0F - (float) ((double) f / d1);
+			} else {
+				f = 0.0F;
+			}
 
-		this.prevVignetteBrightness = (float) ((double) this.prevVignetteBrightness
-				+ (double) (parFloat1 - this.prevVignetteBrightness) * 0.01D);
-		GlStateManager.disableDepth();
-		GlStateManager.depthMask(false);
-		GlStateManager.tryBlendFuncSeparate(0, GL_ONE_MINUS_SRC_COLOR, 1, 0);
-		if (f > 0.0F) {
-			GlStateManager.color(0.0F, f, f, 1.0F);
-		} else {
-			GlStateManager.color(this.prevVignetteBrightness, this.prevVignetteBrightness, this.prevVignetteBrightness,
-					1.0F);
-		}
+			this.prevVignetteBrightness = (float) ((double) this.prevVignetteBrightness + (double) (parFloat1 - this.prevVignetteBrightness) * 0.01D);
+			GlStateManager.disableDepth();
+			GlStateManager.depthMask(false);
+			GlStateManager.tryBlendFuncSeparate(0, GL_ONE_MINUS_SRC_COLOR, 1, 0);
+			if (f > 0.0F) {
+				GlStateManager.color(0.0F, f, f, 1.0F);
+			} else {
+				GlStateManager.color(this.prevVignetteBrightness, this.prevVignetteBrightness, this.prevVignetteBrightness, 1.0F);
+			}
 
-		this.mc.getTextureManager().bindTexture(vignetteTexPath);
-		Tessellator tessellator = Tessellator.getInstance();
-		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-		worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
-		worldrenderer.pos(0.0D, (double) scaledHeight, -90.0D).tex(0.0D, 1.0D).endVertex();
-		worldrenderer.pos((double) scaledWidth, scaledHeight, -90.0D).tex(1.0D, 1.0D).endVertex();
-		worldrenderer.pos((double) scaledWidth, 0.0D, -90.0D).tex(1.0D, 0.0D).endVertex();
-		worldrenderer.pos(0.0D, 0.0D, -90.0D).tex(0.0D, 0.0D).endVertex();
-		tessellator.draw();
-		GlStateManager.depthMask(true);
-		GlStateManager.enableDepth();
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+			this.mc.getTextureManager().bindTexture(vignetteTexPath);
+			Tessellator tessellator = Tessellator.getInstance();
+			WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+			worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+			worldrenderer.pos(0.0D, (double) scaledHeight, -90.0D).tex(0.0D, 1.0D).endVertex();
+			worldrenderer.pos((double) scaledWidth, scaledHeight, -90.0D).tex(1.0D, 1.0D).endVertex();
+			worldrenderer.pos((double) scaledWidth, 0.0D, -90.0D).tex(1.0D, 0.0D).endVertex();
+			worldrenderer.pos(0.0D, 0.0D, -90.0D).tex(0.0D, 0.0D).endVertex();
+			tessellator.draw();
+			GlStateManager.depthMask(true);
+			GlStateManager.enableDepth();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        }
 	}
 
 	private void func_180474_b(float parFloat1, ScaledResolution parScaledResolution) {

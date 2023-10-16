@@ -1,5 +1,6 @@
 package net.minecraft.client.entity;
 
+import net.PeytonPlayz585.shadow.Config;
 import net.lax1dude.eaglercraft.v1_8.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -14,6 +15,7 @@ import net.minecraft.world.WorldSettings;
 
 public abstract class AbstractClientPlayer extends EntityPlayer {
 	private NetworkPlayerInfo playerInfo;
+	private ResourceLocation locationOfCape = null;
 
 	public AbstractClientPlayer(World worldIn, GameProfile playerProfile) {
 		super(worldIn, playerProfile);
@@ -62,8 +64,14 @@ public abstract class AbstractClientPlayer extends EntityPlayer {
 	}
 
 	public ResourceLocation getLocationCape() {
-		NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-		return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+		if (!Config.isShowCapes()) {
+            return null;
+        } else if (this.locationOfCape != null) {
+            return this.locationOfCape;
+        } else {
+            NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
+            return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+        }
 	}
 
 	public String getSkinType() {
@@ -99,4 +107,12 @@ public abstract class AbstractClientPlayer extends EntityPlayer {
 
 		return f;
 	}
+	
+	public ResourceLocation getLocationOfCape() {
+        return this.locationOfCape;
+    }
+
+    public void setLocationOfCape(ResourceLocation p_setLocationOfCape_1_) {
+        this.locationOfCape = p_setLocationOfCape_1_;
+    }
 }

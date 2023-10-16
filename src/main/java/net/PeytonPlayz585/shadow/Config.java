@@ -182,6 +182,26 @@ public class Config {
     public static boolean isStarsEnabled() {
         return Minecraft.getMinecraft().gameSettings.ofStars;
     }
+    
+    public static boolean isShowCapes() {
+        return Minecraft.getMinecraft().gameSettings.ofShowCapes;
+    }
+    
+    public static boolean isTranslucentBlocksFancy() {
+        return Minecraft.getMinecraft().gameSettings.ofTranslucentBlocks == 0 ? Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofTranslucentBlocks == 2;
+    }
+    
+    public static boolean isDroppedItemsFancy() {
+        return Minecraft.getMinecraft().gameSettings.ofDroppedItems == 0 ? Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofDroppedItems == 2;
+    }
+    
+    public static boolean isVignetteEnabled() {
+        return Minecraft.getMinecraft().gameSettings.ofVignette == 0 ? Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofVignette == 2;
+    }
+    
+    public static boolean isDynamicFov() {
+        return Minecraft.getMinecraft().gameSettings.ofDynamicFov;
+    }
 
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);

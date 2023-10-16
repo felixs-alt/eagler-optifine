@@ -417,7 +417,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			float f = 70.0F;
 			if (parFlag) {
 				f = this.mc.gameSettings.keyBindZoomCamera.isKeyDown() ? 17.0f : this.mc.gameSettings.fovSetting;
-				f = f * (this.fovModifierHandPrev + (this.fovModifierHand - this.fovModifierHandPrev) * partialTicks);
+				
+				if (Config.isDynamicFov()) {
+                    f *= this.fovModifierHandPrev + (this.fovModifierHand - this.fovModifierHandPrev) * partialTicks;
+                }
 			}
 
 			if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getHealth() <= 0.0F) {
@@ -963,9 +966,14 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 					this.setupOverlayRendering();
 					GlStateManager.disableLighting();
 					GlStateManager.enableBlend();
-					if (Minecraft.isFancyGraphicsEnabled()) {
+					
+					if (Config.isVignetteEnabled()) {
 						this.mc.ingameGUI.renderVignette(parFloat1, l, i1);
-					}
+					} else {
+			            GlStateManager.enableDepth();
+			            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+			        }
+					
 					this.mc.ingameGUI.renderGameOverlayCrosshairs(l, i1);
 					GlStateManager.bindTexture(this.overlayFramebuffer.getTexture());
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

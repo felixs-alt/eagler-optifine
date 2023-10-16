@@ -109,7 +109,6 @@ public class GameSettings {
 	public boolean touchscreen;
 	public int overrideWidth;
 	public int overrideHeight;
-	public boolean heldItemTooltips = true;
 	public float chatScale = 1.0F;
 	public float chatWidth = 1.0F;
 	public float chatHeightUnfocused = 0.44366196F;
@@ -207,6 +206,12 @@ public class GameSettings {
 	public boolean ofSky = true;
 	public boolean ofStars = true;
     public boolean ofSunMoon = true;
+    public boolean ofShowCapes = true;
+    public int ofTranslucentBlocks = 0;
+    public boolean heldItemTooltips = true;
+    public int ofDroppedItems = 0;
+    public int ofVignette = 0;
+    public boolean ofDynamicFov = true;
 	
 	//Optifine Animations
 	public int ofAnimatedWater = 0;
@@ -698,6 +703,48 @@ public class GameSettings {
         if (parOptions == GameSettings.Options.SUN_MOON) {
             this.ofSunMoon = !this.ofSunMoon;
         }
+        
+        if (parOptions == GameSettings.Options.SHOW_CAPES) {
+            this.ofShowCapes = !this.ofShowCapes;
+        }
+        
+        if (parOptions == GameSettings.Options.TRANSLUCENT_BLOCKS) {
+            if (this.ofTranslucentBlocks == 0) {
+                this.ofTranslucentBlocks = 1;
+            } else if (this.ofTranslucentBlocks == 1) {
+                this.ofTranslucentBlocks = 2;
+            } else if (this.ofTranslucentBlocks == 2) {
+                this.ofTranslucentBlocks = 0;
+            } else {
+                this.ofTranslucentBlocks = 0;
+            }
+
+            this.mc.renderGlobal.loadRenderers();
+        }
+        
+        if (parOptions == GameSettings.Options.HELD_ITEM_TOOLTIPS) {
+            this.heldItemTooltips = !this.heldItemTooltips;
+        }
+        
+        if (parOptions == GameSettings.Options.DROPPED_ITEMS) {
+            ++this.ofDroppedItems;
+
+            if (this.ofDroppedItems > 2) {
+                this.ofDroppedItems = 0;
+            }
+        }
+        
+        if (parOptions == GameSettings.Options.VIGNETTE) {
+            ++this.ofVignette;
+
+            if (this.ofVignette > 2) {
+                this.ofVignette = 0;
+            }
+        }
+        
+        if (parOptions == GameSettings.Options.DYNAMIC_FOV) {
+            this.ofDynamicFov = !this.ofDynamicFov;
+        }
 
 		this.saveOptions();
 	}
@@ -780,6 +827,10 @@ public class GameSettings {
 			return this.ofStars;
 		case SUN_MOON:
 			return this.ofSunMoon;
+		case SHOW_CAPES:
+			return this.ofShowCapes;
+		case DYNAMIC_FOV:
+			return this.ofDynamicFov;
 		default:
 			return false;
 		}
@@ -1007,6 +1058,36 @@ public class GameSettings {
             return this.ofStars ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.SUN_MOON) {
             return this.ofSunMoon ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.SHOW_CAPES) {
+            return this.ofShowCapes ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.TRANSLUCENT_BLOCKS) {
+            return this.ofTranslucentBlocks == 1 ? s + "Fast" : (this.ofTranslucentBlocks == 2 ? s + "Fancy" : s + "Default");
+        } else if (parOptions == GameSettings.Options.HELD_ITEM_TOOLTIPS) {
+            return this.heldItemTooltips ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.DROPPED_ITEMS) {
+            switch (this.ofDroppedItems) {
+                case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                default:
+                    return s + "Default";
+            }
+        } else if (parOptions == GameSettings.Options.VIGNETTE) {
+            switch (this.ofVignette) {
+                case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                default:
+                    return s + "Default";
+            }
+        } else if (parOptions == GameSettings.Options.DYNAMIC_FOV) {
+            return this.ofDynamicFov ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1451,6 +1532,29 @@ public class GameSettings {
                     if (astring[0].equals("ofSunMoon") && astring.length >= 2) {
                         this.ofSunMoon = Boolean.valueOf(astring[1]).booleanValue();
                     }
+                    
+                    if (astring[0].equals("ofShowCapes") && astring.length >= 2) {
+                        this.ofShowCapes = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+                    
+                    if (astring[0].equals("ofTranslucentBlocks") && astring.length >= 2) {
+                        this.ofTranslucentBlocks = Integer.valueOf(astring[1]).intValue();
+                        this.ofTranslucentBlocks = Config.limit(this.ofTranslucentBlocks, 0, 2);
+                    }
+                    
+                    if (astring[0].equals("ofDroppedItems") && astring.length >= 2) {
+                        this.ofDroppedItems = Integer.valueOf(astring[1]).intValue();
+                        this.ofDroppedItems = Config.limit(this.ofDroppedItems, 0, 2);
+                    }
+                    
+                    if (astring[0].equals("ofVignette") && astring.length >= 2) {
+                        this.ofVignette = Integer.valueOf(astring[1]).intValue();
+                        this.ofVignette = Config.limit(this.ofVignette, 0, 2);
+                    }
+                    
+                    if (astring[0].equals("ofDynamicFov") && astring.length >= 2) {
+                        this.ofDynamicFov = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1595,6 +1699,11 @@ public class GameSettings {
 			printwriter.println("ofSky:" + this.ofSky);
             printwriter.println("ofStars:" + this.ofStars);
             printwriter.println("ofSunMoon:" + this.ofSunMoon);
+            printwriter.println("ofShowCapes:" + this.ofShowCapes);
+            printwriter.println("ofTranslucentBlocks:" + this.ofTranslucentBlocks);
+            printwriter.println("ofDroppedItems:" + this.ofDroppedItems);
+            printwriter.println("ofVignette:" + this.ofVignette);
+            printwriter.println("ofDynamicFov:" + this.ofDynamicFov);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1774,7 +1883,13 @@ public class GameSettings {
 		TREES("Trees", false, false),
 		SKY("Sky", false, false),
         STARS("Stars", false, false),
-        SUN_MOON("Sun & Moon", false, false);
+        SUN_MOON("Sun & Moon", false, false),
+        SHOW_CAPES("Show Capes", false, false),
+        TRANSLUCENT_BLOCKS("Translucent Blocks", false, false),
+        HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
+        DROPPED_ITEMS("Dropped Items", false, false),
+        VIGNETTE("Vignette", false, false),
+        DYNAMIC_FOV("Dynamic FOV", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
