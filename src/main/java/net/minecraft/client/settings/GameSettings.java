@@ -204,6 +204,9 @@ public class GameSettings {
 	public float ofCloudsHeight = 0.0F;
 	public int ofTrees = 0;
 	public int ofRain = 0;
+	public boolean ofSky = true;
+	public boolean ofStars = true;
+    public boolean ofSunMoon = true;
 	
 	//Optifine Animations
 	public int ofAnimatedWater = 0;
@@ -683,6 +686,18 @@ public class GameSettings {
             this.ofTrees = nextValue(this.ofTrees, OF_TREES_VALUES);
             this.mc.renderGlobal.loadRenderers();
         }
+		
+		if (parOptions == GameSettings.Options.SKY) {
+            this.ofSky = !this.ofSky;
+        }
+
+        if (parOptions == GameSettings.Options.STARS) {
+            this.ofStars = !this.ofStars;
+        }
+
+        if (parOptions == GameSettings.Options.SUN_MOON) {
+            this.ofSunMoon = !this.ofSunMoon;
+        }
 
 		this.saveOptions();
 	}
@@ -759,6 +774,12 @@ public class GameSettings {
 			return this.ofSmoothFps;
 		case FAST_MATH:
 			return ofFastMath;
+		case SKY:
+			return this.ofSky;
+		case STARS:
+			return this.ofStars;
+		case SUN_MOON:
+			return this.ofSunMoon;
 		default:
 			return false;
 		}
@@ -980,6 +1001,12 @@ public class GameSettings {
                 case 4:
                     return s + "Smart";
             }
+        } else if (parOptions == GameSettings.Options.SKY) {
+            return this.ofSky ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.STARS) {
+            return this.ofStars ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.SUN_MOON) {
+            return this.ofSunMoon ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1412,6 +1439,18 @@ public class GameSettings {
                         this.ofTrees = Integer.valueOf(astring[1]).intValue();
                         this.ofTrees = limit(this.ofTrees, OF_TREES_VALUES);
                     }
+					
+					if (astring[0].equals("ofSky") && astring.length >= 2) {
+                        this.ofSky = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+
+                    if (astring[0].equals("ofStars") && astring.length >= 2) {
+                        this.ofStars = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+
+                    if (astring[0].equals("ofSunMoon") && astring.length >= 2) {
+                        this.ofSunMoon = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1553,6 +1592,9 @@ public class GameSettings {
 			printwriter.println("ofRain:" + this.ofRain);
 			printwriter.println("ofRainSplash:" + this.ofRainSplash);
 			printwriter.println("ofTrees:" + this.ofTrees);
+			printwriter.println("ofSky:" + this.ofSky);
+            printwriter.println("ofStars:" + this.ofStars);
+            printwriter.println("ofSunMoon:" + this.ofSunMoon);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1729,7 +1771,10 @@ public class GameSettings {
 		CLOUD_HEIGHT("Cloud Height", true, false),
 		DYNAMIC_LIGHTS("Dynamic Lights", false, false),
 		RAIN("Rain & Snow", false, false),
-		TREES("Trees", false, false);
+		TREES("Trees", false, false),
+		SKY("Sky", false, false),
+        STARS("Stars", false, false),
+        SUN_MOON("Sun & Moon", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

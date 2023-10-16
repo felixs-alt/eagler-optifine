@@ -170,6 +170,18 @@ public class Config {
     public static boolean isCullFacesLeaves() {
         return Minecraft.getMinecraft().gameSettings.ofTrees == 0 ? !Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofTrees == 4;
     }
+    
+    public static boolean isSkyEnabled() {
+        return Minecraft.getMinecraft().gameSettings.ofSky;
+    }
+    
+    public static boolean isSunMoonEnabled() {
+        return Minecraft.getMinecraft().gameSettings.ofSunMoon;
+    }
+    
+    public static boolean isStarsEnabled() {
+        return Minecraft.getMinecraft().gameSettings.ofStars;
+    }
 
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);
