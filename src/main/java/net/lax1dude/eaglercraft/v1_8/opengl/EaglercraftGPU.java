@@ -386,7 +386,7 @@ public class EaglercraftGPU {
 		FixedFunctionPipeline.optimize();
 	}
 
-	private static FixedFunctionPipeline lastRender = null;
+	public static FixedFunctionPipeline lastRender = null;
 	private static int lastMode = 0;
 	private static int lastCount = 0;
 

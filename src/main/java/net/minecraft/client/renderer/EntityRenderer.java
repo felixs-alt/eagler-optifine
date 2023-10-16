@@ -1321,74 +1321,72 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	}
 
 	private void addRainParticles() {
-		if (DeferredStateManager.isDeferredRenderer())
+		if (DeferredStateManager.isDeferredRenderer()) {
 			return;
-		float f = this.mc.theWorld.getRainStrength(1.0F);
-		if (!this.mc.gameSettings.fancyGraphics) {
-			f /= 2.0F;
 		}
+		
+        float f = this.mc.theWorld.getRainStrength(1.0F);
 
-		if (f != 0.0F) {
-			this.random.setSeed((long) this.rendererUpdateCount * 312987231L);
-			Entity entity = this.mc.getRenderViewEntity();
-			WorldClient worldclient = this.mc.theWorld;
-			BlockPos blockpos = new BlockPos(entity);
-			byte b0 = 10;
-			double d0 = 0.0D;
-			double d1 = 0.0D;
-			double d2 = 0.0D;
-			int i = 0;
-			int j = (int) (100.0F * f * f);
-			if (this.mc.gameSettings.particleSetting == 1) {
-				j >>= 1;
-			} else if (this.mc.gameSettings.particleSetting == 2) {
-				j = 0;
-			}
+        if (!Config.isRainFancy()) {
+            f /= 2.0F;
+        }
 
-			for (int k = 0; k < j; ++k) {
-				BlockPos blockpos1 = worldclient
-						.getPrecipitationHeight(blockpos.add(this.random.nextInt(b0) - this.random.nextInt(b0), 0,
-								this.random.nextInt(b0) - this.random.nextInt(b0)));
-				BiomeGenBase biomegenbase = worldclient.getBiomeGenForCoords(blockpos1);
-				BlockPos blockpos2 = blockpos1.down();
-				Block block = worldclient.getBlockState(blockpos2).getBlock();
-				if (blockpos1.getY() <= blockpos.getY() + b0 && blockpos1.getY() >= blockpos.getY() - b0
-						&& biomegenbase.canSpawnLightningBolt()
-						&& biomegenbase.getFloatTemperature(blockpos1) >= 0.15F) {
-					double d3 = this.random.nextDouble();
-					double d4 = this.random.nextDouble();
-					if (block.getMaterial() == Material.lava) {
-						this.mc.theWorld.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, (double) blockpos1.getX() + d3,
-								(double) ((float) blockpos1.getY() + 0.1F) - block.getBlockBoundsMinY(),
-								(double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
-					} else if (block.getMaterial() != Material.air) {
-						block.setBlockBoundsBasedOnState(worldclient, blockpos2);
-						++i;
-						if (this.random.nextInt(i) == 0) {
-							d0 = (double) blockpos2.getX() + d3;
-							d1 = (double) ((float) blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY() - 1.0D;
-							d2 = (double) blockpos2.getZ() + d4;
-						}
+        if (f != 0.0F && Config.isRainSplash()) {
+            this.random.setSeed((long)this.rendererUpdateCount * 312987231L);
+            Entity entity = this.mc.getRenderViewEntity();
+            WorldClient worldclient = this.mc.theWorld;
+            BlockPos blockpos = new BlockPos(entity);
+            byte b0 = 10;
+            double d0 = 0.0D;
+            double d1 = 0.0D;
+            double d2 = 0.0D;
+            int i = 0;
+            int j = (int)(100.0F * f * f);
 
-						this.mc.theWorld.spawnParticle(EnumParticleTypes.WATER_DROP, (double) blockpos2.getX() + d3,
-								(double) ((float) blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY(),
-								(double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
-					}
-				}
-			}
+            if (this.mc.gameSettings.particleSetting == 1) {
+                j >>= 1;
+            } else if (this.mc.gameSettings.particleSetting == 2) {
+                j = 0;
+            }
 
-			if (i > 0 && this.random.nextInt(3) < this.rainSoundCounter++) {
-				this.rainSoundCounter = 0;
-				if (d1 > (double) (blockpos.getY() + 1) && worldclient.getPrecipitationHeight(blockpos)
-						.getY() > MathHelper.floor_float((float) blockpos.getY())) {
-					this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.1F, 0.5F, false);
-				} else {
-					this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.2F, 1.0F, false);
-				}
-			}
+            for (int k = 0; k < j; ++k) {
+                BlockPos blockpos1 = worldclient.getPrecipitationHeight(blockpos.add(this.random.nextInt(b0) - this.random.nextInt(b0), 0, this.random.nextInt(b0) - this.random.nextInt(b0)));
+                BiomeGenBase biomegenbase = worldclient.getBiomeGenForCoords(blockpos1);
+                BlockPos blockpos2 = blockpos1.down();
+                Block block = worldclient.getBlockState(blockpos2).getBlock();
 
-		}
-	}
+                if (blockpos1.getY() <= blockpos.getY() + b0 && blockpos1.getY() >= blockpos.getY() - b0 && biomegenbase.canSpawnLightningBolt() && biomegenbase.getFloatTemperature(blockpos1) >= 0.15F) {
+                    double d3 = this.random.nextDouble();
+                    double d4 = this.random.nextDouble();
+
+                    if (block.getMaterial() == Material.lava) {
+                        this.mc.theWorld.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, (double)blockpos1.getX() + d3, (double)((float)blockpos1.getY() + 0.1F) - block.getBlockBoundsMinY(), (double)blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+                    } else if (block.getMaterial() != Material.air) {
+                        block.setBlockBoundsBasedOnState(worldclient, blockpos2);
+                        ++i;
+
+                        if (this.random.nextInt(i) == 0) {
+                            d0 = (double)blockpos2.getX() + d3;
+                            d1 = (double)((float)blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY() - 1.0D;
+                            d2 = (double)blockpos2.getZ() + d4;
+                        }
+
+                        this.mc.theWorld.spawnParticle(EnumParticleTypes.WATER_DROP, (double)blockpos2.getX() + d3, (double)((float)blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY(), (double)blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+                    }
+                }
+            }
+
+            if (i > 0 && this.random.nextInt(3) < this.rainSoundCounter++) {
+                this.rainSoundCounter = 0;
+
+                if (d1 > (double)(blockpos.getY() + 1) && worldclient.getPrecipitationHeight(blockpos).getY() > MathHelper.floor_float((float)blockpos.getY())) {
+                    this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.1F, 0.5F, false);
+                } else {
+                    this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.2F, 1.0F, false);
+                }
+            }
+        }
+    }
 
 	/**+
 	 * Render rain and snow
@@ -1396,6 +1394,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	protected void renderRainSnow(float partialTicks) {
 		float f = this.mc.theWorld.getRainStrength(partialTicks);
 		if (f > 0.0F) {
+			if (Config.isRainOff()){
+                return;
+            }
+			
 			boolean df = DeferredStateManager.isInDeferredPass();
 			this.enableLightmap();
 			Entity entity = this.mc.getRenderViewEntity();
@@ -1426,15 +1428,23 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			double d2 = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) partialTicks;
 			int l = MathHelper.floor_double(d1);
 			byte b0 = 5;
+			
 			if (df) {
 				b0 = 8;
-			} else if (this.mc.gameSettings.fancyGraphics) {
-				b0 = 10;
-			}
+			} else if (Config.isRainFancy()) {
+                b0 = 10;
+            }
 
 			byte b1 = -1;
 			float f1 = (float) this.rendererUpdateCount + partialTicks;
 			worldrenderer.setTranslation(-d0, -d1, -d2);
+			
+			if (df) {
+				b0 = 8;
+			} else if (Config.isRainFancy()) {
+                b0 = 10;
+            }
+			
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 

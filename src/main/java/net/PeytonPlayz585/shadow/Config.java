@@ -145,6 +145,18 @@ public class Config {
     public static boolean isCloudsOff() {
         return Minecraft.getMinecraft().gameSettings.ofClouds != 0 ? Minecraft.getMinecraft().gameSettings.ofClouds == 3 : false;
     }
+    
+    public static boolean isRainFancy() {
+        return Minecraft.getMinecraft().gameSettings.ofRain == 0 ? Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofRain == 2;
+    }
+
+    public static boolean isRainOff() {
+        return Minecraft.getMinecraft().gameSettings.ofRain == 3;
+    }
+    
+    public static boolean isRainSplash() {
+        return Minecraft.getMinecraft().gameSettings.ofRainSplash;
+    }
 
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);

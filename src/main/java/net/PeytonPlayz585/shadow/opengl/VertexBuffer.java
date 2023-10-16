@@ -11,12 +11,6 @@ import net.lax1dude.eaglercraft.v1_8.opengl.VertexFormat;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 
 public class VertexBuffer {
-    //private IBufferGL vbo = null;
-
-    public void bindBuffer(IBufferGL vbo) {
-        OpenGLManager.glBindBuffer(RealOpenGLEnums.GL_ARRAY_BUFFER, vbo);
-    }
-
     public void func_181722_a(WorldRenderer p_181722_1_, int parInt1) {
     	if(p_181722_1_.getVertexCount() > 0) {
     		EaglercraftGPU.glNewList(parInt1, GL_COMPILE);
@@ -25,9 +19,5 @@ public class VertexBuffer {
 			EaglercraftGPU.renderBuffer(buf, fmt.eaglercraftAttribBits, 7, p_181722_1_.getVertexCount());
 			EaglercraftGPU.glEndList();
     	}
-    }
-
-    public void unbindBuffer(IBufferGL vbo) {
-        OpenGLManager.glBindBuffer(RealOpenGLEnums.GL_ARRAY_BUFFER, vbo);
     }
 }

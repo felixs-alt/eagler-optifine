@@ -24,7 +24,7 @@ public class GuiAnimations extends GuiScreen {
     		GameSettings.Options.ANIMATED_SMOKE, 
     		GameSettings.Options.VOID_PARTICLES, 
     		GameSettings.Options.WATER_PARTICLES, 
-    		//GameSettings.Options.RAIN_SPLASH, 
+    		GameSettings.Options.RAIN_SPLASH, 
     		GameSettings.Options.PORTAL_PARTICLES, 
     		GameSettings.Options.POTION_PARTICLES, 
     		GameSettings.Options.DRIPPING_WATER_LAVA, 

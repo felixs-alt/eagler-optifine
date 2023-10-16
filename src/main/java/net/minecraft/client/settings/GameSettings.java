@@ -202,6 +202,7 @@ public class GameSettings {
     public int clouds = 2;
 	public int ofClouds = 0;
 	public float ofCloudsHeight = 0.0F;
+	public int ofRain = 0;
 	
 	//Optifine Animations
 	public int ofAnimatedWater = 0;
@@ -220,6 +221,7 @@ public class GameSettings {
     public boolean ofDrippingWaterLava = true;
     public boolean ofAnimatedTerrain = true;
     public boolean ofAnimatedTextures = true;
+    public boolean ofRainSplash = true;
     
     //Performance Settings
     public boolean ofSmoothFps = false;
@@ -662,6 +664,18 @@ public class GameSettings {
             ofFastMath = !ofFastMath;
             MathHelper.fastMath = ofFastMath;
         }
+		
+		if (parOptions == GameSettings.Options.RAIN) {
+            ++this.ofRain;
+
+            if (this.ofRain > 3) {
+                this.ofRain = 0;
+            }
+        }
+		
+		if (parOptions == GameSettings.Options.RAIN_SPLASH) {
+            this.ofRainSplash = !this.ofRainSplash;
+        }
 
 		this.saveOptions();
 	}
@@ -928,6 +942,22 @@ public class GameSettings {
             return s + getTranslation(KEYS_DYNAMIC_LIGHTS, k);
         } else if (parOptions == GameSettings.Options.FAST_MATH) {
             return ofFastMath ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.RAIN) {
+            switch (this.ofRain) {
+                case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                case 3:
+                    return s + "OFF";
+
+                default:
+                    return s + "Default";
+            }
+        } else if (parOptions == GameSettings.Options.RAIN_SPLASH) {
+            return this.ofRainSplash ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1346,6 +1376,15 @@ public class GameSettings {
                         ofFastMath = Boolean.valueOf(astring[1]).booleanValue();
                         MathHelper.fastMath = ofFastMath;
                     }
+					
+					if (astring[0].equals("ofRain") && astring.length >= 2) {
+                        this.ofRain = Integer.valueOf(astring[1]).intValue();
+                        this.ofRain = Config.limit(this.ofRain, 0, 3);
+                    }
+					
+					if (astring[0].equals("ofRainSplash") && astring.length >= 2) {
+                        this.ofRainSplash = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1484,6 +1523,8 @@ public class GameSettings {
 			printwriter.println("ofCloudsHeight:" + this.ofCloudsHeight);
 			printwriter.println("ofDynamicLights:" + this.ofDynamicLights);
 			printwriter.println("ofFastMath:" + ofFastMath);
+			printwriter.println("ofRain:" + this.ofRain);
+			printwriter.println("ofRainSplash:" + this.ofRainSplash);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1645,6 +1686,7 @@ public class GameSettings {
         DRIPPING_WATER_LAVA("Dripping Water/Lava", false, false),
         ANIMATED_TERRAIN("Terrain Animated", false, false),
         ANIMATED_TEXTURES("Textures Animated", false, false),
+        RAIN_SPLASH("Rain Splash", false, false),
         AO_LEVEL("Smooth Lighting Level", true, false),
         USE_VBO("Use VBOs", false, false),
         CUSTOM_SKY("Custom Sky", false, false),
@@ -1657,7 +1699,8 @@ public class GameSettings {
 		CHUNK_UPDATES("Chunk Updates", false, false),
 		CLOUDS("Clouds", false, false),
 		CLOUD_HEIGHT("Cloud Height", true, false),
-		DYNAMIC_LIGHTS("Dynamic Lights", false, false);
+		DYNAMIC_LIGHTS("Dynamic Lights", false, false),
+		RAIN("Rain & Snow", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
@@ -1788,6 +1831,7 @@ public class GameSettings {
         this.ofDrippingWaterLava = p_setAllAnimations_1_;
         this.ofAnimatedTerrain = p_setAllAnimations_1_;
         this.ofAnimatedTextures = p_setAllAnimations_1_;
+        this.ofRainSplash = p_setAllAnimations_1_;
     }
 
 	private void updateWaterOpacity() {
