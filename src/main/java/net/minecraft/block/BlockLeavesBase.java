@@ -2,6 +2,8 @@ package net.minecraft.block;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
+
+import net.PeytonPlayz585.shadow.Config;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -42,10 +44,9 @@ public class BlockLeavesBase extends Block {
 		return false;
 	}
 
-	public boolean shouldSideBeRendered(IBlockAccess iblockaccess, BlockPos blockpos, EnumFacing enumfacing) {
-		return !this.fancyGraphics && iblockaccess.getBlockState(blockpos).getBlock() == this ? false
-				: super.shouldSideBeRendered(iblockaccess, blockpos, enumfacing);
-	}
+	public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+        return Config.isCullFacesLeaves() && worldIn.getBlockState(pos).getBlock() == this ? false : super.shouldSideBeRendered(worldIn, pos, side);
+    }
 
 	public static void setLightOpacity(Block p_setLightOpacity_0_, int p_setLightOpacity_1_) {
         if (!mapOriginalOpacity.containsKey(p_setLightOpacity_0_)) {

@@ -405,8 +405,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 				}
 			}
 
-			Blocks.leaves.setGraphicsLevel(mc.gameSettings.shaders || mc.gameSettings.fancyGraphics);
-			Blocks.leaves2.setGraphicsLevel(mc.gameSettings.shaders || mc.gameSettings.fancyGraphics);
+			Blocks.leaves.setGraphicsLevel(mc.gameSettings.shaders || Config.isTreesFancy());
+			Blocks.leaves2.setGraphicsLevel(mc.gameSettings.shaders || Config.isTreesFancy());
 			BlockModelRenderer.updateAoLightValue();
 			
 			if (Config.isDynamicLights()) {

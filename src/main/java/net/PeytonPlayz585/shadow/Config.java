@@ -19,6 +19,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.ResourcePackRepository;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 
@@ -156,6 +157,18 @@ public class Config {
     
     public static boolean isRainSplash() {
         return Minecraft.getMinecraft().gameSettings.ofRainSplash;
+    }
+    
+    public static boolean isTreesFancy() {
+        return Minecraft.getMinecraft().gameSettings.ofTrees == 0 ? Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofTrees != 1;
+    }
+
+    public static boolean isTreesSmart() {
+        return Minecraft.getMinecraft().gameSettings.ofTrees == 4;
+    }
+
+    public static boolean isCullFacesLeaves() {
+        return Minecraft.getMinecraft().gameSettings.ofTrees == 0 ? !Minecraft.getMinecraft().gameSettings.fancyGraphics : Minecraft.getMinecraft().gameSettings.ofTrees == 4;
     }
 
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
@@ -440,5 +453,9 @@ public class Config {
     
     public static boolean isDynamicHandLight() {
         return !isDynamicLights() ? false : true;
+    }
+
+    public static ModelManager getModelManager() {
+        return Minecraft.getMinecraft().getRenderItem().modelManager;
     }
 }

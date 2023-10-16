@@ -1,10 +1,13 @@
 package net.PeytonPlayz585.shadow;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
 
-public class TextureUtils {
+public class TextureUtils implements IResourceManagerReloadListener {
 	
 	static TextureMap texturemap = new TextureMap();
 	public static String s = "minecraft:blocks/";
@@ -63,6 +66,33 @@ public class TextureUtils {
         }
     }
     
+    public static void update() {
+        TextureMap texturemap = new TextureMap();
+
+        if (texturemap != null) {
+            String s = "minecraft:blocks/";
+            iconGrassTop = texturemap.getSpriteSafe(s + "grass_top");
+            iconGrassSide = texturemap.getSpriteSafe(s + "grass_side");
+            iconGrassSideOverlay = texturemap.getSpriteSafe(s + "grass_side_overlay");
+            iconSnow = texturemap.getSpriteSafe(s + "snow");
+            iconGrassSideSnowed = texturemap.getSpriteSafe(s + "grass_side_snowed");
+            iconMyceliumSide = texturemap.getSpriteSafe(s + "mycelium_side");
+            iconMyceliumTop = texturemap.getSpriteSafe(s + "mycelium_top");
+            iconWaterStill = texturemap.getSpriteSafe(s + "water_still");
+            iconWaterFlow = texturemap.getSpriteSafe(s + "water_flow");
+            iconLavaStill = texturemap.getSpriteSafe(s + "lava_still");
+            iconLavaFlow = texturemap.getSpriteSafe(s + "lava_flow");
+            iconFireLayer0 = texturemap.getSpriteSafe(s + "fire_layer_0");
+            iconFireLayer1 = texturemap.getSpriteSafe(s + "fire_layer_1");
+            iconPortal = texturemap.getSpriteSafe(s + "portal");
+            iconGlass = texturemap.getSpriteSafe(s + "glass");
+            iconGlassPaneTop = texturemap.getSpriteSafe(s + "glass_pane_top");
+            String s1 = "minecraft:items/";
+            iconCompass = texturemap.getSpriteSafe(s1 + "compass");
+            iconClock = texturemap.getSpriteSafe(s1 + "clock");
+        }
+    }
+    
     public static String getBasePath(String p_getBasePath_0_) {
         int i = p_getBasePath_0_.lastIndexOf(47);
         return i < 0 ? "" : p_getBasePath_0_.substring(0, i);
@@ -80,6 +110,22 @@ public class TextureUtils {
             Config.getTextureManager().loadTexture(p_getTexture_0_, simpletexture);
             return simpletexture;
         }
+    }
+    
+    public void onResourceManagerReload(IResourceManager p_resourcesReloaded_0_) {
+        if (getTextureMapBlocks() != null) {
+            Config.dbg("*** Reloading custom textures ***");
+            CustomSky.reset();
+            update();
+            BetterGrass.update();
+            CustomSky.update();
+            SmartLeaves.updateLeavesModels();
+            Config.getTextureManager().tick();
+        }
+    }
+    
+    public static net.minecraft.client.renderer.texture.TextureMap getTextureMapBlocks() {
+        return Minecraft.getMinecraft().getTextureMapBlocks();
     }
     
     static class TextureMap {

@@ -96,6 +96,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 
 	public RenderItem(TextureManager textureManager, ModelManager modelManager) {
 		this.textureManager = textureManager;
+		this.modelManager = modelManager;
 		this.itemModelMesher = new ItemModelMesher(modelManager);
 		this.registerItems();
 	}
@@ -148,6 +149,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 	public static float renderPosX = 0.0f;
 	public static float renderPosY = 0.0f;
 	public static float renderPosZ = 0.0f;
+	public ModelManager modelManager = null;
 
 	public void renderItem(ItemStack stack, IBakedModel model) {
 		if (stack != null) {

@@ -202,6 +202,7 @@ public class GameSettings {
     public int clouds = 2;
 	public int ofClouds = 0;
 	public float ofCloudsHeight = 0.0F;
+	public int ofTrees = 0;
 	public int ofRain = 0;
 	
 	//Optifine Animations
@@ -238,6 +239,7 @@ public class GameSettings {
     //Other...
     private static final int[] OF_DYNAMIC_LIGHTS = new int[] {3, 1, 2};
     private static final String[] KEYS_DYNAMIC_LIGHTS = new String[] {"options.off", "options.graphics.fast", "options.graphics.fancy"};
+    private static final int[] OF_TREES_VALUES = new int[] {0, 1, 4, 2};
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -676,6 +678,11 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.RAIN_SPLASH) {
             this.ofRainSplash = !this.ofRainSplash;
         }
+		
+		if (parOptions == GameSettings.Options.TREES) {
+            this.ofTrees = nextValue(this.ofTrees, OF_TREES_VALUES);
+            this.mc.renderGlobal.loadRenderers();
+        }
 
 		this.saveOptions();
 	}
@@ -958,6 +965,21 @@ public class GameSettings {
             }
         } else if (parOptions == GameSettings.Options.RAIN_SPLASH) {
             return this.ofRainSplash ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.TREES) {
+            switch (this.ofTrees) {
+                case 1:
+                    return s + "Fast";
+
+                case 2:
+                    return s + "Fancy";
+
+                case 3:
+                default:
+                    return s + "Default";
+
+                case 4:
+                    return s + "Smart";
+            }
         } else {
 			return s;
 		}
@@ -1385,6 +1407,11 @@ public class GameSettings {
 					if (astring[0].equals("ofRainSplash") && astring.length >= 2) {
                         this.ofRainSplash = Boolean.valueOf(astring[1]).booleanValue();
                     }
+					
+					if (astring[0].equals("ofTrees") && astring.length >= 2) {
+                        this.ofTrees = Integer.valueOf(astring[1]).intValue();
+                        this.ofTrees = limit(this.ofTrees, OF_TREES_VALUES);
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1525,6 +1552,7 @@ public class GameSettings {
 			printwriter.println("ofFastMath:" + ofFastMath);
 			printwriter.println("ofRain:" + this.ofRain);
 			printwriter.println("ofRainSplash:" + this.ofRainSplash);
+			printwriter.println("ofTrees:" + this.ofTrees);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1700,7 +1728,8 @@ public class GameSettings {
 		CLOUDS("Clouds", false, false),
 		CLOUD_HEIGHT("Cloud Height", true, false),
 		DYNAMIC_LIGHTS("Dynamic Lights", false, false),
-		RAIN("Rain & Snow", false, false);
+		RAIN("Rain & Snow", false, false),
+		TREES("Trees", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
