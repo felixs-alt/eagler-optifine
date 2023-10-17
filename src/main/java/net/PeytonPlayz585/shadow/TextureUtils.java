@@ -135,7 +135,6 @@ public class TextureUtils {
             BetterGrass.update();
             CustomSky.update();
             SmartLeaves.updateLeavesModels();
-            Config.getTextureManager().tick();
         }
     }
     
