@@ -3,11 +3,12 @@ package net.PeytonPlayz585.shadow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
 
-public class TextureUtils implements IResourceManagerReloadListener {
+public class TextureUtils {
 	
 	static TextureMap texturemap = new TextureMap();
 	public static String s = "minecraft:blocks/";
@@ -112,7 +113,21 @@ public class TextureUtils implements IResourceManagerReloadListener {
         }
     }
     
-    public void onResourceManagerReload(IResourceManager p_resourcesReloaded_0_) {
+    public static void registerResourceListener() {
+        IResourceManager iresourcemanager = Minecraft.getMinecraft().getResourceManager();
+
+        if (iresourcemanager instanceof IReloadableResourceManager) {
+            IReloadableResourceManager ireloadableresourcemanager = (IReloadableResourceManager)iresourcemanager;
+            IResourceManagerReloadListener iresourcemanagerreloadlistener = new IResourceManagerReloadListener() {
+                public void onResourceManagerReload(IResourceManager resourceManager) {
+                    TextureUtils.resourcesReloaded();
+                }
+            };
+            ireloadableresourcemanager.registerReloadListener(iresourcemanagerreloadlistener);
+        }
+    }
+    
+    public static void resourcesReloaded() {
         if (getTextureMapBlocks() != null) {
             Config.dbg("*** Reloading custom textures ***");
             CustomSky.reset();

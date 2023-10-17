@@ -88,6 +88,7 @@ import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeGenBase;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.TextureUtils;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -175,6 +176,8 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	private float eagPartialTicks = 0.0f;
 	public boolean fogStandard = false;
 	private float clipDistance = 128.0F;
+	
+	private boolean initialized = false;
 
 	public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn) {
 		this.useShader = false;
@@ -891,6 +894,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	}
 
 	public void func_181560_a(float parFloat1, long parLong1) {
+		this.frameInit();
 		boolean flag = Display.isActive();
 		if (!flag && this.mc.gameSettings.pauseOnLostFocus
 				&& (!this.mc.gameSettings.touchscreen || !Mouse.isButtonDown(1))) {
@@ -2832,5 +2836,12 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		GlStateManager.rotate(celestialAngle + 90.0f, 1.0F, 0.0F, 0.0F);
 		GlStateManager.rotate(-DeferredStateManager.sunAngle, 0.0F, 1.0F, 0.0F);
 		GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
+	}
+	
+	public void frameInit() {
+		if (!this.initialized) {
+            TextureUtils.registerResourceListener();
+            this.initialized = true;
+        }
 	}
 }

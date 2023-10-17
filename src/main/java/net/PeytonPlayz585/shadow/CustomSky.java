@@ -35,7 +35,7 @@ public class CustomSky {
             String s1 = s + j + "/sky";
             List list = new ArrayList();
 
-            for (int k = 1; k < 1000; ++k) {
+            for (int k = 1; k < 26; ++k) {
                 String s2 = s1 + k + ".properties";
 
                 try {
@@ -49,6 +49,7 @@ public class CustomSky {
                     Properties properties = new Properties();
                     properties.load(inputstream);
                     inputstream.close();
+                    Config.dbg("CustomSky properties: " + s2);
                     String s3 = s1 + k + ".png";
                     CustomSkyLayer customskylayer = new CustomSkyLayer(properties, s3);
 
@@ -56,7 +57,9 @@ public class CustomSky {
                         ResourceLocation resourcelocation1 = new ResourceLocation(customskylayer.source);
                         ITextureObject itextureobject = TextureUtils.getTexture(resourcelocation1);
 
-                        if (!(itextureobject == null)) {
+                        if (itextureobject == null) {
+                            Config.log("CustomSky: Texture not found: " + resourcelocation1);
+                        } else {
                             customskylayer.textureId = itextureobject.getGlTextureId();
                             list.add(customskylayer);
                             inputstream.close();
@@ -92,37 +95,35 @@ public class CustomSky {
 
     public static void renderSky(World p_renderSky_0_, TextureManager p_renderSky_1_, float p_renderSky_2_, float p_renderSky_3_) {
         if (worldSkyLayers != null) {
-            if (Config.getGameSettings().renderDistanceChunks >= 8) {
-                int i = p_renderSky_0_.provider.getDimensionId();
+            //if (Config.getGameSettings().renderDistanceChunks >= 8) {
+            int i = p_renderSky_0_.provider.getDimensionId();
 
-                if (i >= 0 && i < worldSkyLayers.length) {
-                    CustomSkyLayer[] acustomskylayer = worldSkyLayers[i];
+            if (i >= 0 && i < worldSkyLayers.length) {
+                CustomSkyLayer[] acustomskylayer = worldSkyLayers[i];
 
-                    if (acustomskylayer != null) {
-                        long j = p_renderSky_0_.getWorldTime();
-                        int k = (int)(j % 24000L);
+                if (acustomskylayer != null) {
+                    long j = p_renderSky_0_.getWorldTime();
+                    int k = (int)(j % 24000L);
 
-                        for (int l = 0; l < acustomskylayer.length; ++l) {
-                            CustomSkyLayer customskylayer = acustomskylayer[l];
+                    for (int l = 0; l < acustomskylayer.length; ++l) {
+                        CustomSkyLayer customskylayer = acustomskylayer[l];
 
-                            if (customskylayer.isActive(p_renderSky_0_, k)) {
+                        if (customskylayer.isActive(p_renderSky_0_, k)) {
                                 customskylayer.render(k, p_renderSky_2_, p_renderSky_3_);
-                            }
                         }
-
-                        Blender.clearBlend(p_renderSky_3_);
                     }
+
+                    Blender.clearBlend(p_renderSky_3_);
                 }
             }
-        }
+            //}
     }
+}
 
     public static boolean hasSkyLayers(World p_hasSkyLayers_0_) {
         if (worldSkyLayers == null) {
             return false;
-        } else if (Config.getGameSettings().renderDistanceChunks < 8) {
-            return false;
-        } else {
+        } else  {
             int i = p_hasSkyLayers_0_.provider.getDimensionId();
 
             if (i >= 0 && i < worldSkyLayers.length) {
