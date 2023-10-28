@@ -191,6 +191,7 @@ public class GameSettings {
 	public float ofFogStart = 0.8F;
 	
 	//Quality Settings
+	public int ofMipmapType = 0;
 	public boolean ofCustomSky = true;
 	public boolean ofClearWater = false;
 	public int ofBetterGrass = 3;
@@ -372,6 +373,12 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.CLOUD_HEIGHT) {
             this.ofCloudsHeight = parFloat1;
             this.mc.renderGlobal.resetClouds();
+        }
+
+		if (parOptions == GameSettings.Options.MIPMAP_TYPE) {
+            int l = (int)parFloat1;
+            this.ofMipmapType = Config.limit(l, 0, 3);
+            this.mc.refreshResources();
         }
 	}
 
@@ -764,7 +771,8 @@ public class GameSettings {
 				: (parOptions == GameSettings.Options.RENDER_DISTANCE ? (float) this.renderDistanceChunks
 				: (parOptions == GameSettings.Options.AO_LEVEL ? this.ofAoLevel
 				: (parOptions == GameSettings.Options.CLOUD_HEIGHT ? this.ofCloudsHeight
-				: 0.0F)))))))))))));
+				: (parOptions == GameSettings.Options.MIPMAP_TYPE ? this.ofMipmapType
+				: 0.0F))))))))))))));
 	}
 
 	public boolean getOptionOrdinalValue(GameSettings.Options parOptions) {
@@ -872,7 +880,8 @@ public class GameSettings {
 				: (parOptions == GameSettings.Options.MIPMAP_LEVELS ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
 				: (parOptions == GameSettings.Options.AO_LEVEL ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
 			    : (parOptions == GameSettings.Options.CLOUD_HEIGHT ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
-				: "yee")))))))))))));
+				: (parOptions == GameSettings.Options.MIPMAP_TYPE ? (ofMipmapType == 0 ? s + "Nearest" : ofMipmapType == 1 ? s + "Linear" : ofMipmapType == 2 ? s + "Bilinear" : ofMipmapType == 3 ? s + "Trilinear": s)
+				: "yee"))))))))))))));
 		} else if (parOptions.getEnumBoolean()) {
 			boolean flag = this.getOptionOrdinalValue(parOptions);
 			return flag ? s + I18n.format("options.on", new Object[0]) : s + I18n.format("options.off", new Object[0]);
@@ -1556,6 +1565,11 @@ public class GameSettings {
                         this.ofDynamicFov = Boolean.valueOf(astring[1]).booleanValue();
                     }
 
+					if (astring[0].equals("ofMipmapType") && astring.length >= 2) {
+                        this.ofMipmapType = Integer.valueOf(astring[1]).intValue();
+                        this.ofMipmapType = Config.limit(this.ofMipmapType, 0, 3);
+                    }
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1704,6 +1718,7 @@ public class GameSettings {
             printwriter.println("ofDroppedItems:" + this.ofDroppedItems);
             printwriter.println("ofVignette:" + this.ofVignette);
             printwriter.println("ofDynamicFov:" + this.ofDynamicFov);
+			printwriter.println("ofMipmapType:" + this.ofMipmapType);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1889,7 +1904,8 @@ public class GameSettings {
         HELD_ITEM_TOOLTIPS("Held Item Tooltips", false, false),
         DROPPED_ITEMS("Dropped Items", false, false),
         VIGNETTE("Vignette", false, false),
-        DYNAMIC_FOV("Dynamic FOV", false, false);
+        DYNAMIC_FOV("Dynamic FOV", false, false),
+		MIPMAP_TYPE("Mipmap Type", true, false, 0.0F, 3.0F, 1.0F);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

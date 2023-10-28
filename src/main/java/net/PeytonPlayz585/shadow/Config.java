@@ -203,6 +203,25 @@ public class Config {
         return Minecraft.getMinecraft().gameSettings.ofDynamicFov;
     }
 
+    public static int getMipmapType() {
+        switch (Minecraft.getMinecraft().gameSettings.ofMipmapType) {
+            case 0:
+                return 9986;
+
+            case 1:
+                return 9986;
+
+            case 2:
+                return 9986;
+
+            case 3:
+                return 9986;
+
+            default:
+                return 9986;
+        }
+    }
+
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);
     }
