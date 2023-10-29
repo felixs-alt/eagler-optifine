@@ -133,6 +133,7 @@ public class TextureUtils {
             CustomSky.reset();
             update();
             BetterGrass.update();
+            BetterSnow.update();
             CustomSky.update();
             SmartLeaves.updateLeavesModels();
         }

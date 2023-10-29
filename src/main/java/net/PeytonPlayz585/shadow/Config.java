@@ -226,6 +226,10 @@ public class Config {
         }
     }
 
+    public static boolean isCustomFonts() {
+        return Minecraft.getMinecraft().gameSettings.ofCustomFonts;
+    }
+
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);
     }

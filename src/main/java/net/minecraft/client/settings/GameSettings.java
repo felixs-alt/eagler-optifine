@@ -195,6 +195,7 @@ public class GameSettings {
 	public boolean ofCustomSky = true;
 	public boolean ofClearWater = false;
 	public boolean ofBetterSnow = false;
+	public boolean ofCustomFonts = true;
 	public int ofBetterGrass = 3;
 	public int ofDynamicLights = 3;
 	
@@ -759,6 +760,12 @@ public class GameSettings {
             this.mc.renderGlobal.loadRenderers();
         }
 
+		if (parOptions == GameSettings.Options.CUSTOM_FONTS) {
+            this.ofCustomFonts = !this.ofCustomFonts;
+            this.mc.fontRendererObj.onResourceManagerReload(this.mc.getResourceManager());
+            this.mc.standardGalacticFontRenderer.onResourceManagerReload(this.mc.getResourceManager());
+        }
+
 		this.saveOptions();
 	}
 
@@ -1105,6 +1112,8 @@ public class GameSettings {
             return this.ofDynamicFov ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.BETTER_SNOW) {
             return this.ofBetterSnow ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.CUSTOM_FONTS) {
+            return this.ofCustomFonts ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1582,6 +1591,10 @@ public class GameSettings {
                         this.ofBetterSnow = Boolean.valueOf(astring[1]).booleanValue();
                     }
 
+					if (astring[0].equals("ofCustomFonts") && astring.length >= 2) {
+                        this.ofCustomFonts = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1732,6 +1745,7 @@ public class GameSettings {
             printwriter.println("ofDynamicFov:" + this.ofDynamicFov);
 			printwriter.println("ofMipmapType:" + this.ofMipmapType);
 			printwriter.println("ofBetterSnow:" + this.ofBetterSnow);
+			printwriter.println("ofCustomFonts:" + this.ofCustomFonts);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1919,7 +1933,8 @@ public class GameSettings {
         VIGNETTE("Vignette", false, false),
         DYNAMIC_FOV("Dynamic FOV", false, false),
 		MIPMAP_TYPE("Mipmap Type", true, false, 0.0F, 3.0F, 1.0F),
-		BETTER_SNOW("Better Snow", false, false);
+		BETTER_SNOW("Better Snow", false, false),
+		CUSTOM_FONTS("Custom Fonts", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
