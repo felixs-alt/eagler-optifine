@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.Tessellator;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
@@ -39,9 +40,10 @@ public class MainButton extends GuiButton {
 		
         Color color = new Color(255, 255, 255, 30);
 		drawRoundedOutline(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, 2, 3, color.getRGB());
-		
-        Minecraft.getMinecraft().currentScreen.drawCenteredString(Minecraft.getMinecraft().fontRendererObj, this.displayString, (int)(this.xPosition + this.width / 2 + 0.5F), (int)(this.yPosition + (this.height - 4) / 2 + 0.5F), new Color(30, 30, 30, 50).getRGB());
-        Minecraft.getMinecraft().currentScreen.drawCenteredString(Minecraft.getMinecraft().fontRendererObj, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 4) / 2, 10526880);
+
+		FontRenderer fontrenderer = mc.fontRendererObj;
+        this.drawCenteredString(fontrenderer, this.displayString, (int)(this.xPosition + this.width / 2 + 0.5F), (int)(this.yPosition + (this.height - 4) / 2 + 0.5F), new Color(30, 30, 30, 50).getRGB());
+        this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 4) / 2, 10526880);
 	}
 
     public static void drawRoundedRect(int x, int y, int width, int height, int cornerRadius, Color color) {
@@ -84,7 +86,8 @@ public class MainButton extends GuiButton {
         float f2 = (color >> 16 & 0xFF) / 255.0F;
         float f3 = (color >> 8 & 0xFF) / 255.0F;
         float f4 = (color & 0xFF) / 255.0F;
-        renderer.color(f2, f3, f4, f1);
+        //renderer.color(f2, f3, f4, f1);
+        GlStateManager.color(f2, f3, f4, f1);
         drawRoundedOutline(x, y, x2, y2, radius, width);
     }
 
@@ -99,9 +102,9 @@ public class MainButton extends GuiButton {
         GlStateManager.enableColorMaterial();
         GlStateManager.blendFunc(770, 771);
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        if (width != 1.0F) {
-            EaglercraftGPU.glLineWidth(width);
-        }
+        //if (width != 1.0F) {
+            //EaglercraftGPU.glLineWidth(width);
+        //}
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
         worldRenderer.pos(x + radius, y, 0.0F).endVertex();
         worldRenderer.pos(x2 - radius, y, 0.0F).endVertex();
@@ -151,9 +154,9 @@ public class MainButton extends GuiButton {
             worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 + radius * ClientMathUtils.getAngle(m)), 0.0F).endVertex();
         }
         tessellator.draw();
-        if (width != 1.0F) {
-            EaglercraftGPU.glLineWidth(1.0F);
-        }
+        //if (width != 1.0F) {
+            //EaglercraftGPU.glLineWidth(1.0F);
+        //}
         GlStateManager.enableCull();
         GlStateManager.disableBlend();
         GlStateManager.disableColorMaterial();

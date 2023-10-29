@@ -252,8 +252,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		// this.buttonList
 		// .add(new GuiButton(1, this.width / 2 - 100, parInt1,
 		// I18n.format("menu.singleplayer", new Object[0])));
-		this.buttonList.add(new MainButton(2, width / 2 - 100, parInt1 + parInt2 * 0, "M U L T I P L A Y E R"));
-		this.buttonList.add(new MainButton(14, width / 2 - 100, parInt1 + parInt2 * 1, "D I S C O R D"));
+		this.buttonList.add(new MainButton(2, width / 2 - 66, height / 2, "M U L T I P L A Y E R"));
+		this.buttonList.add(new MainButton(14, width / 2 - 66, height / 2 + 15, "D I S C O R D"));
 	}
 
 	/**+
