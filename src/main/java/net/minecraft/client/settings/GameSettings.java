@@ -194,6 +194,7 @@ public class GameSettings {
 	public int ofMipmapType = 0;
 	public boolean ofCustomSky = true;
 	public boolean ofClearWater = false;
+	public boolean ofBetterSnow = false;
 	public int ofBetterGrass = 3;
 	public int ofDynamicLights = 3;
 	
@@ -753,6 +754,11 @@ public class GameSettings {
             this.ofDynamicFov = !this.ofDynamicFov;
         }
 
+		if (parOptions == GameSettings.Options.BETTER_SNOW) {
+            this.ofBetterSnow = !this.ofBetterSnow;
+            this.mc.renderGlobal.loadRenderers();
+        }
+
 		this.saveOptions();
 	}
 
@@ -1097,6 +1103,8 @@ public class GameSettings {
             }
         } else if (parOptions == GameSettings.Options.DYNAMIC_FOV) {
             return this.ofDynamicFov ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.BETTER_SNOW) {
+            return this.ofBetterSnow ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1570,6 +1578,10 @@ public class GameSettings {
                         this.ofMipmapType = Config.limit(this.ofMipmapType, 0, 3);
                     }
 
+					if (astring[0].equals("ofBetterSnow") && astring.length >= 2) {
+                        this.ofBetterSnow = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1719,6 +1731,7 @@ public class GameSettings {
             printwriter.println("ofVignette:" + this.ofVignette);
             printwriter.println("ofDynamicFov:" + this.ofDynamicFov);
 			printwriter.println("ofMipmapType:" + this.ofMipmapType);
+			printwriter.println("ofBetterSnow:" + this.ofBetterSnow);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1905,7 +1918,8 @@ public class GameSettings {
         DROPPED_ITEMS("Dropped Items", false, false),
         VIGNETTE("Vignette", false, false),
         DYNAMIC_FOV("Dynamic FOV", false, false),
-		MIPMAP_TYPE("Mipmap Type", true, false, 0.0F, 3.0F, 1.0F);
+		MIPMAP_TYPE("Mipmap Type", true, false, 0.0F, 3.0F, 1.0F),
+		BETTER_SNOW("Better Snow", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

@@ -118,6 +118,10 @@ public class Config {
     public static boolean isBetterGrassFancy() {
         return Minecraft.getMinecraft().gameSettings.ofBetterGrass == 2;
     }
+
+    public static boolean isBetterSnow() {
+        return Minecraft.getMinecraft().gameSettings.ofBetterSnow;
+    }
     
     public static boolean isFogFancy() {
         return Minecraft.getMinecraft().gameSettings.ofFogType == 2;

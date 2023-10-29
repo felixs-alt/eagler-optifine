@@ -114,6 +114,12 @@ public class BlockModelRenderer {
 			flag = true;
 		}
 
+		if (renderenv != null && Config.isBetterSnow() && !renderenv.isBreakingAnimation() && BetterSnow.shouldRender(blockAccessIn, blockIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn)) {
+            IBakedModel ibakedmodel = BetterSnow.getModelSnowLayer();
+            IBlockState iblockstate = BetterSnow.getStateSnowLayer();
+            this.renderModelAmbientOcclusion(blockAccessIn, modelIn, blockAccessIn.getBlockState(blockPosIn).getBlock(), blockPosIn, worldRendererIn, true);
+        }
+
 		return flag;
 	}
 
@@ -153,6 +159,12 @@ public class BlockModelRenderer {
 					worldRendererIn, list1, bitset, afloat);
 			flag = true;
 		}
+
+		if (renderenv != null && Config.isBetterSnow() && !renderenv.isBreakingAnimation() && BetterSnow.shouldRender(blockAccessIn, blockIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn) && BetterSnow.shouldRender(blockAccessIn, blockIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn)) {
+            IBakedModel ibakedmodel = BetterSnow.getModelSnowLayer();
+            IBlockState iblockstate = BetterSnow.getStateSnowLayer();
+            this.renderModelStandard(blockAccessIn, ibakedmodel, iblockstate.getBlock(), blockPosIn, worldRendererIn, true);
+        }
 
 		return flag;
 	}
