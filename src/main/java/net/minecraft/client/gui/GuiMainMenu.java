@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import net.PeytonPlayz585.shadow.gui.button.MainButton;
 import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
@@ -82,12 +83,12 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 	 * An array of all the paths to the panorama pictures.
 	 */
 	private static final ResourceLocation[] titlePanoramaPaths = new ResourceLocation[] {
-			new ResourceLocation("textures/gui/title/background/panorama_0.png"),
-			new ResourceLocation("textures/gui/title/background/panorama_1.png"),
-			new ResourceLocation("textures/gui/title/background/panorama_2.png"),
-			new ResourceLocation("textures/gui/title/background/panorama_3.png"),
-			new ResourceLocation("textures/gui/title/background/panorama_4.png"),
-			new ResourceLocation("textures/gui/title/background/panorama_5.png") };
+			new ResourceLocation("textures/gui/title/background/lunar_0.png"),
+			new ResourceLocation("textures/gui/title/background/lunar_1.png"),
+			new ResourceLocation("textures/gui/title/background/lunar_2.png"),
+			new ResourceLocation("textures/gui/title/background/lunar_3.png"),
+			new ResourceLocation("textures/gui/title/background/lunar_4.png"),
+			new ResourceLocation("textures/gui/title/background/lunar_5.png") };
 	private int field_92024_r;
 	private int field_92023_s;
 	private int field_92022_t;
@@ -206,6 +207,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 			this.splashText = "Happy new year!";
 		} else if (calendar.get(2) + 1 == 10 && calendar.get(5) == 31) {
 			this.splashText = "OOoooOOOoooo! Spooky!";
+		} else if (calendar.get(2) + 1 == 11 && calendar.get(5) == 12) {
+			this.splashText = "Happy Birthday, PeytonPlayz585!";
 		}
 
 		int i = this.height / 4 + 48;
@@ -249,12 +252,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		// this.buttonList
 		// .add(new GuiButton(1, this.width / 2 - 100, parInt1,
 		// I18n.format("menu.singleplayer", new Object[0])));
-		this.buttonList.add(new GuiButton(2, this.width / 2 - 100, parInt1 + parInt2 * 0,
-				I18n.format("menu.multiplayer", new Object[0])));
-		GuiButton btn;
-		this.buttonList.add(btn = new GuiButton(14, this.width / 2 - 100, parInt1 + parInt2 * 1,
-				I18n.format("menu.forkOnGitlab", new Object[0])));
-		btn.enabled = EaglercraftVersion.mainMenuEnableGithubButton;
+		this.buttonList.add(new MainButton(2, width / 2 - 100, parInt1 + parInt2 * 0, "M U L T I P L A Y E R"));
+		this.buttonList.add(new MainButton(14, width / 2 - 100, parInt1 + parInt2 * 1, "D I S C O R D"));
 	}
 
 	/**+
@@ -283,7 +282,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		}
 
 		if (parGuiButton.id == 14) {
-			EagRuntime.openLink(EaglercraftVersion.projectForkURL);
+			EagRuntime.openLink("https://discord.com/invite/wQ8ynJ6A93");
 		}
 
 	}
