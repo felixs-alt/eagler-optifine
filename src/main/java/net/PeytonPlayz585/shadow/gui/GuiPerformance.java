@@ -12,7 +12,7 @@ public class GuiPerformance extends GuiScreen {
     private GuiScreen prevScreen;
     protected String title;
     private GameSettings settings;
-    private static GameSettings.Options[] enumOptions = new GameSettings.Options[] {GameSettings.Options.SMOOTH_FPS, GameSettings.Options.FAST_MATH, GameSettings.Options.CHUNK_UPDATES};
+    private static GameSettings.Options[] enumOptions = new GameSettings.Options[] {GameSettings.Options.SMOOTH_FPS, GameSettings.Options.FAST_MATH, GameSettings.Options.CHUNK_UPDATES, GameSettings.Options.CHUNK_FIX};
 
     public GuiPerformance(GuiScreen p_i52_1_) {
         this.prevScreen = p_i52_1_;
