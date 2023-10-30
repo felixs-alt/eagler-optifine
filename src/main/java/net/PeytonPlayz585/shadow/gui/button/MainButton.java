@@ -2,7 +2,7 @@ package net.PeytonPlayz585.shadow.gui.button;
 
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
-
+import net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums;
 import net.minecraft.client.Minecraft;
 
 import net.minecraft.client.gui.Gui;
@@ -38,55 +38,24 @@ public class MainButton extends GuiButton {
 		drawRoundedRect(this.xPosition - 1, this.yPosition - 1, this.width + 2, this.height + 2, 2, new Color(30, 30, 30, 60));
 		drawRoundedRect(this.xPosition, this.yPosition, this.width, this.height, 2, new Color(255, 255, 255, 38 + hoverFade));
 		
-        Color color = new Color(255, 255, 255, 30);
-		drawRoundedOutline(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, 2, 3, color.getRGB());
+		drawRoundedOutline(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, 2, 3, new Color(255, 255, 255, 30).getRGB());
 
 		FontRenderer fontrenderer = mc.fontRendererObj;
-        this.drawCenteredString(fontrenderer, this.displayString, (int)(this.xPosition + this.width / 2 + 0.5F), (int)(this.yPosition + (this.height - 4) / 2 + 0.5F), new Color(30, 30, 30, 50).getRGB());
-        this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 4) / 2, 10526880);
+        this.drawCenteredString(fontrenderer, this.displayString, (int)(this.xPosition + this.width / 2 + 0.5F), (int)(this.yPosition + (this.height - 4) / 2 + 0.5F) - 1, new Color(30, 30, 30, 50).getRGB());
+        this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, (this.yPosition + (this.height - 4) / 2) - 1, 10526880);
 	}
 
     public static void drawRoundedRect(int x, int y, int width, int height, int cornerRadius, Color color) {
         Gui.drawRect(x, y + cornerRadius, x + cornerRadius, y + height - cornerRadius, color.getRGB());
         Gui.drawRect(x + cornerRadius, y, x + width - cornerRadius, y + height, color.getRGB());
         Gui.drawRect(x + width - cornerRadius, y + cornerRadius, x + width, y + height - cornerRadius, color.getRGB());
-
-        drawArc(x + cornerRadius, y + cornerRadius, cornerRadius, 0, 90, color);
-        drawArc(x + width - cornerRadius, y + cornerRadius, cornerRadius, 270, 360, color);
-        drawArc(x + width - cornerRadius, y + height - cornerRadius, cornerRadius, 180, 270, color);
-        drawArc(x + cornerRadius, y + height - cornerRadius, cornerRadius, 90, 180, color);
-    }
-
-    public static void drawArc(int x, int y, int radius, int startAngle, int endAngle, Color color) {
-        GlStateManager.pushMatrix();
-        GlStateManager.enableAlpha();
-        GlStateManager.blendFunc(770, 771);
-        GlStateManager.color((float) color.getRed() / 255, (float) color.getGreen() / 255, (float) color.getBlue() / 255, (float) color.getAlpha() / 255);
-
-        WorldRenderer worldRenderer = Tessellator.getInstance().getWorldRenderer();
-
-        worldRenderer.begin(6, DefaultVertexFormats.POSITION);
-        worldRenderer.pos(x, y, 0).endVertex();
-
-        for (int i = (int) (startAngle / 360.0 * 100); i <= (int) (endAngle / 360.0 * 100); i++) {
-            double angle = (Math.PI * 2 * i / 100) + Math.toRadians(180);
-            worldRenderer.pos(x + Math.sin(angle) * radius, y + Math.cos(angle) * radius, 0).endVertex();
-        }
-
-        Tessellator.getInstance().draw();
-
-        GlStateManager.disableAlpha();;
-        GlStateManager.popMatrix();
     }
 
     public static void drawRoundedOutline(int x, int y, int x2, int y2, float radius, float width, int color) {
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer renderer = tessellator.getWorldRenderer();
         float f1 = (color >> 24 & 0xFF) / 255.0F;
         float f2 = (color >> 16 & 0xFF) / 255.0F;
         float f3 = (color >> 8 & 0xFF) / 255.0F;
         float f4 = (color & 0xFF) / 255.0F;
-        //renderer.color(f2, f3, f4, f1);
         GlStateManager.color(f2, f3, f4, f1);
         drawRoundedOutline(x, y, x2, y2, radius, width);
     }
@@ -94,69 +63,81 @@ public class MainButton extends GuiButton {
     public static void drawRoundedOutline(float x, float y, float x2, float y2, float radius, float width) {
         int i = 18;
         int j = 90 / i;
+
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.disableCull();
         GlStateManager.enableColorMaterial();
-        GlStateManager.blendFunc(770, 771);
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        //if (width != 1.0F) {
-            //EaglercraftGPU.glLineWidth(width);
-        //}
+        GlStateManager.blendFunc(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA);
+        GlStateManager.tryBlendFuncSeparate(RealOpenGLEnums.GL_SRC_ALPHA, RealOpenGLEnums.GL_ONE_MINUS_SRC_ALPHA, RealOpenGLEnums.GL_ONE, RealOpenGLEnums.GL_ZERO);
+
+        if (width != 1.0F) {
+            EaglercraftGPU.glLineWidth(width);
+        }
+
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-        worldRenderer.pos(x + radius, y, 0.0F).endVertex();
-        worldRenderer.pos(x2 - radius, y, 0.0F).endVertex();
+        worldRenderer.pos(x + radius, y, 0).endVertex();
+        worldRenderer.pos(x2 - radius, y, 0).endVertex();
         tessellator.draw();
+
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-        worldRenderer.pos(x2, y + radius, 0.0F).endVertex();
-        worldRenderer.pos(x2, y2 - radius, 0.0F).endVertex();
+        worldRenderer.pos(x2, y + radius, 0).endVertex();
+        worldRenderer.pos(x2, y2 - radius, 0).endVertex();
         tessellator.draw();
+
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-        worldRenderer.pos(x2 - radius, y2 - 0.1F, 0.0F).endVertex();
-        worldRenderer.pos(x + radius, y2 - 0.1F, 0.0F).endVertex();
+        worldRenderer.pos(x2 - radius, y2 - 0.1F, 0).endVertex();
+        worldRenderer.pos(x + radius, y2 - 0.1F, 0).endVertex();
         tessellator.draw();
+
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-        worldRenderer.pos(x + 0.1F, y2 - radius, 0.0F).endVertex();
-        worldRenderer.pos(x + 0.1F, y + radius, 0.0F).endVertex();
+        worldRenderer.pos(x + 0.1F, y2 - radius, 0).endVertex();
+        worldRenderer.pos(x + 0.1F, y + radius, 0).endVertex();
         tessellator.draw();
+
         float f1 = x2 - radius;
         float f2 = y + radius;
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-        int k;
-        for (k = 0; k <= i; k++) {
+        for (int k = 0; k <= i; k++) {
             int m = 90 - k * j;
-            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 - radius * ClientMathUtils.getAngle(m)), 0.0F).endVertex();
+            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 - radius * ClientMathUtils.getAngle(m)), 0).endVertex();
         }
         tessellator.draw();
+
         f1 = x2 - radius;
         f2 = y2 - radius;
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
-        for (k = 0; k <= i; k++) {
+        for (int k = 0; k <= i; k++) {
             int m = k * j + 270;
-            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 - radius * ClientMathUtils.getAngle(m)), 0.0F).endVertex();
+            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 - radius * ClientMathUtils.getAngle(m)), 0).endVertex();
         }
         tessellator.draw();
+
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
         f1 = x + radius;
         f2 = y2 - radius;
-        for (k = 0; k <= i; k++) {
+        for (int k = 0; k <= i; k++) {
             int m = k * j + 90;
-            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 + radius * ClientMathUtils.getAngle(m)), 0.0F).endVertex();
+            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 + radius * ClientMathUtils.getAngle(m)), 0).endVertex();
         }
         tessellator.draw();
+
         worldRenderer.begin(Tessellator.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
         f1 = x + radius;
         f2 = y + radius;
-        for (k = 0; k <= i; k++) {
+        for (int k = 0; k <= i; k++) {
             int m = 270 - k * j;
-            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 + radius * ClientMathUtils.getAngle(m)), 0.0F).endVertex();
+            worldRenderer.pos((float) (f1 + radius * ClientMathUtils.getRightAngle(m)), (float) (f2 + radius * ClientMathUtils.getAngle(m)), 0).endVertex();
         }
         tessellator.draw();
-        //if (width != 1.0F) {
-            //EaglercraftGPU.glLineWidth(1.0F);
-        //}
+
+        if (width != 1.0F) {
+            EaglercraftGPU.glLineWidth(1.0F);
+        }
+        
         GlStateManager.enableCull();
         GlStateManager.disableBlend();
         GlStateManager.disableColorMaterial();

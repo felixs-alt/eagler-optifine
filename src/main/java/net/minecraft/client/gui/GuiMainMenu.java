@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import net.PeytonPlayz585.shadow.gui.GuiCredits;
 import net.PeytonPlayz585.shadow.gui.button.MainButton;
+import net.PeytonPlayz585.shadow.gui.button.ImageButton;
 import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
@@ -221,12 +223,11 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 
 		this.addSingleplayerMultiplayerButtons(i, 24);
 
-		this.buttonList.add(new GuiButton(0, this.width / 2 - 100, i + 72 + 12, 98, 20,
-				I18n.format("menu.options", new Object[0])));
-		this.buttonList.add(new GuiButton(4, this.width / 2 + 2, i + 72 + 12, 98, 20,
-				I18n.format("menu.editProfile", new Object[0])));
+		int yPos = height - 20;
+		this.buttonList.add(new ImageButton(0, width / 2 - 15, yPos, "MINECRAFT SETTINGS", new ResourceLocation("textures/shadow/icons/settings.png")));
+		this.buttonList.add(new ImageButton(4, width / 2, yPos, "EDIT PROFILE", new ResourceLocation("textures/shadow/icons/edit_profile.png")));
 
-		this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, i + 72 + 12));
+		//this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, i + 72 + 12));
 
 		if (isFork) {
 			this.openGLWarning1 = EaglercraftVersion.mainMenuStringE;
@@ -252,8 +253,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		// this.buttonList
 		// .add(new GuiButton(1, this.width / 2 - 100, parInt1,
 		// I18n.format("menu.singleplayer", new Object[0])));
-		this.buttonList.add(new MainButton(2, width / 2 - 66, height / 2, "M U L T I P L A Y E R"));
-		this.buttonList.add(new MainButton(14, width / 2 - 66, height / 2 + 15, "D I S C O R D"));
+		this.buttonList.add(new MainButton(2, width / 2 - 66, height / 2, "MULTIPLAYER"));
+		this.buttonList.add(new MainButton(3, width / 2 - 66, height / 2 + 30, "CREDITS"));
+		this.buttonList.add(new MainButton(14, width / 2 - 66, height / 2 + 15, "DISCORD"));
 	}
 
 	/**+
@@ -275,6 +277,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 
 		if (parGuiButton.id == 2) {
 			this.mc.displayGuiScreen(new GuiMultiplayer(this));
+		}
+
+		if (parGuiButton.id == 3) {
+			this.mc.displayGuiScreen(new GuiCredits());
 		}
 
 		if (parGuiButton.id == 4) {
@@ -500,8 +506,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		this.drawString(this.fontRendererObj, s1, this.width - this.fontRendererObj.getStringWidth(s1) - 2,
 				this.height - 20, -1);
 		s1 = EaglercraftVersion.mainMenuStringD;
-		this.drawString(this.fontRendererObj, s1, this.width - this.fontRendererObj.getStringWidth(s1) - 2,
-				this.height - 10, -1);
+		this.drawString(this.fontRendererObj, s1, width - this.fontRendererObj.getStringWidth(s1) - 2, this.height - 10, -1);
 
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(0.75f, 0.75f, 0.75f);
@@ -563,8 +568,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 				if (resStr != null) {
 					EagRuntime.openCreditsPopup(resStr);
 				}
-				mc.getSoundHandler()
-						.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+				mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
 				return;
 			}
 		}
