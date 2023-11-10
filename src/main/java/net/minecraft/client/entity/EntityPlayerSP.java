@@ -1,6 +1,7 @@
 package net.minecraft.client.entity;
 
 import net.FatalCodes.shadow.Shadow;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -664,18 +665,30 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 		this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D,
 				this.posZ + (double) this.width * 0.35D);
 		boolean flag3 = (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
-		if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3
-				&& !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
-			if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
-				this.sprintToggleTimer = 7;
+		if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
+			if(!Minecraft.getMinecraft().gameSettings.toggleSprint) {
+				if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
+					this.sprintToggleTimer = 7;
+				} else {
+					this.setSprinting(true);
+				}
 			} else {
-				this.setSprinting(true);
+				if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.toggleSprintEnabled) {
+					this.sprintToggleTimer = 7;
+				} else {
+					this.setSprinting(true);
+				}
 			}
 		}
 
-		if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && !this.isUsingItem()
-				&& !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.keyBindSprint.isKeyDown()) {
-			this.setSprinting(true);
+		if(!Minecraft.getMinecraft().gameSettings.toggleSprint) {
+			if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.keyBindSprint.isKeyDown()) {
+				this.setSprinting(true);
+			}
+		} else {
+			if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.toggleSprintEnabled) {
+				this.setSprinting(true);
+			}
 		}
 
 		if (this.isSprinting() && (this.movementInput.moveForward < f || this.isCollidedHorizontally || !flag3)) {
@@ -741,5 +754,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 			this.sendPlayerAbilities();
 		}
 
+		if(Minecraft.getMinecraft().gameSettings.keyBindSprint.isPressed() && Minecraft.getMinecraft().gameSettings.toggleSprint) {
+			GameSettings.toggleSprintEnabled = !GameSettings.toggleSprintEnabled;
+		}
 	}
 }

@@ -3,6 +3,8 @@ package net.minecraft.client.gui;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 
+import net.minecraft.client.settings.GameSettings;
+
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -39,11 +41,11 @@ public class GuiCustomizeSkin extends GuiScreen {
 		this.title = I18n.format("options.skinCustomisation.title", new Object[0]);
 
 		for (EnumPlayerModelParts enumplayermodelparts : EnumPlayerModelParts.values()) {
-			this.buttonList.add(new GuiCustomizeSkin.ButtonPart(enumplayermodelparts.getPartId(),
-					this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), 150, 20,
-					enumplayermodelparts));
+			this.buttonList.add(new GuiCustomizeSkin.ButtonPart(enumplayermodelparts.getPartId(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), 150, 20, enumplayermodelparts));
 			++i;
 		}
+
+		this.buttonList.add(new GuiOptionButton(201, this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), GameSettings.Options.LEFT_HAND, "Main Hand"));
 
 		if (i % 2 == 1) {
 			++i;
@@ -66,6 +68,9 @@ public class GuiCustomizeSkin extends GuiScreen {
 				EnumPlayerModelParts enumplayermodelparts = ((GuiCustomizeSkin.ButtonPart) parGuiButton).playerModelParts;
 				this.mc.gameSettings.switchModelPartEnabled(enumplayermodelparts);
 				parGuiButton.displayString = this.func_175358_a(enumplayermodelparts);
+			} else {
+				mc.gameSettings.setOptionValue(((GuiOptionButton)parGuiButton).returnEnumOptions(), 1);
+				parGuiButton.displayString = mc.gameSettings.getKeyBinding(GameSettings.Options.LEFT_HAND);
 			}
 
 		}

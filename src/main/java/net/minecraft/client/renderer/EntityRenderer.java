@@ -88,6 +88,7 @@ import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeGenBase;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.Controller;
 import net.PeytonPlayz585.shadow.TextureUtils;
 
 /**+
@@ -680,7 +681,11 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			GlStateManager.loadIdentity();
 			float f = 0.07F;
 			if (this.mc.gameSettings.anaglyph) {
-				GlStateManager.translate((float) (-(xOffset * 2 - 1)) * f, 0.0F, 0.0F);
+				if(this.mc.gameSettings.leftHand) {
+					GlStateManager.translate((float) (-(xOffset * 2 - 1)) * f, 0.0F, 0.0F);
+				} else {
+					GlStateManager.translate((float) (-(xOffset * 2 + 1)) * f, 0.0F, 0.0F);
+				}
 			}
 
 			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, false),
@@ -908,6 +913,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		this.mc.mcProfiler.startSection("mouse");
 
 		if (this.mc.inGameHasFocus && flag) {
+
 			this.mc.mouseHelper.mouseXYChange();
 			float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
 			if (this.mc.gameSettings.keyBindZoomCamera.isKeyDown()) {

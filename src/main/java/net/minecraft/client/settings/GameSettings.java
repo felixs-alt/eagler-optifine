@@ -124,23 +124,23 @@ public class GameSettings {
 	public KeyBinding keyBindRight = new KeyBinding("key.right", 32, "key.categories.movement");
 	public KeyBinding keyBindJump = new KeyBinding("key.jump", 57, "key.categories.movement");
 	public KeyBinding keyBindSneak = new KeyBinding("key.sneak", 42, "key.categories.movement");
-	public KeyBinding keyBindSprint = new KeyBinding("key.sprint", KeyboardConstants.KEY_R, "key.categories.movement");
-	public KeyBinding keyBindInventory = new KeyBinding("key.inventory", 18, "key.categories.inventory");
-	public KeyBinding keyBindUseItem = new KeyBinding("key.use", -99, "key.categories.gameplay");
-	public KeyBinding keyBindDrop = new KeyBinding("key.drop", 16, "key.categories.gameplay");
-	public KeyBinding keyBindAttack = new KeyBinding("key.attack", -100, "key.categories.gameplay");
+	public KeyBinding keyBindSprint = new KeyBinding(10, "key.sprint", KeyboardConstants.KEY_R, "key.categories.movement");
+	public KeyBinding keyBindInventory = new KeyBinding(3, "key.inventory", 18, "key.categories.inventory");
+	public KeyBinding keyBindUseItem = new KeyBinding(6, "key.use", -99, "key.categories.gameplay");
+	public KeyBinding keyBindDrop = new KeyBinding(13, "key.drop", 16, "key.categories.gameplay");
+	public KeyBinding keyBindAttack = new KeyBinding(7, "key.attack", -100, "key.categories.gameplay");
 	public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98, "key.categories.gameplay");
-	public KeyBinding keyBindChat = new KeyBinding("key.chat", 20, "key.categories.multiplayer");
+	public KeyBinding keyBindChat = new KeyBinding(15, "key.chat", 20, "key.categories.multiplayer");
 	public KeyBinding keyBindPlayerList = new KeyBinding("key.playerlist", 15, "key.categories.multiplayer");
 	public KeyBinding keyBindCommand = new KeyBinding("key.command", 53, "key.categories.multiplayer");
 	public KeyBinding keyBindScreenshot = new KeyBinding("key.screenshot", 60, "key.categories.misc");
-	public KeyBinding keyBindTogglePerspective = new KeyBinding("key.togglePerspective", 63, "key.categories.misc");
-	public KeyBinding keyBindSmoothCamera = new KeyBinding("key.smoothCamera", KeyboardConstants.KEY_M,
+	public KeyBinding keyBindTogglePerspective = new KeyBinding(12, "key.togglePerspective", 63, "key.categories.misc");
+	public KeyBinding keyBindSmoothCamera = new KeyBinding(14, "key.smoothCamera", KeyboardConstants.KEY_M,
 			"key.categories.misc");
 	public KeyBinding keyBindZoomCamera = new KeyBinding("key.zoomCamera", KeyboardConstants.KEY_C,
 			"key.categories.misc");
 	public KeyBinding keyBindFunction = new KeyBinding("key.function", KeyboardConstants.KEY_F, "key.categories.misc");
-	public KeyBinding keyBindClose = new KeyBinding("key.close", KeyboardConstants.KEY_GRAVE, "key.categories.misc");
+	public KeyBinding keyBindClose = new KeyBinding(9, "key.close", KeyboardConstants.KEY_GRAVE, "key.categories.misc");
 	public KeyBinding[] keyBindsHotbar = new KeyBinding[] {
 			new KeyBinding("key.hotbar.1", 2, "key.categories.inventory"),
 			new KeyBinding("key.hotbar.2", 3, "key.categories.inventory"),
@@ -251,6 +251,10 @@ public class GameSettings {
     private static final int[] OF_DYNAMIC_LIGHTS = new int[] {3, 1, 2};
     private static final String[] KEYS_DYNAMIC_LIGHTS = new String[] {"options.off", "options.graphics.fast", "options.graphics.fancy"};
     private static final int[] OF_TREES_VALUES = new int[] {0, 1, 4, 2};
+
+	public static boolean toggleSprint = false;
+	public static boolean toggleSprintEnabled = false;
+	public boolean leftHand = false;
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -766,6 +770,15 @@ public class GameSettings {
             this.mc.standardGalacticFontRenderer.onResourceManagerReload(this.mc.getResourceManager());
         }
 
+		if (parOptions == GameSettings.Options.TOGGLE_SPRINT) {
+			toggleSprintEnabled = false;
+			toggleSprint = !toggleSprint;
+		}
+
+		if(parOptions == GameSettings.Options.LEFT_HAND) {
+			leftHand = !leftHand;
+		}
+
 		this.saveOptions();
 	}
 
@@ -852,6 +865,10 @@ public class GameSettings {
 			return this.ofShowCapes;
 		case DYNAMIC_FOV:
 			return this.ofDynamicFov;
+		case TOGGLE_SPRINT:
+			return toggleSprint;
+		case LEFT_HAND:
+			return leftHand;
 		default:
 			return false;
 		}
@@ -1114,7 +1131,11 @@ public class GameSettings {
             return this.ofBetterSnow ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.CUSTOM_FONTS) {
             return this.ofCustomFonts ? s + "ON" : s + "OFF";
-        } else {
+        } else if (parOptions == GameSettings.Options.TOGGLE_SPRINT) {
+			return toggleSprint ? s + "Toggle" : s + "Hold";
+		} else if(parOptions == GameSettings.Options.LEFT_HAND) {
+			return leftHand ? s + "Left" : s + "Right";
+		} else {
 			return s;
 		}
 	}
@@ -1595,6 +1616,14 @@ public class GameSettings {
                         this.ofCustomFonts = Boolean.valueOf(astring[1]).booleanValue();
                     }
 
+					if (astring[0].equals("toggleSprint") && astring.length >= 2) {
+						toggleSprint = Boolean.valueOf(astring[1]).booleanValue();
+					}
+
+					if (astring[0].equals("leftHand")) {
+						this.leftHand = Boolean.valueOf(astring[1]).booleanValue();
+					}
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1746,6 +1775,8 @@ public class GameSettings {
 			printwriter.println("ofMipmapType:" + this.ofMipmapType);
 			printwriter.println("ofBetterSnow:" + this.ofBetterSnow);
 			printwriter.println("ofCustomFonts:" + this.ofCustomFonts);
+			printwriter.println("toggleSprint:" + toggleSprint);
+			printwriter.println("leftHand:" + this.leftHand);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1934,7 +1965,9 @@ public class GameSettings {
         DYNAMIC_FOV("Dynamic FOV", false, false),
 		MIPMAP_TYPE("Mipmap Type", true, false, 0.0F, 3.0F, 1.0F),
 		BETTER_SNOW("Better Snow", false, false),
-		CUSTOM_FONTS("Custom Fonts", false, false);
+		CUSTOM_FONTS("Custom Fonts", false, false),
+		TOGGLE_SPRINT("Sprint", false, false),
+		LEFT_HAND("Main Hand", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

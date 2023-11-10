@@ -9,6 +9,7 @@ import java.util.List;
 import net.FatalCodes.shadow.Shadow;
 import net.FatalCodes.shadow.module.RenderModule;
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.gui.ArmorGui;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
 
@@ -78,7 +79,7 @@ public class GuiIngame extends Gui {
 	private static final ResourceLocation pumpkinBlurTexPath = new ResourceLocation("textures/misc/pumpkinblur.png");
 	private final EaglercraftRandom rand = new EaglercraftRandom();
 	private final Minecraft mc;
-	private final RenderItem itemRenderer;
+	public static RenderItem itemRenderer;
 	private final GuiNewChat persistantChatGUI;
 	private int updateCounter;
 	/**+
@@ -316,6 +317,7 @@ public class GuiIngame extends Gui {
 			}
 		}
 
+		ArmorGui.draw();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();

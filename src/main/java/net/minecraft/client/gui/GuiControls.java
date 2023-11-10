@@ -26,8 +26,7 @@ import net.minecraft.client.settings.KeyBinding;
  * 
  */
 public class GuiControls extends GuiScreen {
-	private static final GameSettings.Options[] optionsArr = new GameSettings.Options[] {
-			GameSettings.Options.INVERT_MOUSE, GameSettings.Options.SENSITIVITY, GameSettings.Options.TOUCHSCREEN };
+	private static final GameSettings.Options[] optionsArr = new GameSettings.Options[] {GameSettings.Options.INVERT_MOUSE, GameSettings.Options.SENSITIVITY, GameSettings.Options.TOUCHSCREEN, GameSettings.Options.TOGGLE_SPRINT };
 	private GuiScreen parentScreen;
 	protected String screenTitle = "Controls";
 	private GameSettings options;
