@@ -1,11 +1,14 @@
 package net.minecraft.client.renderer.entity.layers;
 
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.v1_8.profile.EaglerProfile;
+import net.lax1dude.eaglercraft.v1_8.profile.GuiScreenEditProfile;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -27,6 +30,30 @@ import net.minecraft.util.MathHelper;
  */
 public class LayerCape implements LayerRenderer<AbstractClientPlayer> {
 	private final RenderPlayer playerRenderer;
+	
+	public static final ResourceLocation[] defaultVanillaCapes = new ResourceLocation[] {
+			null,
+			new ResourceLocation("/capes/c01.minecon_2011.png"),
+			new ResourceLocation("/capes/c02.minecon_2012.png"),
+			new ResourceLocation("/capes/c03.minecon_2013.png"),
+			new ResourceLocation("/capes/c04.minecon_2015.png"),
+			new ResourceLocation("/capes/c05.minecon_2016.png"),
+			new ResourceLocation("/capes/c06.microsoft_account.png"),
+			new ResourceLocation("/capes/c07.mapmaker.png"),
+			new ResourceLocation("/capes/c08.mojang_old.png"),
+			new ResourceLocation("/capes/c09.mojang_new.png"),
+			new ResourceLocation("/capes/c10.jira_mod.png"),
+			new ResourceLocation("/capes/c11.mojang_very_old.png"),
+			new ResourceLocation("/capes/c12.scrolls.png"),
+			new ResourceLocation("/capes/c13.cobalt.png"),
+			new ResourceLocation("/capes/c14.translator.png"),
+			new ResourceLocation("/capes/c15.millionth_account.png"),
+			new ResourceLocation("/capes/c16.prismarine.png"),
+			new ResourceLocation("/capes/c17.snowman.png"),
+			new ResourceLocation("/capes/c18.spade.png"),
+			new ResourceLocation("/capes/c19.birthday.png"),
+			new ResourceLocation("/capes/c20.db.png")
+	};
 
 	public LayerCape(RenderPlayer playerRendererIn) {
 		this.playerRenderer = playerRendererIn;
@@ -39,7 +66,9 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer> {
 				&& abstractclientplayer.getLocationCape() != null
 				&& this.playerRenderer.getMainModel() instanceof ModelPlayer) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.playerRenderer.bindTexture(abstractclientplayer.getLocationCape());
+			if(GuiScreenEditProfile.capes.containsKey(abstractclientplayer.getName())) {
+				this.playerRenderer.bindTexture(defaultVanillaCapes[GuiScreenEditProfile.capes.get(abstractclientplayer.getName())]);
+			}
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0F, 0.0F, 0.125F);
 			double d0 = abstractclientplayer.prevChasingPosX

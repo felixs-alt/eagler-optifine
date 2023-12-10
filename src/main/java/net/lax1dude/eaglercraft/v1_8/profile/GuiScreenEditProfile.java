@@ -53,7 +53,6 @@ public class GuiScreenEditProfile extends GuiScreen {
 	private boolean dragging = false;
 	private int mousex = 0;
 	private int mousey = 0;
-	private String cape = "noCape";
 	private SkinModel globalModel = null;
 
 	private boolean newSkinWaitSteveOrAlex = false;
@@ -280,8 +279,8 @@ public class GuiScreenEditProfile extends GuiScreen {
 		if(!dropDownOpen) {
 			if(par1GuiButton.id == 0) {
 				safeProfile();
-				if(cape != "noCape") {
-					socket.send("login:" + EaglerProfile.getName() + ":" + cape);
+				if(EaglerProfile.presetCapeId != 0 && !(EaglerProfile.presetCapeId < 0)) {
+					socket.send("login:" + EaglerProfile.getName() + ":" + EaglerProfile.presetCapeId);
 				}
 				this.mc.displayGuiScreen((GuiScreen) parent);
 			}else if(par1GuiButton.id == 1) {
@@ -516,7 +515,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 	
 	public static WebSocket socket;
 	public static boolean isConnected = false;
-	public static HashMap<String, String> capes = new HashMap<String, String>();
+	public static HashMap<String, Integer> capes = new HashMap<String, Integer>();
 	
 	@SuppressWarnings("unchecked")
 	public static final void startWebsocketConnection(String s) {
@@ -535,7 +534,7 @@ public class GuiScreenEditProfile extends GuiScreen {
             	MessageEvent messageEvent = (MessageEvent) event;
                 String message = messageEvent.getData().toString();
                 String[] message1 = message.split(":");
-                capes.put(message1[0], message1[1]);
+                capes.put(message1[0], Integer.parseInt(message1[1]));
             }
         });
         
