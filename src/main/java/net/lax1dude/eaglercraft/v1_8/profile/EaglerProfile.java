@@ -35,6 +35,9 @@ public class EaglerProfile {
 	
 	public static int presetSkinId;
 	public static int customSkinId;
+	public static int presetCapeId;
+	
+	public static final int[] CAPE_DATA_SIZE = new int[] { 32*32*4, -9, 1 };
 	
 	public static final List<CustomSkin> customSkins = new ArrayList();
 	
@@ -57,6 +60,15 @@ public class EaglerProfile {
 				return DefaultSkins.defaultSkinsMap[0].location;
 			}
 		}
+	}
+	
+	public static int getCapeSize(int len) {
+		for(int i = 0; i < CAPE_DATA_SIZE.length; ++i) {
+			if(len == CAPE_DATA_SIZE[i]) {
+				return i;
+			}
+		}
+		return -1;
 	}
 	
 	public static SkinModel getActiveSkinModel() {
@@ -165,6 +177,7 @@ public class EaglerProfile {
 
 		presetSkinId = profile.getInteger("presetSkin");
 		customSkinId = profile.getInteger("customSkin");
+		presetCapeId = profile.getInteger("presetCape");
 
 		String loadUsername = profile.getString("username").trim();
 
@@ -209,6 +222,7 @@ public class EaglerProfile {
 		NBTTagCompound profile = new NBTTagCompound();
 		profile.setInteger("presetSkin", presetSkinId);
 		profile.setInteger("customSkin", customSkinId);
+		profile.setInteger("presetCape", presetCapeId);
 		profile.setString("username", username);
 		NBTTagList skinsList = new NBTTagList();
 		for(int i = 0, l = customSkins.size(); i < l; ++i) {

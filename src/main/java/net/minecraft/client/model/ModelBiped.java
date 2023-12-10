@@ -34,6 +34,7 @@ public class ModelBiped extends ModelBase {
 	public int heldItemRight;
 	public boolean isSneak;
 	public boolean aimedBow;
+	public ModelRenderer bipedCloak;
 
 	public ModelBiped() {
 		this(0.0F);
@@ -46,6 +47,8 @@ public class ModelBiped extends ModelBase {
 	public ModelBiped(float modelSize, float parFloat1, int textureWidthIn, int textureHeightIn) {
 		this.textureWidth = textureWidthIn;
 		this.textureHeight = textureHeightIn;
+		this.bipedCloak = new ModelRenderer(this, 0, 0);
+		this.bipedCloak.addBox(-5.0F, 0.0F, -1.0F, 10, 16, 1, modelSize);
 		this.bipedHead = new ModelRenderer(this, 0, 0);
 		this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, modelSize);
 		this.bipedHead.setRotationPoint(0.0F, 0.0F + parFloat1, 0.0F);
@@ -248,5 +251,12 @@ public class ModelBiped extends ModelBase {
 
 	public void postRenderArm(float f) {
 		this.bipedRightArm.postRender(f);
+	}
+	
+	/**
+	 * Renders the cloak of the current biped (in most cases, it's a player)
+	 */
+	public void renderCloak(float par1) {
+		this.bipedCloak.render(par1);
 	}
 }

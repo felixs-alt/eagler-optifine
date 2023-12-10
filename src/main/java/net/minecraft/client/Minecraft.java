@@ -1237,11 +1237,21 @@ public class Minecraft implements IThreadListener {
 	public MusicTicker func_181535_r() {
 		return this.mcMusicTicker;
 	}
+	
+	public int lastKeepAlive = 0;
+	public int keepAlive = 0;
+	GuiScreenEditProfile profile;
 
 	/**+
 	 * Runs the current tick.
 	 */
 	public void runTick() throws IOException {
+		
+		lastKeepAlive++;
+		if(lastKeepAlive > (keepAlive + 300) && profile.isConnected) {
+			profile.socket.send("keepAlivePacket");
+			keepAlive = lastKeepAlive;
+		}
 
 		Controller.controllerTick();
 
