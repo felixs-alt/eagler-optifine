@@ -1,6 +1,5 @@
 package net.minecraft.util;
 
-import net.PeytonPlayz585.shadow.Controller;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.Mouse;
 
@@ -45,7 +44,7 @@ public class MouseHelper {
 	}
 
 	public void mouseXYChange() {
-		this.deltaX = Mouse.getDX() + Controller.getCameraX();
-		this.deltaY = Mouse.getDY() + Controller.getCameraY();
+		this.deltaX = Mouse.getDX();
+		this.deltaY = Mouse.getDY();
 	}
 }

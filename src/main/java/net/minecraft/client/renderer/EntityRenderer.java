@@ -88,7 +88,6 @@ import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeGenBase;
 
 import net.PeytonPlayz585.shadow.Config;
-import net.PeytonPlayz585.shadow.Controller;
 import net.PeytonPlayz585.shadow.TextureUtils;
 
 /**+

@@ -167,8 +167,6 @@ import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldSettings;
 
-import net.PeytonPlayz585.shadow.Controller;
-
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -1252,8 +1250,6 @@ public class Minecraft implements IThreadListener {
 			profile.socket.send("keepAlivePacket");
 			keepAlive = lastKeepAlive;
 		}
-
-		Controller.controllerTick();
 
 		if (this.rightClickDelayTimer > 0) {
 			--this.rightClickDelayTimer;

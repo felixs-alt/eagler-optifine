@@ -2,8 +2,6 @@ package net.minecraft.util;
 
 import net.minecraft.client.settings.GameSettings;
 
-import net.PeytonPlayz585.shadow.Controller;
-
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
@@ -32,26 +30,24 @@ public class MovementInputFromOptions extends MovementInput {
 	public void updatePlayerMoveState() {
 		this.moveStrafe = 0.0F;
 		this.moveForward = 0.0F;
-		if (this.gameSettings.keyBindForward.isKeyDown() || Controller.isWalkingForward()) {
+		if (this.gameSettings.keyBindForward.isKeyDown()) {
 			++this.moveForward;
 		}
 
-		if (this.gameSettings.keyBindBack.isKeyDown() || Controller.isWalkingBackward()) {
+		if (this.gameSettings.keyBindBack.isKeyDown()) {
 			--this.moveForward;
 		}
 
-		if (this.gameSettings.keyBindLeft.isKeyDown() || Controller.isWalkingLeft()) {
+		if (this.gameSettings.keyBindLeft.isKeyDown()) {
 			++this.moveStrafe;
 		}
 
-		if (this.gameSettings.keyBindRight.isKeyDown() || Controller.isWalkingRight()) {
+		if (this.gameSettings.keyBindRight.isKeyDown()) {
 			--this.moveStrafe;
 		}
 
-		this.jump = this.gameSettings.keyBindJump.isKeyDown() || Controller.isJumping();
-		this.sneak = this.gameSettings.keyBindSneak.isKeyDown() || Controller.isSneaking();
-		Controller.unpressCrouch();
-		Controller.unpressJump();
+		this.jump = this.gameSettings.keyBindJump.isKeyDown();
+		this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
 		if (this.sneak) {
 			this.moveStrafe = (float) ((double) this.moveStrafe * 0.3D);
 			this.moveForward = (float) ((double) this.moveForward * 0.3D);

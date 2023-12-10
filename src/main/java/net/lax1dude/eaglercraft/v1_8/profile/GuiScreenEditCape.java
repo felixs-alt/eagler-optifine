@@ -53,6 +53,7 @@ public class GuiScreenEditCape extends GuiScreen {
 	public GuiScreenEditCape(GuiScreen parent, int skinToShow, SkinModel model) {
 		this.parent = parent;
 		this.skinToShow = skinToShow;
+		this.dropDownOptions = defaultVanillaCapeNames;
 		this.selectedSlot = EaglerProfile.presetCapeId;
 		this.model = model;
 	}
