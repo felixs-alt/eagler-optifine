@@ -53,7 +53,6 @@ public class GuiScreenEditProfile extends GuiScreen {
 	private boolean dragging = false;
 	private int mousex = 0;
 	private int mousey = 0;
-	private SkinModel globalModel = null;
 
 	private boolean newSkinWaitSteveOrAlex = false;
 
@@ -67,7 +66,6 @@ public class GuiScreenEditProfile extends GuiScreen {
 	}
 
 	public void initGui() {
-		startWebsocketConnection(configureServerIP());
 		Keyboard.enableRepeatEvents(true);
 		screenTitle = I18n.format("editProfile.title");
 		usernameField = new GuiTextField(0, fontRendererObj, width / 2 - 20 + 1, height / 6 + 24 + 1, 138, 20);
@@ -77,7 +75,6 @@ public class GuiScreenEditProfile extends GuiScreen {
 		buttonList.add(new GuiButton(0, width / 2 - 100, height / 6 + 168, I18n.format("gui.done")));
 		buttonList.add(new GuiButton(1, width / 2 - 21, height / 6 + 110, 71, 20, I18n.format("editProfile.addSkin")));
 		buttonList.add(new GuiButton(2, width / 2 - 21 + 71, height / 6 + 110, 72, 20, I18n.format("editProfile.clearSkin")));
-		buttonList.add(new GuiButton(3, width / 2 - 100, height / 6 + 128, I18n.format("Capes")));
 	}
 
 	private void updateOptions() {
@@ -209,7 +206,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 			}
 			
 			mc.getTextureManager().bindTexture(newSkin.getResource());
-			SkinPreviewRenderer.renderBiped(xx, yy, mx, my, SkinModel.STEVE, false);
+			SkinPreviewRenderer.renderBiped(xx, yy, mx, my, SkinModel.STEVE);
 			
 			skinX = width / 2 + 20;
 			skinY = height / 4;
@@ -234,7 +231,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 			}
 			
 			mc.getTextureManager().bindTexture(newSkin.getResource());
-			SkinPreviewRenderer.renderBiped(xx, yy, mx, my, SkinModel.ALEX, false);
+			SkinPreviewRenderer.renderBiped(xx, yy, mx, my, SkinModel.ALEX);
 		}else {
 			skinX = this.width / 2 - 120;
 			skinY = this.height / 6 + 8;
@@ -254,8 +251,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 			}
 
 			mc.getTextureManager().bindTexture(texture);
-			globalModel = model;
-			SkinPreviewRenderer.renderBiped(xx, yy, newSkinWaitSteveOrAlex ? width / 2 : mx, newSkinWaitSteveOrAlex ? height / 2 : my, model, false);
+			SkinPreviewRenderer.renderBiped(xx, yy, newSkinWaitSteveOrAlex ? width / 2 : mx, newSkinWaitSteveOrAlex ? height / 2 : my, model);
 		}
 	}
 
@@ -279,9 +275,6 @@ public class GuiScreenEditProfile extends GuiScreen {
 		if(!dropDownOpen) {
 			if(par1GuiButton.id == 0) {
 				safeProfile();
-				if(EaglerProfile.presetCapeId != 0 && !(EaglerProfile.presetCapeId < 0)) {
-					socket.send("login:" + EaglerProfile.getName() + ":" + EaglerProfile.presetCapeId);
-				}
 				this.mc.displayGuiScreen((GuiScreen) parent);
 			}else if(par1GuiButton.id == 1) {
 				EagRuntime.displayFileChooser("image/png", "png");
@@ -290,9 +283,6 @@ public class GuiScreenEditProfile extends GuiScreen {
 				safeProfile();
 				updateOptions();
 				selectedSlot = 0;
-			} else if(par1GuiButton.id == 3) {
-				safeProfile();
-				this.mc.displayGuiScreen(new GuiScreenEditCape(this, selectedSlot, globalModel));
 			}
 		}
 	}
@@ -316,7 +306,7 @@ public class GuiScreenEditProfile extends GuiScreen {
 						byte[] rawSkin = new byte[16384];
 						for(int i = 0, j, k; i < 4096; ++i) {
 							j = i << 2;
-							k = loadedSkin.pixels[i];
+							k = loadedSkin.getPixels()[i];
 							rawSkin[j] = (byte)(k >> 24);
 							rawSkin[j + 1] = (byte)(k >> 16);
 							rawSkin[j + 2] = (byte)(k >> 8);
@@ -479,87 +469,4 @@ public class GuiScreenEditProfile extends GuiScreen {
 		EaglerProfile.setName(name);
 		EaglerProfile.write();
 	}
-	
-	public static String configureServerIP() {
-		String uri = "play.mrpolog.tk:25565";
-		
-		String uria = null;
-		if(!uri.contains("://")){
-			uri = ( isSSLPage() ? "wss://" : "ws://") + uri;
-			uria = uri;
-		} else {
-			System.err.println("Invalid URI WebSocket Protocol!");
-		}
-		
-		int i = uria.lastIndexOf(':');
-		int port = -1;
-		
-		if(i > 0 && uria.startsWith("[") && uria.charAt(i - 1) != ']') {
-			i = -1;
-		}
-		
-		if(i == -1) port = uri.startsWith("wss") ? 443 : 80;
-		if(uria.endsWith("/")) uria = uria.substring(0, uria.length() - 1);
-		
-		if(port == -1) {
-			try {
-				int i2 = uria.indexOf('/');
-				port = Integer.parseInt(uria.substring(i + 1, i2 == -1 ? uria.length() : i2 - 1));
-			}catch(Throwable t) {
-				System.err.println("Invalid Port!");
-			}
-		}
-		
-		return uria;
-	}
-	
-	public static WebSocket socket;
-	public static boolean isConnected = false;
-	public static HashMap<String, Integer> capes = new HashMap<String, Integer>();
-	
-	@SuppressWarnings("unchecked")
-	public static final void startWebsocketConnection(String s) {
-		socket = WebSocket.create(s);
-        
-        socket.onOpen(new EventListener() {
-            @Override
-            public void handleEvent(Event event) {
-            	isConnected = true;
-            }
-        });
-        
-        socket.onMessage(new EventListener() {
-            @Override
-            public void handleEvent(Event event) {
-            	MessageEvent messageEvent = (MessageEvent) event;
-                String message = messageEvent.getData().toString();
-                String[] message1 = message.split(":");
-                capes.put(message1[0], Integer.parseInt(message1[1]));
-            }
-        });
-        
-        socket.onClose(new EventListener() {
-            @Override
-            public void handleEvent(Event event) {
-            	isConnected = false;
-            }
-        });
-        
-        socket.onError(new EventListener() {
-            @Override
-            public void handleEvent(Event event) {
-            	socket.close();
-            	isConnected = false;
-                System.err.println("WebSocket error occurred");
-            }
-        });
-	}
-	
-	@JSBody(params = { }, script = "return window.location.href;")
-	private static native String getLocationString();
-	
-	public static final boolean isSSLPage() {
-		return getLocationString().startsWith("https");
-	}
-
 }

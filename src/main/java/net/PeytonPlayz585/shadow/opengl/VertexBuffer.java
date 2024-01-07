@@ -11,13 +11,29 @@ import net.lax1dude.eaglercraft.v1_8.opengl.VertexFormat;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 
 public class VertexBuffer {
-    public void func_181722_a(WorldRenderer p_181722_1_, int parInt1) {
-    	if(p_181722_1_.getVertexCount() > 0) {
-    		EaglercraftGPU.glNewList(parInt1, GL_COMPILE);
-			VertexFormat fmt = p_181722_1_.getVertexFormat();
-			ByteBuffer buf = p_181722_1_.getByteBuffer();
-			EaglercraftGPU.renderBuffer(buf, fmt.eaglercraftAttribBits, 7, p_181722_1_.getVertexCount());
-			EaglercraftGPU.glEndList();
-    	}
+
+	private ByteBuffer buffer;
+
+	public VertexBuffer() {
     }
+
+    public void func_181722_a(WorldRenderer parWorldRenderer) {
+        int count = parWorldRenderer.getVertexCount();
+
+        if (count > 0) {
+            VertexFormat format = parWorldRenderer.getVertexFormat();
+			buffer = parWorldRenderer.getByteBuffer();
+			buffer.clear();
+            buffer.limit(count * format.attribStride);
+
+            EaglercraftGPU.renderBuffer(
+                buffer,
+                format.eaglercraftAttribBits,
+                parWorldRenderer.getDrawMode(),
+                count
+            );
+
+            parWorldRenderer.reset();
+        }
+	}
 }

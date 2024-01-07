@@ -88,7 +88,9 @@ import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeGenBase;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.Lagometer;
 import net.PeytonPlayz585.shadow.TextureUtils;
+import net.PeytonPlayz585.shadow.debug.DebugChunkRenderer;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -178,6 +180,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 	private float clipDistance = 128.0F;
 	
 	private boolean initialized = false;
+	private DebugChunkRenderer chunkRenderer;
 
 	public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn) {
 		this.useShader = false;
@@ -209,6 +212,8 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 				this.rainYCoords[i << 5 | j] = f / f2;
 			}
 		}
+
+		chunkRenderer = new DebugChunkRenderer();
 
 	}
 
@@ -1006,6 +1011,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 					if (this.mc.gameSettings.hudPlayer) { // give the player model HUD good fps
 						this.mc.ingameGUI.drawEaglerPlayerOverlay(l - 3, 3, parFloat1);
 					}
+
+					if (this.mc.gameSettings.showDebugInfo) {
+                        Lagometer.showLagometer(scaledresolution);
+                    }
 				}
 
 				this.mc.mcProfiler.endSection();
@@ -1054,6 +1063,12 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			}
 
 		}
+
+		Lagometer.updateLagometer();
+
+		if (this.mc.gameSettings.ofProfiler) {
+            this.mc.gameSettings.showDebugProfilerChart = true;
+        }
 	}
 
 	public void renderStreamIndicator(float partialTicks) {
@@ -1211,16 +1226,20 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 				this.mc.thePlayer.isSpectator());
 		if (pass == 0 || pass == 2) {
 			this.mc.mcProfiler.endStartSection("updatechunks");
+			Lagometer.timerChunkUpload.start();
 			this.mc.renderGlobal.updateChunks(finishTimeNano);
+			Lagometer.timerChunkUpload.end();
 		}
 
 		this.mc.mcProfiler.endStartSection("terrain");
+		Lagometer.timerTerrain.start();
 		
 		if (this.mc.gameSettings.ofSmoothFps && pass > 0) {
             this.mc.mcProfiler.endStartSection("finish");
             this.mc.mcProfiler.endStartSection("terrain");
         }
 		
+		Lagometer.timerTerrain.end();
 		GlStateManager.matrixMode(GL_MODELVIEW);
 		GlStateManager.pushMatrix();
 		GlStateManager.disableAlpha();
@@ -1263,6 +1282,15 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			renderglobal.drawSelectionBox(entityplayer1, this.mc.objectMouseOver, 0, partialTicks);
 			GlStateManager.enableAlpha();
 		}
+
+		if (this.chunkRenderer.shouldRender()) {
+            boolean fogEnabled = GlStateManager.isFogEnabled();
+            GlStateManager.disableFog();
+            this.chunkRenderer.render(partialTicks, finishTimeNano);
+			if(fogEnabled) {
+				GlStateManager.enableFog();
+			}
+        }
 
 		this.mc.mcProfiler.endStartSection("destroyProgress");
 		GlStateManager.enableBlend();

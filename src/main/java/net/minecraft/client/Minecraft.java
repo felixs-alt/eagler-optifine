@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import net.FatalCodes.shadow.Shadow;
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.chunk.ChunkBorders;
 import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
@@ -1235,22 +1236,11 @@ public class Minecraft implements IThreadListener {
 	public MusicTicker func_181535_r() {
 		return this.mcMusicTicker;
 	}
-	
-	public int lastKeepAlive = 0;
-	public int keepAlive = 0;
-	GuiScreenEditProfile profile;
 
 	/**+
 	 * Runs the current tick.
 	 */
 	public void runTick() throws IOException {
-		
-		lastKeepAlive++;
-		if(lastKeepAlive > (keepAlive + 300) && profile.isConnected) {
-			profile.socket.send("keepAlivePacket");
-			keepAlive = lastKeepAlive;
-		}
-
 		if (this.rightClickDelayTimer > 0) {
 			--this.rightClickDelayTimer;
 		}
@@ -1485,6 +1475,10 @@ public class Minecraft implements IThreadListener {
 							this.gameSettings.saveOptions();
 						}
 
+						if(Keyboard.isKeyDown(34)) {
+							this.gameSettings.chunkBorders = !this.gameSettings.chunkBorders;
+						}
+ 
 						if (k == 59) {
 							this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
 						}

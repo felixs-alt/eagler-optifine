@@ -13,7 +13,7 @@ import java.util.Map;
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.CustomSky;
 import net.PeytonPlayz585.shadow.DynamicLights;
-import net.PeytonPlayz585.shadow.opengl.OpenGLManager;
+import net.PeytonPlayz585.shadow.Lagometer;
 import net.PeytonPlayz585.shadow.other.CloudRenderer;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.HString;
@@ -895,6 +895,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		this.lastViewEntityPitch = (double) viewEntity.rotationPitch;
 		this.lastViewEntityYaw = (double) viewEntity.rotationYaw;
 		boolean flag = this.debugFixedClippingHelper != null;
+		Lagometer.timerVisibility.start();
 		if (!flag && this.displayListEntitiesDirty) {
 			this.displayListEntitiesDirty = false;
 			this.renderInfos = Lists.newArrayList();
@@ -944,8 +945,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			}
 
 			while (!linkedlist.isEmpty()) {
-				RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation1 = (RenderGlobal.ContainerLocalRenderInformation) linkedlist
-						.poll();
+				RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation1 = (RenderGlobal.ContainerLocalRenderInformation) linkedlist.poll();
 				RenderChunk renderchunk3 = renderglobal$containerlocalrenderinformation1.renderChunk;
 				EnumFacing enumfacing2 = renderglobal$containerlocalrenderinformation1.facing;
 				BlockPos blockpos2 = renderchunk3.getPosition();
@@ -975,8 +975,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			this.debugFixTerrainFrustum = false;
 		}
 
+		Lagometer.timerVisibility.end();
+
 		Set set = this.chunksToUpdate;
 		this.chunksToUpdate = Sets.newLinkedHashSet();
+		Lagometer.timerChunkUpdate.start();
 
 		for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation2 : this.renderInfos) {
 			RenderChunk renderchunk4 = renderglobal$containerlocalrenderinformation2.renderChunk;
@@ -997,6 +1000,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			}
 		}
 
+		Lagometer.timerChunkUpdate.end();
 		this.chunksToUpdate.addAll(set);
 		this.mc.mcProfiler.endSection();
 	}
@@ -1030,7 +1034,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			}
 		}
 
-		return visgraph.getVisibleFacingsFrom(pos);
+		return visgraph.func_178609_b(pos);
 	}
 
 	private RenderChunk func_181562_a(BlockPos parBlockPos, RenderChunk parRenderChunk, EnumFacing parEnumFacing) {

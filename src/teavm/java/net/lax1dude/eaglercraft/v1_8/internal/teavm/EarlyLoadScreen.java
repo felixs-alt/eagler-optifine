@@ -53,7 +53,7 @@ public class EarlyLoadScreen {
 		ImageData img = PlatformAssets.loadImageFile(Base64.decodeBase64(loadScreen));
 		ByteBuffer upload = PlatformRuntime.allocateByteBuffer(192*192*4);
 		IntBuffer pixelUpload = upload.asIntBuffer();
-		pixelUpload.put(img.pixels);
+		pixelUpload.put(img.getPixels());
 		pixelUpload.flip();
 		_wglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 192, 192, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelUpload);
 		
@@ -142,7 +142,7 @@ public class EarlyLoadScreen {
 		_wglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		ImageData img = PlatformAssets.loadImageFile(Base64.decodeBase64(enableScreen));
 		IntBuffer upload = PlatformRuntime.allocateIntBuffer(128*128);
-		upload.put(img.pixels);
+		upload.put(img.getPixels());
 		upload.flip();
 		_wglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, upload);
 		
@@ -199,7 +199,7 @@ public class EarlyLoadScreen {
 		_wglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		ImageData img = PlatformAssets.loadImageFile(image);
 		IntBuffer upload = PlatformRuntime.allocateIntBuffer(256*256);
-		upload.put(img.pixels);
+		upload.put(img.getPixels());
 		upload.flip();
 		_wglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, upload);
 		

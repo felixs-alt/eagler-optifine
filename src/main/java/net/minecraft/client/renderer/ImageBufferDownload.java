@@ -49,7 +49,7 @@ public class ImageBufferDownload implements IImageBuffer {
 				bufferedimage1.drawLayer(bufferedimage, 48, 52, 44, 64, 52, 20, 56, 32);
 			}
 
-			this.imageData = bufferedimage1.pixels;
+			this.imageData = bufferedimage1.getPixels();
 			this.setAreaOpaque(0, 0, 32, 16);
 			this.setAreaTransparent(32, 0, 64, 32);
 			this.setAreaOpaque(0, 16, 64, 32);

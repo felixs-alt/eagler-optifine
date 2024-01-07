@@ -49,7 +49,7 @@ public class EaglerBitwisePackedTexture {
 		v = is.read();
 		if(v == 0) {
 			for(int i = 0, l = w * h; i < l; ++i) {
-				img.pixels[i] = is.read() | (is.read() << 8) | (is.read() << 16) | alpha;
+				img.getPixels()[i] = is.read() | (is.read() << 8) | (is.read() << 16) | alpha;
 			}
 		}else if(v == 1) {
 			int paletteSize = is.read();
@@ -62,7 +62,7 @@ public class EaglerBitwisePackedTexture {
 			byte[] readSet = new byte[is.read() | (is.read() << 8) | (is.read() << 16)];
 			is.read(readSet);
 			for(int i = 0, l = w * h; i < l; ++i) {
-				img.pixels[i] = palette[getFromBits(i * bpp, bpp, readSet)];
+				img.getPixels()[i] = palette[getFromBits(i * bpp, bpp, readSet)];
 			}
 		}else {
 			throw new IOException("Unknown EBP storage type: " + v);

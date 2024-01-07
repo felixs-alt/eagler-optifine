@@ -44,6 +44,14 @@ public class AxisAlignedBB {
 		this.maxZ = (double) pos2.getZ();
 	}
 
+	/**
+	 * Returns a bounding box with the specified bounds. Args: minX, minY, minZ,
+	 * maxX, maxY, maxZ
+	 */
+	public static AxisAlignedBB getBoundingBox(double par0, double par2, double par4, double par6, double par8, double par10) {
+		return new AxisAlignedBB(par0, par2, par4, par6, par8, par10);
+	}
+
 	/**+
 	 * Adds the coordinates to the bounding box extending it if the
 	 * point lies outside the current ranges. Args: x, y, z

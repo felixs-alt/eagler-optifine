@@ -18,19 +18,19 @@ import net.lax1dude.eaglercraft.v1_8.opengl.ImageData;
 public class SkinConverter {
 
 	public static void convert64x32to64x64(ImageData skinIn, ImageData skinOut) {
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 0, 0, 0, 0, 64, 32, 64, 64, false);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 24, 48, 20, 52, 4, 16, 8, 20, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 28, 48, 24, 52, 8, 16, 12, 20, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 20, 52, 16, 64, 8, 20, 12, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 24, 52, 20, 64, 4, 20, 8, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 28, 52, 24, 64, 0, 20, 4, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 32, 52, 28, 64, 12, 20, 16, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 40, 48, 36, 52, 44, 16, 48, 20, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 44, 48, 40, 52, 48, 16, 52, 20, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 36, 52, 32, 64, 48, 20, 52, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 40, 52, 36, 64, 44, 20, 48, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 44, 52, 40, 64, 40, 20, 44, 32, 64, 64);
-		copyRawPixels(skinIn.pixels, skinOut.pixels, 48, 52, 44, 64, 52, 20, 56, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 0, 0, 0, 0, 64, 32, 64, 64, false);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 24, 48, 20, 52, 4, 16, 8, 20, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 28, 48, 24, 52, 8, 16, 12, 20, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 20, 52, 16, 64, 8, 20, 12, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 24, 52, 20, 64, 4, 20, 8, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 28, 52, 24, 64, 0, 20, 4, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 32, 52, 28, 64, 12, 20, 16, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 40, 48, 36, 52, 44, 16, 48, 20, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 44, 48, 40, 52, 48, 16, 52, 20, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 36, 52, 32, 64, 48, 20, 52, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 40, 52, 36, 64, 44, 20, 48, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 44, 52, 40, 64, 40, 20, 44, 32, 64, 64);
+		copyRawPixels(skinIn.getPixels(), skinOut.getPixels(), 48, 52, 44, 64, 52, 20, 56, 32, 64, 64);
 	}
 
 	private static void copyRawPixels(int[] imageIn, int[] imageOut, int dx1, int dy1, int dx2, int dy2, int sx1,

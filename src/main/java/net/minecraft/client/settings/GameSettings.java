@@ -206,34 +206,34 @@ public class GameSettings {
 	public float ofCloudsHeight = 0.0F;
 	public int ofTrees = 0;
 	public int ofRain = 0;
-	public boolean ofSky = true;
-	public boolean ofStars = true;
-    public boolean ofSunMoon = true;
-    public boolean ofShowCapes = true;
+	public boolean ofSky = false;
+	public boolean ofStars = false;
+    public boolean ofSunMoon = false;
+    public boolean ofShowCapes = false;
     public int ofTranslucentBlocks = 0;
-    public boolean heldItemTooltips = true;
+    public boolean heldItemTooltips = false;
     public int ofDroppedItems = 0;
     public int ofVignette = 0;
-    public boolean ofDynamicFov = true;
+    public boolean ofDynamicFov = false;
 	
 	//Optifine Animations
-	public int ofAnimatedWater = 0;
-    public int ofAnimatedLava = 0;
-    public boolean ofAnimatedFire = true;
-    public boolean ofAnimatedPortal = true;
-    public boolean ofAnimatedRedstone = true;
-    public boolean ofAnimatedExplosion = true;
-    public boolean ofAnimatedFlame = true;
-    public boolean ofAnimatedSmoke = true;
-    public boolean ofVoidParticles = true;
-    public boolean ofWaterParticles = true;
-    public boolean ofPortalParticles = true;
-    public boolean ofPotionParticles = true;
-    public boolean ofFireworkParticles = true;
-    public boolean ofDrippingWaterLava = true;
-    public boolean ofAnimatedTerrain = true;
-    public boolean ofAnimatedTextures = true;
-    public boolean ofRainSplash = true;
+	public int ofAnimatedWater = 2;
+    public int ofAnimatedLava = 2;
+    public boolean ofAnimatedFire = false;
+    public boolean ofAnimatedPortal = false;
+    public boolean ofAnimatedRedstone = false;
+    public boolean ofAnimatedExplosion = false;
+    public boolean ofAnimatedFlame = false;
+    public boolean ofAnimatedSmoke = false;
+    public boolean ofVoidParticles = false;
+    public boolean ofWaterParticles = false;
+    public boolean ofPortalParticles = false;
+    public boolean ofPotionParticles = false;
+    public boolean ofFireworkParticles = false;
+    public boolean ofDrippingWaterLava = false;
+    public boolean ofAnimatedTerrain = false;
+    public boolean ofAnimatedTextures = false;
+    public boolean ofRainSplash = false;
     
     //Performance Settings
     public boolean ofSmoothFps = false;
@@ -255,6 +255,9 @@ public class GameSettings {
 	public static boolean toggleSprint = false;
 	public static boolean toggleSprintEnabled = false;
 	public boolean leftHand = false;
+	public boolean chunkBorders = false;
+	public boolean ofLagometer = false;
+	public boolean ofProfiler = false;
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -775,9 +778,13 @@ public class GameSettings {
 			toggleSprint = !toggleSprint;
 		}
 
-		if(parOptions == GameSettings.Options.LEFT_HAND) {
-			leftHand = !leftHand;
-		}
+		if (parOptions == GameSettings.Options.LAGOMETER) {
+            this.ofLagometer = !this.ofLagometer;
+        }
+
+		if (parOptions == GameSettings.Options.PROFILER) {
+            this.ofProfiler = !this.ofProfiler;
+        }
 
 		this.saveOptions();
 	}
@@ -867,8 +874,10 @@ public class GameSettings {
 			return this.ofDynamicFov;
 		case TOGGLE_SPRINT:
 			return toggleSprint;
-		case LEFT_HAND:
-			return leftHand;
+		case LAGOMETER:
+			return ofLagometer;
+		case PROFILER:
+			return ofProfiler;
 		default:
 			return false;
 		}
@@ -1133,9 +1142,11 @@ public class GameSettings {
             return this.ofCustomFonts ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.TOGGLE_SPRINT) {
 			return toggleSprint ? s + "Toggle" : s + "Hold";
-		} else if(parOptions == GameSettings.Options.LEFT_HAND) {
-			return leftHand ? s + "Left" : s + "Right";
-		} else {
+		} else if (parOptions == GameSettings.Options.LAGOMETER) {
+            return this.ofLagometer ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.PROFILER) {
+            return this.ofProfiler ? s + "ON" : s + "OFF";
+        } else {
 			return s;
 		}
 	}
@@ -1620,9 +1631,13 @@ public class GameSettings {
 						toggleSprint = Boolean.valueOf(astring[1]).booleanValue();
 					}
 
-					if (astring[0].equals("leftHand")) {
-						this.leftHand = Boolean.valueOf(astring[1]).booleanValue();
-					}
+					if (astring[0].equals("ofLagometer") && astring.length >= 2) {
+                        this.ofLagometer = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+
+					if (astring[0].equals("ofProfiler") && astring.length >= 2) {
+                        this.ofProfiler = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1776,7 +1791,8 @@ public class GameSettings {
 			printwriter.println("ofBetterSnow:" + this.ofBetterSnow);
 			printwriter.println("ofCustomFonts:" + this.ofCustomFonts);
 			printwriter.println("toggleSprint:" + toggleSprint);
-			printwriter.println("leftHand:" + this.leftHand);
+			printwriter.println("ofLagometer:" + this.ofLagometer);
+			printwriter.println("ofProfiler:" + this.ofProfiler);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1967,7 +1983,9 @@ public class GameSettings {
 		BETTER_SNOW("Better Snow", false, false),
 		CUSTOM_FONTS("Custom Fonts", false, false),
 		TOGGLE_SPRINT("Sprint", false, false),
-		LEFT_HAND("Main Hand", false, false);
+		LEFT_HAND("Main Hand", false, false),
+		LAGOMETER("Lagometer", false, false),
+		PROFILER("Profiler", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;
@@ -2100,6 +2118,9 @@ public class GameSettings {
         this.ofAnimatedTextures = p_setAllAnimations_1_;
         this.ofRainSplash = p_setAllAnimations_1_;
     }
+
+	public void resetSettings() {
+	}
 
 	private void updateWaterOpacity() {
         ClearWater.updateWaterOpacity(this, this.mc.theWorld);

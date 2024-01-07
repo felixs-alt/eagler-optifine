@@ -145,6 +145,10 @@ public class GuiVideoSettings extends GuiScreen {
 				this.mc.displayGuiScreen(new GuiDetails(this));
 			}
 
+			if(parGuiButton.id == 222) {
+				this.mc.displayGuiScreen(new GuiOther(this));
+			}
+
             if (this.guiGameSettings.guiScale != i) {
                 ScaledResolution scaledresolution = new ScaledResolution(this.mc);
                 int j = scaledresolution.getScaledWidth();

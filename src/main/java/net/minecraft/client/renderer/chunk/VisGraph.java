@@ -2,11 +2,14 @@ package net.minecraft.client.renderer.chunk;
 
 import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.Set;
 
-import net.PeytonPlayz585.shadow.math.IntStack;
+import com.google.common.collect.Lists;
+
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IntegerCache;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -27,224 +30,150 @@ import net.minecraft.util.EnumFacing;
  * 
  */
 public class VisGraph {
+	private static final int field_178616_a = (int) Math.pow(16.0D, 0.0D);
+	private static final int field_178614_b = (int) Math.pow(16.0D, 1.0D);
+	private static final int field_178615_c = (int) Math.pow(16.0D, 2.0D);
+	private final BitSet field_178612_d = new BitSet(4096);
+	private static final int[] field_178613_e = new int[1352];
+	private int field_178611_f = 4096;
 
-  private static final int X_OFFSET = (int) Math.pow(16.0D, 0.0D);
-  private static final int Z_OFFSET = (int) Math.pow(16.0D, 1.0D);
-  private static final int Y_OFFSET = (int) Math.pow(16.0D, 2.0D);
-  private static final int[] EDGES = new int[1352];
-  private static final SetVisibility ALL_VIS = new SetVisibility();
+	public void func_178606_a(BlockPos pos) {
+		this.field_178612_d.set(getIndex(pos), true);
+		--this.field_178611_f;
+	}
 
-  static {
-    ALL_VIS.setAllVisible(true);
-    int var2 = 0;
+	private static int getIndex(BlockPos pos) {
+		return getIndex(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+	}
 
-    for (int var3 = 0; var3 < 16; ++var3) {
-      for (int var4 = 0; var4 < 16; ++var4) {
-        for (int var5 = 0; var5 < 16; ++var5) {
-          if (var3 == 0 || var3 == 15 || var4 == 0 || var4 == 15 || var5 == 0 || var5 == 15) {
-            EDGES[var2++] = getIndex(var3, var4, var5);
-          }
-        }
-      }
-    }
-  }
+	private static int getIndex(int x, int y, int z) {
+		return x << 0 | y << 8 | z << 4;
+	}
 
-  /*
-   * This is a pretty hefty structure: 1340 bytes per 16^3 (40+bytes per object, and the array of long[] in BitSet)
-   * weighing in around 190 bytes for BitSets, 40 bytes for SetVisibility, and 50 bytes for this.
-   * ~4,824,000 bytes at view distance 7; This could be halved if it were not reusable, but reusability is part
-   * of what makes it speedy when recalculating the viewable area.
-   */
-  private final BitSet opaqueBlocks = new BitSet(4096);
-  private final BitSet visibleBlocks = new BitSet(4096);
-  private short transparentBlocks = 4096;
-  private boolean dirty = true, computedVis = true;
-  private SetVisibility visibility;
+	public SetVisibility computeVisibility() {
+		SetVisibility setvisibility = new SetVisibility();
+		if (4096 - this.field_178611_f < 256) {
+			setvisibility.setAllVisible(true);
+		} else if (this.field_178611_f == 0) {
+			setvisibility.setAllVisible(false);
+		} else {
+			for (int i : field_178613_e) {
+				if (!this.field_178612_d.get(i)) {
+					setvisibility.setManyVisible(this.func_178604_a(i));
+				}
+			}
+		}
 
-  public void func_178606_a(BlockPos pos) {
-    this.opaqueBlocks.set(getIndex(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15), true);
-    --this.transparentBlocks;
-  }
+		return setvisibility;
+	}
 
-  private static int getIndex(int x, int y, int z) {
+	public Set<EnumFacing> func_178609_b(BlockPos pos) {
+		return this.func_178604_a(getIndex(pos));
+	}
 
-    return x << 0 | y << 8 | z << 4;
-  }
+	private Set<EnumFacing> func_178604_a(int parInt1) {
+		EnumSet enumset = EnumSet.noneOf(EnumFacing.class);
+		LinkedList linkedlist = Lists.newLinkedList();
+		linkedlist.add(IntegerCache.func_181756_a(parInt1));
+		this.field_178612_d.set(parInt1, true);
 
-  public boolean isDirty() {
+		while (!linkedlist.isEmpty()) {
+			int i = ((Integer) linkedlist.poll()).intValue();
+			this.func_178610_a(i, enumset);
 
-    return dirty;
-  }
+			for (EnumFacing enumfacing : EnumFacing.values()) {
+				int j = this.func_178603_a(i, enumfacing);
+				if (j >= 0 && !this.field_178612_d.get(j)) {
+					this.field_178612_d.set(j, true);
+					linkedlist.add(IntegerCache.func_181756_a(j));
+				}
+			}
+		}
 
-  public boolean isRenderDirty() {
+		return enumset;
+	}
 
-    if (isDirty()) {
-      return true;
-    }
-    boolean r = computedVis;
-    computedVis = false;
-    return r;
-  }
+	private void func_178610_a(int parInt1, Set<EnumFacing> parSet) {
+		int i = parInt1 >> 0 & 15;
+		if (i == 0) {
+			parSet.add(EnumFacing.WEST);
+		} else if (i == 15) {
+			parSet.add(EnumFacing.EAST);
+		}
 
-  public void setOpaque(int x, int y, int z, boolean opaque) {
+		int j = parInt1 >> 8 & 15;
+		if (j == 0) {
+			parSet.add(EnumFacing.DOWN);
+		} else if (j == 15) {
+			parSet.add(EnumFacing.UP);
+		}
 
-    boolean prev = opaqueBlocks.get(getIndex(x, y, z));
-    if (prev != opaque) {
-      opaqueBlocks.set(getIndex(x, y, z), opaque);
-      transparentBlocks += opaque ? -1 : 1;
-      dirty = true;
-    }
-  }
+		int k = parInt1 >> 4 & 15;
+		if (k == 0) {
+			parSet.add(EnumFacing.NORTH);
+		} else if (k == 15) {
+			parSet.add(EnumFacing.SOUTH);
+		}
 
-  public SetVisibility getVisibility() {
+	}
 
-    SetVisibility setvisibility = visibility;
-    if (setvisibility != null) {
-      return setvisibility;
-    }
-    return ALL_VIS;
-  }
+	private int func_178603_a(int parInt1, EnumFacing parEnumFacing) {
+		switch (parEnumFacing) {
+		case DOWN:
+			if ((parInt1 >> 8 & 15) == 0) {
+				return -1;
+			}
 
-  public SetVisibility computeVisibility() {
+			return parInt1 - field_178615_c;
+		case UP:
+			if ((parInt1 >> 8 & 15) == 15) {
+				return -1;
+			}
 
-    dirty = false;
-    SetVisibility setvisibility = new SetVisibility();
+			return parInt1 + field_178615_c;
+		case NORTH:
+			if ((parInt1 >> 4 & 15) == 0) {
+				return -1;
+			}
 
-    if (4096 - transparentBlocks < 256) {
-      setvisibility.setAllVisible(true);
-    } else if (transparentBlocks == 0) {
-      setvisibility.setAllVisible(false);
-    } else {
-      int[] edges = EDGES;
-      int i = edges.length;
+			return parInt1 - field_178614_b;
+		case SOUTH:
+			if ((parInt1 >> 4 & 15) == 15) {
+				return -1;
+			}
 
-      visibleBlocks.andNot(visibleBlocks);
-      visibleBlocks.or(opaqueBlocks);
-      IntStack linkedlist = new IntStack(1024, 512);
-      for (int j = 0; j < i; ++j) {
-        int k = edges[j];
+			return parInt1 + field_178614_b;
+		case WEST:
+			if ((parInt1 >> 0 & 15) == 0) {
+				return -1;
+			}
 
-        if (!opaqueBlocks.get(k)) {
-          setvisibility.setManyVisible(computeVisibleFacingsFrom(k, linkedlist));
-        }
-        linkedlist.setSize(0);
-      }
-    }
+			return parInt1 - field_178616_a;
+		case EAST:
+			if ((parInt1 >> 0 & 15) == 15) {
+				return -1;
+			}
 
-    visibility = setvisibility;
-    computedVis = true;
+			return parInt1 + field_178616_a;
+		default:
+			return -1;
+		}
+	}
 
-    return setvisibility;
-  }
+	static {
+		boolean flag = false;
+		boolean flag1 = true;
+		int i = 0;
 
-  public Set < EnumFacing > getVisibleFacingsFrom(int x, int y, int z) {
+		for (int j = 0; j < 16; ++j) {
+			for (int k = 0; k < 16; ++k) {
+				for (int l = 0; l < 16; ++l) {
+					if (j == 0 || j == 15 || k == 0 || k == 15 || l == 0 || l == 15) {
+						field_178613_e[i++] = getIndex(j, k, l);
+					}
+				}
+			}
+		}
 
-    visibleBlocks.andNot(visibleBlocks);
-    visibleBlocks.or(opaqueBlocks);
-    return computeVisibleFacingsFrom(getIndex(x & 15, y & 15, z & 15), new IntStack(256, 512));
-  }
-
-  public Set < EnumFacing > getVisibleFacingsFrom(BlockPos pos) {
-    visibleBlocks.andNot(visibleBlocks);
-    visibleBlocks.or(opaqueBlocks);
-    return computeVisibleFacingsFrom(getIndex(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15), new IntStack(256, 512));
-  }
-
-  private EnumSet < EnumFacing > computeVisibleFacingsFrom(int index, IntStack linkedlist) {
-
-    EnumSet < EnumFacing > enumset = EnumSet.noneOf(EnumFacing.class);
-    linkedlist.add(index);
-    BitSet blocks = this.visibleBlocks;
-    blocks.set(index, true);
-
-    EnumFacing[] facings = EnumFacing.values();
-    int k = facings.length;
-    while (!linkedlist.isEmpty()) {
-      int j = linkedlist.poll();
-      addSides(j, enumset);
-
-      for (int l = 0; l < k; ++l) {
-        EnumFacing face = facings[l];
-        int i1 = stepTo(j, face);
-
-        if (i1 >= 0 && !blocks.get(i1)) {
-          blocks.set(i1, true);
-          linkedlist.add(i1);
-        }
-      }
-    }
-
-    return enumset;
-  }
-
-  private void addSides(int index, Set < EnumFacing > set) {
-
-    int j = index >> 0 & 15;
-
-    if (j == 0) {
-      set.add(EnumFacing.WEST);
-    } else if (j == 15) {
-      set.add(EnumFacing.EAST);
-    }
-
-    int k = index >> 8 & 15;
-
-    if (k == 0) {
-      set.add(EnumFacing.DOWN);
-    } else if (k == 15) {
-      set.add(EnumFacing.UP);
-    }
-
-    int l = index >> 4 & 15;
-
-    if (l == 0) {
-      set.add(EnumFacing.NORTH);
-    } else if (l == 15) {
-      set.add(EnumFacing.SOUTH);
-    }
-  }
-
-  private int stepTo(int index, EnumFacing side) {
-
-    switch (side) {
-    case DOWN:
-      if ((index >> 8 & 15) == 0) {
-        return -1;
-      }
-
-      return index - Y_OFFSET;
-    case UP:
-      if ((index >> 8 & 15) == 15) {
-        return -1;
-      }
-
-      return index + Y_OFFSET;
-    case NORTH:
-      if ((index >> 4 & 15) == 0) {
-        return -1;
-      }
-
-      return index - Z_OFFSET;
-    case SOUTH:
-      if ((index >> 4 & 15) == 15) {
-        return -1;
-      }
-
-      return index + Z_OFFSET;
-    case WEST:
-      if ((index >> 0 & 15) == 0) {
-        return -1;
-      }
-
-      return index - X_OFFSET;
-    case EAST:
-      if ((index >> 0 & 15) == 15) {
-        return -1;
-      }
-
-      return index + X_OFFSET;
-    default:
-      return -1;
-    }
-  }
+	}
 }

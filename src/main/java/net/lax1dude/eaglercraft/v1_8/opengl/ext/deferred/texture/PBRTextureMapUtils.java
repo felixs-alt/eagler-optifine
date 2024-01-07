@@ -48,11 +48,11 @@ public class PBRTextureMapUtils {
 				if(res.getResourcePackName().equals(resourcePack)) {
 					ImageData toRet = TextureUtil.readBufferedImage(res.getInputStream());
 					if(ext.equals("_s")) {
-						for(int i = 0, j; i < toRet.pixels.length; ++i) {
+						for(int i = 0, j; i < toRet.getPixels().length; ++i) {
 							// swap B and A, because labPBR support
-							int a = (toRet.pixels[i] >>> 24) & 0xFF;
+							int a = (toRet.getPixels()[i] >>> 24) & 0xFF;
 							if(a == 0xFF) a = 0;
-							toRet.pixels[i] = (toRet.pixels[i] & 0x0000FFFF) | Math.min(a << 18, 0xFF0000) | 0xFF000000;
+							toRet.getPixels()[i] = (toRet.getPixels()[i] & 0x0000FFFF) | Math.min(a << 18, 0xFF0000) | 0xFF000000;
 						}
 					}
 					return toRet;
@@ -104,14 +104,14 @@ public class PBRTextureMapUtils {
 			if(in.width != resX || in.height != resY) {
 				out = new ImageData(resX, resY, true);
 				if(in.width == 1 && in.height == 1) {
-					int px = in.pixels[0];
-					for(int j = 0; j < out.pixels.length; ++j) {
-						out.pixels[j] = px;
+					int px = in.getPixels()[0];
+					for(int j = 0; j < out.getPixels().length; ++j) {
+						out.getPixels()[j] = px;
 					}
 				}else {
 					for(int y = 0; y < resY; ++y) {
 						for(int x = 0; x < resX; ++x) {
-							out.pixels[y * resX + x] = in.pixels[((y * in.height / resY)) * in.width + (x * in.width / resX)];
+							out.getPixels()[y * resX + x] = in.getPixels()[((y * in.height / resY)) * in.width + (x * in.width / resX)];
 						}
 					}
 				}

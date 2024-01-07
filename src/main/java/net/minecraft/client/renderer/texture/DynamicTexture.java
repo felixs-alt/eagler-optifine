@@ -30,7 +30,7 @@ public class DynamicTexture extends AbstractTexture {
 
 	public DynamicTexture(ImageData bufferedImage) {
 		this(bufferedImage.width, bufferedImage.height);
-		System.arraycopy(bufferedImage.pixels, 0, dynamicTextureData, 0, bufferedImage.pixels.length);
+		System.arraycopy(bufferedImage.getPixels(), 0, dynamicTextureData, 0, bufferedImage.getPixels().length);
 		this.updateDynamicTexture();
 	}
 

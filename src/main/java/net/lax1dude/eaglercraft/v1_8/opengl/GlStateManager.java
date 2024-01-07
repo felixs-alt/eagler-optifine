@@ -230,6 +230,10 @@ public class GlStateManager {
 		stateAlphaTest = true;
 	}
 
+	public static final boolean isAlpha() {
+		return stateAlphaTest;
+	}
+
 	public static final void alphaFunc(int func, float ref) {
 		if(func != GL_GREATER) {
 			throw new UnsupportedOperationException("Only GL_GREATER alphaFunc is supported");
@@ -356,6 +360,10 @@ public class GlStateManager {
 		}
 	}
 
+	public static final boolean isBlend() {
+		return stateBlend;
+	}
+
 	public static final void globalDisableBlend() {
 		if(stateBlend) {
 			_wglDisable(GL_BLEND);
@@ -442,6 +450,10 @@ public class GlStateManager {
 
 	public static final void enableFog() {
 		stateFog = true;
+	}
+
+	public static final boolean isFogEnabled() {
+		return stateFog;
 	}
 
 	public static final void disableFog() {

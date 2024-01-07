@@ -68,13 +68,13 @@ public class LayeredColorMaskTexture extends AbstractTexture {
 					if (bufferedimage2.width == bufferedimage.width && bufferedimage2.height == bufferedimage.height) {
 						for (int k = 0; k < bufferedimage2.height; ++k) {
 							for (int l = 0; l < bufferedimage2.width; ++l) {
-								int i1 = bufferedimage2.pixels[k * bufferedimage2.width + l];
+								int i1 = bufferedimage2.getPixels()[k * bufferedimage2.width + l];
 								if ((i1 & -16777216) != 0) {
 									int j1 = (i1 & 16711680) << 8 & -16777216;
-									int k1 = bufferedimage1.pixels[k * bufferedimage1.width + l];
+									int k1 = bufferedimage1.getPixels()[k * bufferedimage1.width + l];
 									int l1 = MathHelper.func_180188_d(k1, ImageData.swapRB(mapcolor.colorValue))
 											& 16777215;
-									bufferedimage2.pixels[k * bufferedimage2.width + l] = j1 | l1;
+									bufferedimage2.getPixels()[k * bufferedimage2.width + l] = j1 | l1;
 								}
 							}
 						}

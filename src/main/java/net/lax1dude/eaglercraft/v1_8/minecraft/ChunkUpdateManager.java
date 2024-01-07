@@ -212,7 +212,7 @@ public class ChunkUpdateManager {
 	}
 	
 	private void uploadVertexBuffer(WorldRenderer p_178506_1_, int parInt1) {
-        this.vertexUploader.func_181679_a(p_178506_1_, parInt1);
+        this.vertexUploader.func_181679_a(p_178506_1_);
     }
 
 	public boolean isAlreadyQueued(RenderChunk update) {

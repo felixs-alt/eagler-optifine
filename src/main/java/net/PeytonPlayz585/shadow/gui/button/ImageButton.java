@@ -49,12 +49,15 @@ public class ImageButton extends MainButton {
         float f3 = (color >> 8 & 0xFF) / 255.0F;
         float f4 = (color & 0xFF) / 255.0F;
 		GlStateManager.color(f2, f3, f4, f1);
+		
+		boolean isAlpha = GlStateManager.isAlpha();
+		boolean isBlend = GlStateManager.isBlend();
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
-		
+
 		Minecraft.getMinecraft().getTextureManager().bindTexture(image);
 		Gui.drawModalRectWithCustomSizedTexture(this.xPosition + 3, this.yPosition + 3, 0, 0, 6, 6, 6, 6);
-		
+
 		GlStateManager.disableBlend();
 		GlStateManager.disableAlpha();
 	}

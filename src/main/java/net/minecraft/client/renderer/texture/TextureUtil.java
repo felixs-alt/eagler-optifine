@@ -277,7 +277,7 @@ public class TextureUtil {
 
 	public static int[] readImageData(IResourceManager resourceManager, ResourceLocation imageLocation)
 			throws IOException {
-		return readBufferedImage(resourceManager.getResource(imageLocation).getInputStream()).pixels;
+		return readBufferedImage(resourceManager.getResource(imageLocation).getInputStream()).getPixels();
 	}
 
 	public static ImageData readBufferedImage(InputStream imageStream) throws IOException {
