@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import net.PeytonPlayz585.shadow.input.Controller;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IntHashMap;
 
@@ -106,7 +107,7 @@ public class KeyBinding implements Comparable<KeyBinding> {
 	 * querying). Should be used in tickers.
 	 */
 	public boolean isKeyDown() {
-		return this.pressed;
+		return this.pressed | Controller.isKeyDown(keyDescription);
 	}
 
 	public String getKeyCategory() {

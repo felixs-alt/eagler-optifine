@@ -8,9 +8,7 @@ let upDownAxis1 = 0;
 let leftRightAxis2 = 0;
 let upDownAxis2 = 0;
 
-//in-game controller
-let jump = false;
-let crouch = false;
+const buttonStates = {};
 
 window.addEventListener("gamepadconnected", (event) => {
     const gamepad = event.gamepad;
@@ -49,22 +47,6 @@ function controllerConnected() {
     return false;
 }
 
-function handleButtons(buttons) {
-    for(let i = 0; i < buttons.length; i++) {
-        const button = buttons[i];
-
-        if(button.value > 0) {
-            if(i == 0) {
-                jump = true;
-            }
-
-            if(i == 1) {
-                crouch = true;
-            }
-        }
-    }
-}
-
 function getCameraX() {
     return leftRightAxis2; 
 }
@@ -101,14 +83,32 @@ function isWalkingRight() {
     return false;
 }
 
-function isKeyDown(buttonID) {
-    const gamepad = navigator.getGamepads()[controllerIndex];
-    const buttons = gamepad.buttons;
-    const button = buttons[buttonID];
-    if (gamepad) {
-        const buttons = gamepad.buttons;
-        const button = buttons[buttonID];
-        return button.value > 0;
+function isKeyDown(keyCode) {
+    const gamepads = navigator.getGamepads();
+    if (gamepads.length > 0) {
+      const gamepad = gamepads[0];
+      if (gamepad) {
+        const button = gamepad.buttons.find(btn => btn.value !== 0 && btn.keyCode === keyCode);
+        return !!button;
+      }
+    }
+    return false;
+}
+  
+  function isPressed(keyCode) {
+    const gamepads = navigator.getGamepads();
+    if (gamepads.length > 0) {
+      const gamepad = gamepads[0];
+      if (gamepad) {
+        const button = gamepad.buttons.find(btn => btn.keyCode === keyCode);
+        if (button.pressed && !buttonStates[keyCode]) {
+          buttonStates[keyCode] = true;
+          return true;
+        } else {
+          buttonStates[keyCode] = button.pressed;
+          return false;
+        }
+      }
     }
     return false;
 }
@@ -118,7 +118,9 @@ function updateController() {
         if(controllerIndex != null) {
             const gamepad = navigator.getGamepads()[controllerIndex];
             handleSticks(gamepad.axes);
-            handleButtons(gamepad.buttons);
         }
     }
+    requestAnimationFrame(updateController);
 }
+
+requestAnimationFrame(updateController);

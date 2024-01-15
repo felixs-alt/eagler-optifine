@@ -22,6 +22,7 @@ import net.FatalCodes.shadow.Shadow;
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.chunk.ChunkBorders;
 import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
+import net.PeytonPlayz585.shadow.input.Controller;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.HString;
@@ -1337,7 +1338,7 @@ public class Minecraft implements IThreadListener {
 
 				long i1 = getSystemTime() - this.systemTime;
 				if (i1 <= 200L) {
-					int j = Mouse.getEventDWheel();
+					int j = Mouse.getEventDWheel() + Controller.getEventDWheel();
 					if (j != 0) {
 						if (this.thePlayer.isSpectator()) {
 							j = j < 0 ? -1 : 1;

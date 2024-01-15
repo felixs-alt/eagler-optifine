@@ -83,8 +83,8 @@ public class ImageData {
         if (cw != dx2 - dx1 || ch != dy2 - dy1) {
             throw new IllegalArgumentException("Width and height of the copied region must match the width and height of the pasted region");
         }
-        int[] srcPixels = input.pixels.array();
-        int[] dstPixels = pixels.array();
+        int[] srcPixels = input.getPixels();
+        int[] dstPixels = getPixels();
         int srcOffset = sx1 + sy1 * input.width;
         int dstOffset = dx1 + dy1 * width;
         for (int y = 0; y < ch; y++) {
@@ -101,8 +101,8 @@ public class ImageData {
         if (cw != dx2 - dx1 || ch != dy2 - dy1) {
             throw new IllegalArgumentException("Width and height of the copied region must match the width and height of the pasted region");
         }
-        int[] srcPixels = input.pixels.array();
-        int[] dstPixels = pixels.array();
+        int[] srcPixels = input.getPixels();
+        int[] dstPixels = getPixels();
         int srcOffset = sx1 + sy1 * input.width;
         int dstOffset = dx1 + dy1 * width;
         for (int y = 0; y < ch; y++) {
@@ -134,7 +134,7 @@ public class ImageData {
     }
 
     public ImageData swapRB() {
-        int[] dstPixels = pixels.array();
+        int[] dstPixels = getPixels();
         for (int i = 0; i < dstPixels.length; i++) {
             int j = dstPixels[i];
             dstPixels[i] = (j & 0xFF00FF00) | ((j & 0x00FF0000) >> 16) | ((j & 0x000000FF) << 16);
