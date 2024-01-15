@@ -14,7 +14,7 @@ public class GuiOther extends GuiScreen implements GuiYesNoCallback {
     private GuiScreen prevScreen;
     protected String title;
     private GameSettings settings;
-    private static GameSettings.Options[] enumOptions = new GameSettings.Options[] {GameSettings.Options.LAGOMETER, GameSettings.Options.PROFILER, GameSettings.Options.FULLSCREEN, GameSettings.Options.HUD_FPS, GameSettings.Options.HUD_COORDS, GameSettings.Options.HUD_STATS, GameSettings.Options.HUD_WORLD, GameSettings.Options.HUD_PLAYER, GameSettings.Options.HUD_24H, GameSettings.Options.ANAGLYPH};
+    private static GameSettings.Options[] enumOptions = new GameSettings.Options[] {GameSettings.Options.LAGOMETER, GameSettings.Options.PROFILER, GameSettings.Options.FULLSCREEN, GameSettings.Options.HUD_FPS, GameSettings.Options.HUD_COORDS, GameSettings.Options.HUD_STATS, GameSettings.Options.HUD_WORLD, GameSettings.Options.HUD_PLAYER, GameSettings.Options.HUD_24H, GameSettings.Options.ANAGLYPH, GameSettings.Options.HIDE_PASSWORD};
 
     public GuiOther(GuiScreen p_i51_1_) {
         this.prevScreen = p_i51_1_;

@@ -258,6 +258,7 @@ public class GameSettings {
 	public boolean chunkBorders = false;
 	public boolean ofLagometer = false;
 	public boolean ofProfiler = false;
+	public boolean hidePassword = true;
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -786,6 +787,10 @@ public class GameSettings {
             this.ofProfiler = !this.ofProfiler;
         }
 
+		if (parOptions == GameSettings.Options.HIDE_PASSWORD) {
+			this.hidePassword = !this.hidePassword;
+		}
+
 		this.saveOptions();
 	}
 
@@ -878,6 +883,8 @@ public class GameSettings {
 			return ofLagometer;
 		case PROFILER:
 			return ofProfiler;
+		case HIDE_PASSWORD:
+			return hidePassword;
 		default:
 			return false;
 		}
@@ -1146,7 +1153,9 @@ public class GameSettings {
             return this.ofLagometer ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.PROFILER) {
             return this.ofProfiler ? s + "ON" : s + "OFF";
-        } else {
+        } else if (parOptions == GameSettings.Options.HIDE_PASSWORD) {
+			return hidePassword ? s + "ON" : s + "OFF";	
+		} else {
 			return s;
 		}
 	}
@@ -1639,6 +1648,10 @@ public class GameSettings {
                         this.ofProfiler = Boolean.valueOf(astring[1]).booleanValue();
                     }
 
+					if (astring[0].equals("hidePassword") && astring.length >= 2) {
+						this.hidePassword = Boolean.valueOf(astring[1]).booleanValue();
+					}
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1793,6 +1806,7 @@ public class GameSettings {
 			printwriter.println("toggleSprint:" + toggleSprint);
 			printwriter.println("ofLagometer:" + this.ofLagometer);
 			printwriter.println("ofProfiler:" + this.ofProfiler);
+			printwriter.println("hidePassword:" + this.hidePassword);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -1985,7 +1999,8 @@ public class GameSettings {
 		TOGGLE_SPRINT("Sprint", false, false),
 		LEFT_HAND("Main Hand", false, false),
 		LAGOMETER("Lagometer", false, false),
-		PROFILER("Profiler", false, false);
+		PROFILER("Profiler", false, false),
+		HIDE_PASSWORD("Hide Password", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

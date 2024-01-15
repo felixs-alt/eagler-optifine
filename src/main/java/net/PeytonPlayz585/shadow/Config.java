@@ -207,6 +207,10 @@ public class Config {
         return Minecraft.getMinecraft().gameSettings.ofDynamicFov;
     }
 
+    public static boolean isPasswordHidden() {
+        return Minecraft.getMinecraft().gameSettings.hidePassword;
+    }
+
     public static int getMipmapType() {
         switch (Minecraft.getMinecraft().gameSettings.ofMipmapType) {
             case 0:
