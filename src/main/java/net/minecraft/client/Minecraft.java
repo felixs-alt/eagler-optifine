@@ -25,6 +25,7 @@ import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
 import net.PeytonPlayz585.shadow.input.Controller;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
+import net.lax1dude.eaglercraft.v1_8.EagUtils;
 import net.lax1dude.eaglercraft.v1_8.HString;
 import net.lax1dude.eaglercraft.v1_8.IOUtils;
 import net.lax1dude.eaglercraft.v1_8.Keyboard;
@@ -482,6 +483,9 @@ public class Minecraft implements IThreadListener {
 		this.renderEngine.deleteTexture(this.mojangLogo);
 		this.mojangLogo = null;
 		this.loadingScreen = new LoadingScreenRenderer(this);
+
+		PlatformRuntime.die();
+		EagUtils.sleep(400l);
 	}
 
 	private void registerMetadataSerializers() {

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Consumer;
 
+import net.lax1dude.eaglercraft.v1_8.EagUtils;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftVersion;
 import net.lax1dude.eaglercraft.v1_8.profile.EaglerProfile;
 import org.teavm.interop.Async;
@@ -149,7 +150,9 @@ public class PlatformRuntime {
 				throw new RuntimeInitializationFailureException("Could not download EPK file \"" + url + "\"");
 			}
 			
+			showDecompressing();
 			logger.info("Decompressing: {}", logURL);
+			EagUtils.sleep(200l);
 			
 			try {
 				EPKLoader.loadEPK(epkFileData, epkFiles[i].path, PlatformAssets.assets);
@@ -165,9 +168,14 @@ public class PlatformRuntime {
 
 		logger.info("Initializing sound engine...");
 
+		showEnableScreen();
+		EagUtils.sleep(400l);
 		PlatformInput.pressAnyKeyScreen();
 
 		PlatformAudio.initialize();
+
+		showEaglerLoadingScreen();
+		EagUtils.sleep(400l);
 
 		if(finalLoadScreen != null) {
 			EarlyLoadScreen.paintFinal(finalLoadScreen);
@@ -289,6 +297,13 @@ public class PlatformRuntime {
 				}else {
 					cb.complete(null);
 				}
+			}
+		});
+
+		TeaVMUtils.addEventListener(request, "progress", new EventListener<Event>() {
+			@Override
+			public void handleEvent(Event evt) {
+				updateLoading(evt);
 			}
 		});
 		
@@ -558,4 +573,25 @@ public class PlatformRuntime {
 			mediaRec = null;
 		}
 	}
+
+	@JSBody(params = { "evt" }, script = "updateLoadingScreen(evt)")
+	public static native void updateLoading(Event evt);
+
+	@JSBody(params = {  }, script = "showDecompressing()")
+	public static native void showDecompressing();
+
+	@JSBody(params = {  }, script = "showEnableScreen()")
+	public static native void showEnableScreen();
+
+	@JSBody(params = {  }, script = "showEaglerLoadingScreen()")
+	public static native void showEaglerLoadingScreen();
+
+	@JSBody(params = {  }, script = "showMojangScreen()")
+	public static native void showMojangScreen();
+
+	@JSBody(params = {  }, script = "die()")
+	public static native void die();
+
+	@JSBody(params = {  }, script = "return returnHasUserInteractionHappened()")
+	public static native boolean returnHasUserInteractionHappened();
 }

@@ -545,7 +545,7 @@ public class PlatformInput {
 		if(mouseEvents.isEmpty() && keyEvents.isEmpty() && !hasBeenActive()) {
 			EarlyLoadScreen.paintEnable();
 			
-			while(mouseEvents.isEmpty() && keyEvents.isEmpty()) {
+			while(!PlatformRuntime.returnHasUserInteractionHappened()) {
 				EagUtils.sleep(100l);
 			}
 		}
