@@ -1374,4 +1374,8 @@ public class ObjectUtils {
 	public ObjectUtils() {
 	}
 
+	public static boolean isArray(Object obj) {
+		return obj != null && obj.getClass().isArray();
+	}
+
 }

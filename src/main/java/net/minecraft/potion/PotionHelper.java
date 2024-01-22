@@ -8,6 +8,8 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.minecraft.util.IntegerCache;
 
 /**+
@@ -108,6 +110,10 @@ public class PotionHelper {
 			for (PotionEffect potioneffect : parCollection) {
 				if (potioneffect.getIsShowParticles()) {
 					int j = Potion.potionTypes[potioneffect.getPotionID()].getLiquidColor();
+					
+					 if (Config.isCustomColors()) {
+						 j = CustomColors.getPotionColor(potioneffect.getPotionID(), j);
+					 }
 
 					for (int k = 0; k <= potioneffect.getAmplifier(); ++k) {
 						f += (float) (j >> 16 & 255) / 255.0F;
@@ -127,6 +133,10 @@ public class PotionHelper {
 				return (int) f << 16 | (int) f1 << 8 | (int) f2;
 			}
 		} else {
+			if (Config.isCustomColors()) {
+                i = CustomColors.getPotionColor(0, i);
+            }
+			
 			return i;
 		}
 	}
@@ -489,6 +499,10 @@ public class PotionHelper {
 				| (checkFlag(parInt1, parInt4) ? 4 : 0) | (checkFlag(parInt1, parInt5) ? 2 : 0)
 				| (checkFlag(parInt1, parInt6) ? 1 : 0);
 	}
+	
+	public static void clearPotionColorCache() {
+        DATAVALUE_COLORS.clear();
+    }
 
 	static {
 		potionRequirements.put(Integer.valueOf(Potion.regeneration.getId()), "0 & !1 & !2 & !3 & 0+6");

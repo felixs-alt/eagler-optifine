@@ -160,4 +160,15 @@ public class TextureManager implements ITickable, IResourceManagerReloadListener
 		}
 
 	}
+
+	public void reloadBannerTextures() {
+        for (Object entry : this.mapTextureObjects.entrySet()) {
+            ResourceLocation resourcelocation = (ResourceLocation)((Entry) entry).getKey();
+            ITextureObject itextureobject = (ITextureObject)((Entry) entry).getValue();
+
+            if (itextureobject instanceof LayeredColorMaskTexture) {
+                this.loadTexture(resourcelocation, itextureobject);
+            }
+        }
+    }
 }

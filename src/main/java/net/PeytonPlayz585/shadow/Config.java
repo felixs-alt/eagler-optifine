@@ -22,6 +22,7 @@ import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.ResourcePackRepository.Entry;
 
 public class Config {
 	
@@ -232,6 +233,18 @@ public class Config {
 
     public static boolean isCustomFonts() {
         return Minecraft.getMinecraft().gameSettings.ofCustomFonts;
+    }
+    
+    public static boolean isCustomColors() {
+        return Minecraft.getMinecraft().gameSettings.ofCustomColors;
+    }
+    
+    public static boolean isSwampColors() {
+        return Minecraft.getMinecraft().gameSettings.ofSwampColors;
+    }
+    
+    public static boolean isSmoothBiomes() {
+        return Minecraft.getMinecraft().gameSettings.ofSmoothBiomes;
     }
 
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
@@ -456,6 +469,23 @@ public class Config {
         return defaultResourcePackLazy;
     }
     
+    public static IResourcePack[] getResourcePacks() {
+        ResourcePackRepository resourcepackrepository = Minecraft.getMinecraft().getResourcePackRepository();
+        List list = resourcepackrepository.getRepositoryEntries();
+        List list1 = new ArrayList();
+
+        for (Object resourcepackrepository$entry : list) {
+            list1.add(((Entry) resourcepackrepository$entry).getResourcePack());
+        }
+
+        if (resourcepackrepository.getResourcePackInstance() != null) {
+            list1.add(resourcepackrepository.getResourcePackInstance());
+        }
+
+        IResourcePack[] airesourcepack = (IResourcePack[])((IResourcePack[])list1.toArray(new IResourcePack[list1.size()]));
+        return airesourcepack;
+    }
+    
     public static InputStream getResourceStream(ResourceLocation p_getResourceStream_0_) throws IOException {
         return getResourceStream(Minecraft.getMinecraft().getResourceManager(), p_getResourceStream_0_);
     }
@@ -463,6 +493,15 @@ public class Config {
     public static InputStream getResourceStream(IResourceManager p_getResourceStream_0_, ResourceLocation p_getResourceStream_1_) throws IOException {
         IResource iresource = p_getResourceStream_0_.getResource(p_getResourceStream_1_);
         return iresource == null ? null : iresource.getInputStream();
+    }
+    
+    public static int intHash(int p_intHash_0_) {
+        p_intHash_0_ = p_intHash_0_ ^ 61 ^ p_intHash_0_ >> 16;
+        p_intHash_0_ = p_intHash_0_ + (p_intHash_0_ << 3);
+        p_intHash_0_ = p_intHash_0_ ^ p_intHash_0_ >> 4;
+        p_intHash_0_ = p_intHash_0_ * 668265261;
+        p_intHash_0_ = p_intHash_0_ ^ p_intHash_0_ >> 15;
+        return p_intHash_0_;
     }
     
     public static boolean isShaders() {
@@ -505,6 +544,10 @@ public class Config {
             }
         }
 	}
+	
+	public static boolean equals(Object p_equals_0_, Object p_equals_1_) {
+        return p_equals_0_ == p_equals_1_ ? true : (p_equals_0_ == null ? false : p_equals_0_.equals(p_equals_1_));
+    }
 	
 	public static boolean isDynamicLights() {
         return Minecraft.getMinecraft().gameSettings.ofDynamicLights != 3;

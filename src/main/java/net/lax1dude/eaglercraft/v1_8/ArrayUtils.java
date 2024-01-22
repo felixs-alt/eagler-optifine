@@ -51,5 +51,14 @@ public class ArrayUtils {
 		}
 		return str;
 	}
+	
+	public static boolean contains(String[] array, String value) {
+		for (String item : array) {
+			if (item.equals(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 }

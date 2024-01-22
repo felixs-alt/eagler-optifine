@@ -9,6 +9,7 @@ import java.util.List;
 import net.FatalCodes.shadow.Shadow;
 import net.FatalCodes.shadow.module.RenderModule;
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.PeytonPlayz585.shadow.gui.ArmorGui;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.minecraft.EaglerTextureAtlasSprite;
@@ -222,6 +223,11 @@ public class GuiIngame extends Gui {
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 				int l = 16777215;
+				
+				if (Config.isCustomColors()) {
+	                l = CustomColors.getBossTextColor(l);
+	            }
+				
 				if (this.recordIsPlaying) {
 					l = MathHelper.func_181758_c(f2 / 50.0F, 0.7F, 0.6F) & 16777215;
 				}
@@ -396,6 +402,11 @@ public class GuiIngame extends Gui {
 		if (this.mc.thePlayer.experienceLevel > 0) {
 			this.mc.mcProfiler.startSection("expLevel");
 			int i1 = 8453920;
+			
+			if (Config.isCustomColors()) {
+                i1 = CustomColors.getExpBarTextColor(i1);
+            }
+			
 			String s = "" + this.mc.thePlayer.experienceLevel;
 			int j1 = (parScaledResolution.getScaledWidth() - this.getFontRenderer().getStringWidth(s)) / 2;
 			int l = parScaledResolution.getScaledHeight() - 31 - 4;

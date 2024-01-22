@@ -153,6 +153,7 @@ public class PlatformRuntime {
 			
 			try {
 				EPKLoader.loadEPK(epkFileData, epkFiles[i].path, PlatformAssets.assets);
+				
 			}catch(Throwable t) {
 				throw new RuntimeInitializationFailureException("Could not extract EPK file \"" + url + "\"", t);
 			}

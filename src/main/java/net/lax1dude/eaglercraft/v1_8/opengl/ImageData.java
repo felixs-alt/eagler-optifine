@@ -3,7 +3,6 @@ package net.lax1dude.eaglercraft.v1_8.opengl;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
@@ -19,10 +18,7 @@ public class ImageData {
     public ImageData(int width, int height, int[] pixels, boolean alpha) {
         this.width = width;
         this.height = height;
-        this.pixels = ByteBuffer.allocateDirect(pixels.length * 4)
-                .asIntBuffer()
-                .put(pixels)
-                .flip();
+        this.pixels = (IntBuffer) ByteBuffer.allocateDirect(pixels.length * 4).asIntBuffer().put(pixels).flip();
         this.alpha = alpha;
     }
 

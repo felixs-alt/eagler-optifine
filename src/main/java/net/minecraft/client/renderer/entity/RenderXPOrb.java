@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.OpenGlHelper;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
@@ -75,14 +77,24 @@ public class RenderXPOrb extends Render<EntityXPOrb> {
 		Tessellator tessellator = Tessellator.getInstance();
 		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 		worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-		worldrenderer.pos((double) (0.0F - f7), (double) (0.0F - f8), 0.0D).tex((double) f2, (double) f5)
-				.color(l, 255, i1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
-		worldrenderer.pos((double) (f6 - f7), (double) (0.0F - f8), 0.0D).tex((double) f3, (double) f5)
-				.color(l, 255, i1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
-		worldrenderer.pos((double) (f6 - f7), (double) (1.0F - f8), 0.0D).tex((double) f3, (double) f4)
-				.color(l, 255, i1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
-		worldrenderer.pos((double) (0.0F - f7), (double) (1.0F - f8), 0.0D).tex((double) f2, (double) f4)
-				.color(l, 255, i1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
+		int j1 = l;
+        int k1 = 255;
+        int l1 = i1;
+		
+		if (Config.isCustomColors()) {
+            int i2 = CustomColors.getXpOrbColor(f8);
+
+            if (i2 >= 0) {
+                j1 = i2 >> 16 & 255;
+                k1 = i2 >> 8 & 255;
+                l1 = i2 >> 0 & 255;
+            }
+        }
+		
+		worldrenderer.pos((double)(0.0F - f5), (double)(0.0F - f6), 0.0D).tex((double)f, (double)f3).color(j1, k1, l1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
+        worldrenderer.pos((double)(f4 - f5), (double)(0.0F - f6), 0.0D).tex((double)f1, (double)f3).color(j1, k1, l1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
+        worldrenderer.pos((double)(f4 - f5), (double)(1.0F - f6), 0.0D).tex((double)f1, (double)f2).color(j1, k1, l1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
+        worldrenderer.pos((double)(0.0F - f5), (double)(1.0F - f6), 0.0D).tex((double)f, (double)f2).color(j1, k1, l1, 128).normal(0.0F, 1.0F, 0.0F).endVertex();
 		tessellator.draw();
 		GlStateManager.disableBlend();
 		GlStateManager.disableRescaleNormal();

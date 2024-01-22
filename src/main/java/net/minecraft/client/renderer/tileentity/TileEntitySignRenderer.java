@@ -7,6 +7,8 @@ import static net.lax1dude.eaglercraft.v1_8.internal.PlatformOpenGL.*;
 
 import java.util.List;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.DeferredStateManager;
@@ -97,7 +99,10 @@ public class TileEntitySignRenderer extends TileEntitySpecialRenderer<TileEntity
 		GlStateManager.scale(f3, -f3, f3);
 		EaglercraftGPU.glNormal3f(0.0F, 0.0F, -1.0F * f3);
 		GlStateManager.depthMask(false);
-		byte b0 = 0;
+		int b0 = 0;
+		if (Config.isCustomColors()) {
+            i = CustomColors.getSignTextColor(i);
+        }
 		if (i < 0) {
 			if (DeferredStateManager.isInDeferredPass()) {
 				_wglDrawBuffers(_GL_COLOR_ATTACHMENT0);

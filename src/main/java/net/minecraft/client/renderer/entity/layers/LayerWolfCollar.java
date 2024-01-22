@@ -1,5 +1,7 @@
 package net.minecraft.client.renderer.entity.layers;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderWolf;
 import net.minecraft.entity.passive.EntitySheep;
@@ -33,12 +35,16 @@ public class LayerWolfCollar implements LayerRenderer<EntityWolf> {
 		this.wolfRenderer = wolfRendererIn;
 	}
 
-	public void doRenderLayer(EntityWolf entitywolf, float f, float f1, float var4, float f2, float f3, float f4,
-			float f5) {
+	public void doRenderLayer(EntityWolf entitywolf, float f, float f1, float var4, float f2, float f3, float f4, float f5) {
 		if (entitywolf.isTamed() && !entitywolf.isInvisible()) {
 			this.wolfRenderer.bindTexture(WOLF_COLLAR);
 			EnumDyeColor enumdyecolor = EnumDyeColor.byMetadata(entitywolf.getCollarColor().getMetadata());
 			float[] afloat = EntitySheep.func_175513_a(enumdyecolor);
+			
+			if (Config.isCustomColors()) {
+                afloat = CustomColors.getWolfCollarColors(enumdyecolor, afloat);
+            }
+			
 			GlStateManager.color(afloat[0], afloat[1], afloat[2]);
 			this.wolfRenderer.getMainModel().render(entitywolf, f, f1, f2, f3, f4, f5);
 		}

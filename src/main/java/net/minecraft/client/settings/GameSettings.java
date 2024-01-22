@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.PeytonPlayz585.shadow.CustomSky;
 import net.PeytonPlayz585.shadow.DynamicLights;
 import net.PeytonPlayz585.shadow.shaders.Shaders;
@@ -198,6 +199,9 @@ public class GameSettings {
 	public boolean ofCustomFonts = true;
 	public int ofBetterGrass = 3;
 	public int ofDynamicLights = 3;
+	public boolean ofCustomColors = true;
+	public boolean ofSwampColors = true;
+	public boolean ofSmoothBiomes = true;
 	
 	//Detail Settings
 	/** Clouds flag */
@@ -790,6 +794,24 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.HIDE_PASSWORD) {
 			this.hidePassword = !this.hidePassword;
 		}
+		
+		if (parOptions == GameSettings.Options.CUSTOM_COLORS) {
+            this.ofCustomColors = !this.ofCustomColors;
+            CustomColors.update();
+            this.mc.renderGlobal.loadRenderers();
+        }
+		
+		if (parOptions == GameSettings.Options.SWAMP_COLORS) {
+            this.ofSwampColors = !this.ofSwampColors;
+            CustomColors.updateUseDefaultGrassFoliageColors();
+            this.mc.renderGlobal.loadRenderers();
+        }
+		
+		if (parOptions == GameSettings.Options.SMOOTH_BIOMES) {
+            this.ofSmoothBiomes = !this.ofSmoothBiomes;
+            CustomColors.updateUseDefaultGrassFoliageColors();
+            this.mc.renderGlobal.loadRenderers();
+        }
 
 		this.saveOptions();
 	}
@@ -1155,7 +1177,13 @@ public class GameSettings {
             return this.ofProfiler ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.HIDE_PASSWORD) {
 			return hidePassword ? s + "ON" : s + "OFF";	
-		} else {
+		} else if (parOptions == GameSettings.Options.CUSTOM_COLORS) {
+            return this.ofCustomColors ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.SWAMP_COLORS) {
+            return this.ofSwampColors ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.SMOOTH_BIOMES) {
+            return this.ofSmoothBiomes ? s + "ON" : s + "OFF";
+        } else {
 			return s;
 		}
 	}
@@ -1651,6 +1679,18 @@ public class GameSettings {
 					if (astring[0].equals("hidePassword") && astring.length >= 2) {
 						this.hidePassword = Boolean.valueOf(astring[1]).booleanValue();
 					}
+					
+					if (astring[0].equals("ofCustomColors") && astring.length >= 2) {
+                        this.ofCustomColors = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+					
+					if (astring[0].equals("ofSwampColors") && astring.length >= 2) {
+                        this.ofSwampColors = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+					
+					if (astring[0].equals("ofSmoothBiomes") && astring.length >= 2) {
+                        this.ofSmoothBiomes = Boolean.valueOf(astring[1]).booleanValue();
+                    }
 
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
@@ -1807,6 +1847,9 @@ public class GameSettings {
 			printwriter.println("ofLagometer:" + this.ofLagometer);
 			printwriter.println("ofProfiler:" + this.ofProfiler);
 			printwriter.println("hidePassword:" + this.hidePassword);
+			printwriter.println("ofCustomColors:" + this.ofCustomColors);
+			printwriter.println("ofSwampColors:" + this.ofSwampColors);
+			printwriter.println("ofSmoothBiomes:" + this.ofSmoothBiomes);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -2000,7 +2043,10 @@ public class GameSettings {
 		LEFT_HAND("Main Hand", false, false),
 		LAGOMETER("Lagometer", false, false),
 		PROFILER("Profiler", false, false),
-		HIDE_PASSWORD("Hide Password", false, false);
+		HIDE_PASSWORD("Hide Password", false, false),
+		CUSTOM_COLORS("Custom Colors", false, false),
+		SWAMP_COLORS("Swamp Colors", false, false),
+		SMOOTH_BIOMES("Smooth Biomes", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

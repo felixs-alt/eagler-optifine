@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.PeytonPlayz585.shadow.CustomSky;
 import net.PeytonPlayz585.shadow.DynamicLights;
 import net.PeytonPlayz585.shadow.Lagometer;
@@ -1354,6 +1355,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		} else if (this.mc.theWorld.provider.isSurfaceWorld()) {
 			GlStateManager.disableTexture2D();
 			Vec3 vec3 = this.theWorld.getSkyColor(this.mc.getRenderViewEntity(), partialTicks);
+			vec3 = CustomColors.getSkyColor(vec3, this.mc.theWorld, this.mc.getRenderViewEntity().posX, this.mc.getRenderViewEntity().posY + 1.0D, this.mc.getRenderViewEntity().posZ);
 			float f = (float) vec3.xCoord;
 			float f1 = (float) vec3.yCoord;
 			float f2 = (float) vec3.zCoord;
@@ -2201,63 +2203,101 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 				parDouble3, parDouble4, parDouble5, parDouble6, parArrayOfInt);
 	}
 
-	private EntityFX spawnEntityFX(int ignoreRange, boolean parFlag, double parDouble1, double parDouble2,
-			double parDouble3, double parDouble4, double parDouble5, double parDouble6, int... parArrayOfInt) {
-		if (this.mc != null && this.mc.getRenderViewEntity() != null && this.mc.effectRenderer != null) {
-			int i = this.mc.gameSettings.particleSetting;
-			if (i == 1 && this.theWorld.rand.nextInt(3) == 0) {
-				i = 2;
-			}
+	private EntityFX spawnEntityFX(int ignoreRange, boolean parFlag, double parDouble1, double parDouble2, double parDouble3, double parDouble4, double parDouble5, double parDouble6, int... parArrayOfInt) {
+		 if (this.mc != null && this.mc.getRenderViewEntity() != null && this.mc.effectRenderer != null) {
+			 int i = this.mc.gameSettings.particleSetting;
 
-			double d0 = this.mc.getRenderViewEntity().posX - parDouble1;
-			double d1 = this.mc.getRenderViewEntity().posY - parDouble2;
-			double d2 = this.mc.getRenderViewEntity().posZ - parDouble3;
-			
-			if (ignoreRange == EnumParticleTypes.EXPLOSION_HUGE.getParticleID() && !Config.isAnimatedExplosion()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.EXPLOSION_LARGE.getParticleID() && !Config.isAnimatedExplosion()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.EXPLOSION_NORMAL.getParticleID() && !Config.isAnimatedExplosion()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SUSPENDED.getParticleID() && !Config.isWaterParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SUSPENDED_DEPTH.getParticleID() && !Config.isVoidParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SMOKE_NORMAL.getParticleID() && !Config.isAnimatedSmoke()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SMOKE_LARGE.getParticleID() && !Config.isAnimatedSmoke()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SPELL_MOB.getParticleID() && !Config.isPotionParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SPELL_MOB_AMBIENT.getParticleID() && !Config.isPotionParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SPELL.getParticleID() && !Config.isPotionParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SPELL_INSTANT.getParticleID() && !Config.isPotionParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.SPELL_WITCH.getParticleID() && !Config.isPotionParticles()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.PORTAL.getParticleID() && !Config.isAnimatedPortal()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.FLAME.getParticleID() && !Config.isAnimatedFlame()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.REDSTONE.getParticleID() && !Config.isAnimatedRedstone()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.DRIP_WATER.getParticleID() && !Config.isDrippingWaterLava()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.DRIP_LAVA.getParticleID() && !Config.isDrippingWaterLava()) {
-                return null;
-            } else if (ignoreRange == EnumParticleTypes.FIREWORKS_SPARK.getParticleID() && !Config.isFireworkParticles()) {
-                return null;
-            } else if (parFlag) {
-				return this.mc.effectRenderer.spawnEffectParticle(ignoreRange, parDouble1, parDouble2, parDouble3,
-						parDouble4, parDouble5, parDouble6, parArrayOfInt);
-			} else {
-				return d0 * d0 + d1 * d1 + d2 * d2 > 256.0D ? null : (i > 1 ? null : this.mc.effectRenderer.spawnEffectParticle(ignoreRange, parDouble1, parDouble2, parDouble3, parDouble4, parDouble5, parDouble6, parArrayOfInt));
-			}
-		} else {
-			return null;
-		}
+			 if (i == 1 && this.theWorld.rand.nextInt(3) == 0) {
+				 i = 2;
+			 }
+
+			 double d0 = this.mc.getRenderViewEntity().posX - parDouble1;
+			 double d1 = this.mc.getRenderViewEntity().posY - parDouble2;
+			 double d2 = this.mc.getRenderViewEntity().posZ - parDouble3;
+
+			 if (ignoreRange == EnumParticleTypes.EXPLOSION_HUGE.getParticleID() && !Config.isAnimatedExplosion()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.EXPLOSION_LARGE.getParticleID() && !Config.isAnimatedExplosion()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.EXPLOSION_NORMAL.getParticleID() && !Config.isAnimatedExplosion()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SUSPENDED.getParticleID() && !Config.isWaterParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SUSPENDED_DEPTH.getParticleID() && !Config.isVoidParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SMOKE_NORMAL.getParticleID() && !Config.isAnimatedSmoke()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SMOKE_LARGE.getParticleID() && !Config.isAnimatedSmoke()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SPELL_MOB.getParticleID() && !Config.isPotionParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SPELL_MOB_AMBIENT.getParticleID() && !Config.isPotionParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SPELL.getParticleID() && !Config.isPotionParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SPELL_INSTANT.getParticleID() && !Config.isPotionParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.SPELL_WITCH.getParticleID() && !Config.isPotionParticles()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.PORTAL.getParticleID() && !Config.isAnimatedPortal()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.FLAME.getParticleID() && !Config.isAnimatedFlame()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.REDSTONE.getParticleID() && !Config.isAnimatedRedstone()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.DRIP_WATER.getParticleID() && !Config.isDrippingWaterLava()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.DRIP_LAVA.getParticleID() && !Config.isDrippingWaterLava()) {
+				 return null;
+			 } else if (ignoreRange == EnumParticleTypes.FIREWORKS_SPARK.getParticleID() && !Config.isFireworkParticles()) {
+				 return null;
+			 } else if (parFlag) {
+				 return this.mc.effectRenderer.spawnEffectParticle(ignoreRange, parDouble1, parDouble2, parDouble3, parDouble4, parDouble5, parDouble6, parArrayOfInt);
+			 } else {
+				 double d3 = 16.0D;
+				 double d4 = 256.0D;
+
+				 if (ignoreRange == EnumParticleTypes.CRIT.getParticleID()) {
+					 d4 = 38416.0D;
+				 }
+
+				 if (d0 * d0 + d1 * d1 + d2 * d2 > d4) {
+					 return null;
+				 } else if (i > 1) {
+					 return null;
+				 } else {
+					 EntityFX entityfx = this.mc.effectRenderer.spawnEffectParticle(ignoreRange, parDouble1, parDouble2, parDouble3, parDouble4, parDouble5, parDouble6, parArrayOfInt);
+
+					 if (ignoreRange == EnumParticleTypes.WATER_BUBBLE.getParticleID()) {
+						 CustomColors.updateWaterFX(entityfx, this.theWorld, parDouble1, parDouble2, parDouble3);
+					 }
+
+					 if (ignoreRange == EnumParticleTypes.WATER_SPLASH.getParticleID()) {
+						 CustomColors.updateWaterFX(entityfx, this.theWorld, parDouble1, parDouble2, parDouble3);
+					 }
+
+					 if (ignoreRange == EnumParticleTypes.WATER_DROP.getParticleID()) {
+						 CustomColors.updateWaterFX(entityfx, this.theWorld, parDouble1, parDouble2, parDouble3);
+	                 }
+
+					 if (ignoreRange == EnumParticleTypes.TOWN_AURA.getParticleID()) {
+						 CustomColors.updateMyceliumFX(entityfx);
+					 }
+
+					 if (ignoreRange == EnumParticleTypes.PORTAL.getParticleID()) {
+						 CustomColors.updatePortalFX(entityfx);
+					 }
+
+					 if (ignoreRange == EnumParticleTypes.REDSTONE.getParticleID()) {
+						 CustomColors.updateReddustFX(entityfx, this.theWorld, parDouble1, parDouble2, parDouble3);
+	                 }
+
+	                 return entityfx;
+				 }
+			 }
+		 } else {
+			 return null;
+		 }
 	}
 
 	/**+

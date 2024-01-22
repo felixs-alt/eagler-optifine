@@ -1,7 +1,10 @@
 package net.lax1dude.eaglercraft.v1_8.internal;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.teavm.interop.Async;
@@ -23,6 +26,7 @@ import org.teavm.jso.typedarrays.Uint8ClampedArray;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
 import net.lax1dude.eaglercraft.v1_8.internal.teavm.MainClass;
 import net.lax1dude.eaglercraft.v1_8.internal.teavm.TeaVMUtils;
+import net.lax1dude.eaglercraft.v1_8.internal.vfs.SYS;
 import net.lax1dude.eaglercraft.v1_8.opengl.ImageData;
 
 /**
@@ -140,4 +144,64 @@ public class PlatformAssets {
 		}
 	}
 	
+	public static String[] listFilesInDirectory(String directoryPath, String[] prefixes, String[] suffixes) {
+	    ArrayList<String> fileNames = new ArrayList<>();
+	    
+	    for(String resourcePackName : SYS.getResourcePackNames()) {
+	    	String resourcePack = "resourcepacks/" + resourcePackName + "/" + directoryPath;
+	    	List<String> vfsFiles = SYS.VFS.listFiles(resourcePack);
+	    	for (String vfsFile : vfsFiles) {
+	    	    if (!vfsFile.endsWith("/")) {
+	    	        String fileName = vfsFile;
+	    	        if (matchesPrefixesAndSuffixes(fileName, prefixes, suffixes)) {
+	    	        	if(!fileNames.contains(fileName)) {
+	    	        		fileNames.add(fileName);
+	    	        	}
+	    	        }
+	    	    } else {
+	    	        String[] filesInSubfolder = listFilesInDirectory(vfsFile, prefixes, suffixes);
+	    	        for(String file : Arrays.asList(filesInSubfolder)) {
+	    	        	if(!fileNames.contains(file)) {
+	    	        		fileNames.add(file);
+	    	        	}
+	    	        }
+	    	    }
+	    	}
+	    }
+
+	    for (String path : assets.keySet()) {
+	        if (path.startsWith(directoryPath)) {
+	            if (!path.endsWith("/")) {
+	                String fileName = path.substring(directoryPath.length() + 1);
+	                if (matchesPrefixesAndSuffixes(fileName, prefixes, suffixes)) {
+	                	if(!fileNames.contains(fileName)) {
+	                		fileNames.add(fileName);
+	                	}
+	                }
+	            } else {
+	                String[] filesInSubfolder = listFilesInDirectory(path, prefixes, suffixes);
+	                for(String file : Arrays.asList(filesInSubfolder)) {
+	                	if(!fileNames.contains(file)) {
+	                		fileNames.add(file);
+	                	}
+	                }
+	            }
+	        }
+	    }
+
+	    return fileNames.toArray(new String[0]);
+	}
+
+	private static boolean matchesPrefixesAndSuffixes(String fileName, String[] prefixes, String[] suffixes) {
+	    for (String prefix : prefixes) {
+	        if (fileName.startsWith(prefix)) {
+	            for (String suffix : suffixes) {
+	                if (fileName.endsWith(suffix)) {
+	                    return true;
+	                }
+	            }
+	        }
+	    }
+	    return false;
+	}
 }

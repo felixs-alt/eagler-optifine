@@ -20,12 +20,6 @@ import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.teavm.jso.JSBody;
-import org.teavm.jso.dom.events.Event;
-import org.teavm.jso.dom.events.EventListener;
-import org.teavm.jso.dom.events.MessageEvent;
-import org.teavm.jso.websocket.WebSocket;
-
 /**
  * Copyright (c) 2022-2023 LAX1DUDE. All Rights Reserved.
  * 

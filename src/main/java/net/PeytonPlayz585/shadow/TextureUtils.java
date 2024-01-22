@@ -130,6 +130,7 @@ public class TextureUtils {
     public static void resourcesReloaded() {
         if (getTextureMapBlocks() != null) {
             Config.dbg("*** Reloading custom textures ***");
+            CustomColors.update();
             CustomSky.reset();
             update();
             BetterGrass.update();

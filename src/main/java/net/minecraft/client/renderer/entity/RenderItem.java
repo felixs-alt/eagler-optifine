@@ -5,6 +5,8 @@ import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.DeferredStateManager;
@@ -294,6 +296,11 @@ public class RenderItem implements IResourceManagerReloadListener {
 			int k = color;
 			if (flag && bakedquad.hasTintIndex()) {
 				k = stack.getItem().getColorFromItemStack(stack, bakedquad.getTintIndex());
+				
+				if (Config.isCustomColors()) {
+                    k = CustomColors.getColorFromItemStack(stack, bakedquad.getTintIndex(), k);
+                }
+				
 				if (EntityRenderer.anaglyphEnable) {
 					k = TextureUtil.anaglyphColor(k);
 				}
