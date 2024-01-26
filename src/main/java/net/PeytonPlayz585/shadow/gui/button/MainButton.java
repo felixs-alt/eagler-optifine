@@ -137,5 +137,10 @@ public class MainButton extends GuiButton {
         if (width != 1.0F) {
             EaglercraftGPU.glLineWidth(1.0F);
         }
+
+        GlStateManager.enableCull();
+        GlStateManager.disableBlend();
+        GlStateManager.disableColorMaterial();
+        GlStateManager.enableTexture2D();
     }
 }

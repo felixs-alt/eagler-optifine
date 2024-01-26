@@ -58,8 +58,13 @@ public class ImageButton extends MainButton {
 		Minecraft.getMinecraft().getTextureManager().bindTexture(image);
 		Gui.drawModalRectWithCustomSizedTexture(this.xPosition + 3, this.yPosition + 3, 0, 0, 6, 6, 6, 6);
 
-		GlStateManager.disableBlend();
-		GlStateManager.disableAlpha();
+		if(!isBlend) {
+			GlStateManager.disableBlend();
+		}
+
+		if(!isAlpha) {
+			GlStateManager.disableAlpha();
+		}
 	}
 
     protected void drawHoverEffect() {
