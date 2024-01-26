@@ -23,7 +23,6 @@ public class VertexBuffer {
         if (count > 0) {
             VertexFormat format = parWorldRenderer.getVertexFormat();
 			buffer = parWorldRenderer.getByteBuffer();
-			buffer.clear();
             buffer.limit(count * format.attribStride);
 
             EaglercraftGPU.renderBuffer(
@@ -34,6 +33,7 @@ public class VertexBuffer {
             );
 
             parWorldRenderer.reset();
+            buffer.clear();
         }
 	}
 }
