@@ -33,7 +33,6 @@ public class VertexBuffer {
             );
 
             parWorldRenderer.reset();
-            buffer.clear();
         }
 	}
 }

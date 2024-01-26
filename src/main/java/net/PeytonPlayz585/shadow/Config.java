@@ -224,10 +224,10 @@ public class Config {
                 return 9986;
 
             case 2:
-                return 9986;
+                return 9985;
 
             case 3:
-                return 9986;
+                return 9987;
 
             default:
                 return 9986;
