@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.PeytonPlayz585.shadow.reflections.Reflector;
@@ -23,6 +24,8 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.client.resources.ResourcePackRepository.Entry;
+
+import net.lax1dude.eaglercraft.v1_8.internal.vfs.SYS;
 
 public class Config {
 	
@@ -432,17 +435,13 @@ public class Config {
     }
     
     public static boolean hasResource(ResourceLocation p_hasResource_0_) {
-        IResourcePack iresourcepack = getDefiningResourcePack(p_hasResource_0_);
-        return iresourcepack != null;
-    }
-
-    public static boolean hasResource(IResourceManager p_hasResource_0_, ResourceLocation p_hasResource_1_) {
-        try {
-            IResource iresource = p_hasResource_0_.getResource(p_hasResource_1_);
-            return iresource != null;
-        } catch (IOException var3) {
-            return false;
+        for (IResourcePack resourcePack : getResourcePacks()) {
+            if (resourcePack.resourceExists(p_hasResource_0_)) {
+                return true;
+            }
         }
+
+        return false;
     }
     
     public static IResourcePack getDefiningResourcePack(ResourceLocation p_getDefiningResourcePack_0_) {
@@ -503,13 +502,23 @@ public class Config {
         return airesourcepack;
     }
     
-    public static InputStream getResourceStream(ResourceLocation p_getResourceStream_0_) throws IOException {
-        return getResourceStream(Minecraft.getMinecraft().getResourceManager(), p_getResourceStream_0_);
-    }
-
-    public static InputStream getResourceStream(IResourceManager p_getResourceStream_0_, ResourceLocation p_getResourceStream_1_) throws IOException {
-        IResource iresource = p_getResourceStream_0_.getResource(p_getResourceStream_1_);
-        return iresource == null ? null : iresource.getInputStream();
+    public static InputStream getResourceStream(ResourceLocation p_getResourceStream_1_) throws IOException {
+        IResourceManager p_getResourceStream_0_ = Minecraft.getMinecraft().getResourceManager();
+    
+        IResource defaultResource = p_getResourceStream_0_.getResource(p_getResourceStream_1_);
+        if (defaultResource != null) {
+            return defaultResource.getInputStream();
+        }
+    
+        Set<String> resourceDomains = p_getResourceStream_0_.getResourceDomains();
+        for (String resourceDomain : resourceDomains) {
+            IResource resource = p_getResourceStream_0_.getResource(new ResourceLocation(resourceDomain, p_getResourceStream_1_.getResourcePath()));
+            if (resource != null) {
+                return resource.getInputStream();
+            }
+        }
+    
+        return null;
     }
     
     public static int intHash(int p_intHash_0_) {

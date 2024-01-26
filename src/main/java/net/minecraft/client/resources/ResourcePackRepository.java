@@ -2,6 +2,7 @@ package net.minecraft.client.resources;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -160,6 +161,21 @@ public class ResourcePackRepository {
 			Minecraft.getMinecraft().scheduleResourcesRefresh();
 		}
 	}
+
+	public IResource getResource(ResourceLocation location) {
+        for (ResourcePackRepository.Entry entry : this.repositoryEntries) {
+            try {
+                IResourcePack resourcePack = entry.getResourcePack();
+                InputStream inputStream = resourcePack.getInputStream(location);
+                if (inputStream != null) {
+                    return new SimpleResource(entry.getResourcePackName(), location, inputStream, null, null);
+                }
+            } catch (IOException e) {
+                logger.warn("Failed to access resource pack {}", entry.getResourcePackName(), e);
+            }
+        }
+        return null;
+    }
 
 	public class Entry {
 		private final String resourcePackFile;

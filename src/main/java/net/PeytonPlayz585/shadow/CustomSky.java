@@ -49,7 +49,6 @@ public class CustomSky {
                     Properties properties = new Properties();
                     properties.load(inputstream);
                     inputstream.close();
-                    //Config.dbg("CustomSky properties: " + s2);
                     String s3 = s1 + k + ".png";
                     CustomSkyLayer customskylayer = new CustomSkyLayer(properties, s3);
 
@@ -57,9 +56,7 @@ public class CustomSky {
                         ResourceLocation resourcelocation1 = new ResourceLocation(customskylayer.source);
                         ITextureObject itextureobject = TextureUtils.getTexture(resourcelocation1);
 
-                        if (itextureobject == null) {
-                            //Config.log("CustomSky: Texture not found: " + resourcelocation1);
-                        } else {
+                        if (itextureobject != null) {
                             customskylayer.textureId = itextureobject.getGlTextureId();
                             list.add(customskylayer);
                             inputstream.close();
@@ -95,7 +92,6 @@ public class CustomSky {
 
     public static void renderSky(World p_renderSky_0_, TextureManager p_renderSky_1_, float p_renderSky_2_, float p_renderSky_3_) {
         if (worldSkyLayers != null) {
-            //if (Config.getGameSettings().renderDistanceChunks >= 8) {
             int i = p_renderSky_0_.provider.getDimensionId();
 
             if (i >= 0 && i < worldSkyLayers.length) {
@@ -116,9 +112,8 @@ public class CustomSky {
                     Blender.clearBlend(p_renderSky_3_);
                 }
             }
-            //}
+        }
     }
-}
 
     public static boolean hasSkyLayers(World p_hasSkyLayers_0_) {
         if (worldSkyLayers == null) {

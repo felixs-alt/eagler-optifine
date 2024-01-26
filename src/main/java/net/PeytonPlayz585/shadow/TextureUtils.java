@@ -1,12 +1,19 @@
 package net.PeytonPlayz585.shadow;
 
+import java.io.*;
+import java.util.*;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.ResourcePackRepository;
 
 public class TextureUtils {
 	
@@ -100,16 +107,29 @@ public class TextureUtils {
     }
     
     public static ITextureObject getTexture(ResourceLocation p_getTexture_0_) {
-        ITextureObject itextureobject = Config.getTextureManager().getTexture(p_getTexture_0_);
-
+        TextureManager textureManager = Config.getTextureManager();
+        ITextureObject itextureobject = textureManager.getTexture(p_getTexture_0_);
+    
         if (itextureobject != null) {
             return itextureobject;
         } else if (!Config.hasResource(p_getTexture_0_)) {
             return null;
         } else {
-            SimpleTexture simpletexture = new SimpleTexture(p_getTexture_0_);
-            Config.getTextureManager().loadTexture(p_getTexture_0_, simpletexture);
-            return simpletexture;
+            for (ResourcePackRepository.Entry resourcePackEntry : Minecraft.getMinecraft().getResourcePackRepository().getRepositoryEntries()) {
+                IResourcePack resourcePack = resourcePackEntry.getResourcePack();
+                try {
+                    InputStream resourceStream = resourcePack.getInputStream(p_getTexture_0_);
+                    if (resourceStream != null) {
+                        itextureobject = new SimpleTexture(p_getTexture_0_);
+                        textureManager.loadTexture(p_getTexture_0_, itextureobject);
+                        return itextureobject;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+    
+            return null;
         }
     }
     

@@ -20,7 +20,7 @@ public class FontUtils {
 
             try {
                 ResourceLocation resourcelocation = new ResourceLocation(p_readFontProperties_0_.getResourceDomain(), s2);
-                InputStream inputstream = Config.getResourceStream(Minecraft.getMinecraft().getResourceManager(), resourcelocation);
+                InputStream inputstream = Config.getResourceStream(resourcelocation);
 
                 if (inputstream == null) {
                     return properties;
@@ -92,7 +92,7 @@ public class FontUtils {
                 s = s.substring(s1.length());
                 s = s2 + s;
                 ResourceLocation resourcelocation = new ResourceLocation(p_getHdFontLocation_0_.getResourceDomain(), s);
-                return Config.hasResource(Minecraft.getMinecraft().getResourceManager(), resourcelocation) ? resourcelocation : p_getHdFontLocation_0_;
+                return Config.hasResource(resourcelocation) ? resourcelocation : p_getHdFontLocation_0_;
             }
         }
     }
