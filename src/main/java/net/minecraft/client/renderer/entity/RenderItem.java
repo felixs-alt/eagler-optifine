@@ -173,6 +173,7 @@ public class RenderItem implements IResourceManagerReloadListener {
                 }
 
 				final IBakedModel model = model1;
+				RenderItem itemRenderer = this;
 
 				GlStateManager.translate(-0.5F, -0.5F, -0.5F);
 				if (DeferredStateManager.isInDeferredPass() && isTransparentItem(stack)) {
@@ -199,7 +200,9 @@ public class RenderItem implements IResourceManagerReloadListener {
 									DeferredStateManager.setRoughnessConstant(0.05f);
 									DeferredStateManager.setMetalnessConstant(0.01f);
 									GlStateManager.blendFunc(GL_SRC_COLOR, GL_ONE);
-									renderEffect(model);
+									if (!Config.isCustomItems() || !CustomItems.renderCustomEffect(itemRenderer, stack, model)) {
+										renderEffect(model);
+									}
 									DeferredStateManager.setHDRTranslucentPassBlendFunc();
 								}
 								GlStateManager.popMatrix();
@@ -216,7 +219,6 @@ public class RenderItem implements IResourceManagerReloadListener {
 									&& !DeferredStateManager.isEnableShadowRender()) {
 								final Matrix4f mat = new Matrix4f(GlStateManager.getModelViewReference());
 								final float lx = GlStateManager.getTexCoordX(1), ly = GlStateManager.getTexCoordY(1);
-								RenderItem itemRenderer = this;
 								DeferredStateManager.forwardCallbackHandler.push(new ShadersRenderPassFuture(renderPosX,
 										renderPosY, renderPosZ, EaglerDeferredPipeline.instance.getPartialTicks()) {
 									@Override
@@ -233,7 +235,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 										GlStateManager.loadMatrix(mat);
 										GlStateManager.texCoords2DDirect(1, lx, ly);
 										GlStateManager.tryBlendFuncSeparate(GL_ONE, GL_ONE, GL_ZERO, GL_ONE);
-										if (stack.hasEffect() && (!Config.isCustomItems() || !CustomItems.renderCustomEffect(itemRenderer, stack, model))) {
+										if (!Config.isCustomItems() || !CustomItems.renderCustomEffect(itemRenderer, stack, model)) {
 											renderEffect(model);
 										}
 										DeferredStateManager.setHDRTranslucentPassBlendFunc();
@@ -245,7 +247,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 							}
 						} else {
 							GlStateManager.blendFunc(GL_SRC_COLOR, GL_ONE);
-							if (stack.hasEffect() && (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model))) {
+							if (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model)) {
                     			renderEffect(model);
                 			}
 						}
