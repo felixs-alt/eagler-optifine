@@ -1,18 +1,25 @@
 package net.PeytonPlayz585.shadow;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import net.lax1dude.eaglercraft.v1_8.internal.PlatformAssets;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.DefaultResourcePack;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.util.ResourceLocation;
 
+import net.lax1dude.eaglercraft.v1_8.internal.vfs.*;
+
 public class ResUtils {
+
+  private static final VirtualFilesystem VFS = SYS.VFS;
+
   public static String[] collectFiles(String p_collectFiles_0_, String p_collectFiles_1_) {
     return collectFiles(new String[] {
       p_collectFiles_0_
@@ -55,13 +62,8 @@ public class ResUtils {
     } else {
       AbstractResourcePack abstractresourcepack = (AbstractResourcePack) p_collectFiles_0_;
       String file1 = abstractresourcepack.resourcePackFile;
-      return file1 == null || file1.isEmpty() || file1 == "" || file1 == " " ? new String[0] : (isDirectory(file1) ? collectFilesFolder(file1, p_collectFiles_1_, p_collectFiles_2_) : yee());
+      return collectFilesFolder(file1, "", p_collectFiles_1_, p_collectFiles_2_);
     }
-  }
-  
-  public static String[] yee() {
-	  System.err.println("[Fatal error] resourcePackFile is NOT empty but it's NOT a directory!");
-	  return new String[0];
   }
 
   private static String[] collectFilesFixed(IResourcePack p_collectFilesFixed_0_, String[] p_collectFilesFixed_1_) {
@@ -84,15 +86,40 @@ public class ResUtils {
     }
   }
 
-  private static String[] collectFilesFolder(String p_collectFilesFolder_0_, String[] p_collectFilesFolder_1_, String[] p_collectFilesFolder_2_) {
-	  return PlatformAssets.listFilesInDirectory(p_collectFilesFolder_0_, p_collectFilesFolder_1_, p_collectFilesFolder_2_);
-  }
-  
-  public static boolean isFile(String path) {
-      return path.matches(".+\\.[^.]+$");
-  }
+  private static String[] collectFilesFolder(String p_collectFilesFolder_0_, String p_collectFilesFolder_1_, String[] p_collectFilesFolder_2_, String[] p_collectFilesFolder_3_) {
+    List list = new ArrayList();
+    String s = "resourcepacks/" + p_collectFilesFolder_0_ + "assets/minecraft/";
+    String[] afile = VFS.listFiles(s).toArray(new String[0]);
 
-  public static boolean isDirectory(String path) {
-      return path.matches(".+[\\\\/]$");
+    for (int i = 0; i < afile.length; ++i) {
+      String file1 = afile[i];
+
+      if (!file1.endsWith("/")) {
+        String[] fileName = file1.split("/");
+        int yee = fileName.length;
+        String s3 = p_collectFilesFolder_1_ + fileName[yee - 2];
+
+        if (s3.startsWith(s)) {
+          s3 = s3.substring(s.length());
+
+          if (StrUtils.startsWith(s3, p_collectFilesFolder_2_) && StrUtils.endsWith(s3, p_collectFilesFolder_3_)) {
+            list.add(s3);
+          }
+        }
+      } else if (file1.endsWith("/")) {
+        String[] fileName = file1.split("/");
+        int yee = fileName.length;
+        String s1 = p_collectFilesFolder_1_ + fileName[yee - 1];
+        String[] astring = collectFilesFolder(file1, s1, p_collectFilesFolder_2_, p_collectFilesFolder_3_);
+
+        for (int j = 0; j < astring.length; ++j) {
+          String s2 = astring[j];
+          list.add(s2);
+        }
+      }
+    }
+
+    String[] astring1 = (String[])((String[]) list.toArray(new String[list.size()]));
+    return astring1;
   }
 }
