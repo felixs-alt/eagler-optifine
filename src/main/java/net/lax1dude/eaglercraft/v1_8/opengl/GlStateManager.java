@@ -119,6 +119,8 @@ public class GlStateManager {
 	static float clearColorA = 1.0f;
 	
 	static float clearDepth = -999.0f;
+
+	private static GlStateManager.TextureState[] textureState = new GlStateManager.TextureState[32];
 	
 	public static enum TexGen {
 		S, T, R, Q;
@@ -1196,4 +1198,63 @@ public class GlStateManager {
 	public static void recompileShaders() {
 		FixedFunctionPipeline.flushCache();
 	}
+
+	public static int getBoundTexture() {
+        return textureState[activeTexture].textureName;
+    }
+
+	static {
+        for (int j = 0; j < textureState.length; ++j) {
+            textureState[j] = new GlStateManager.TextureState((GlStateManager.GlStateManager$1)null);
+        }
+    }
+
+	static final class GlStateManager$1 {
+
+	}
+
+	static class BooleanState {
+        private final int capability;
+        private boolean currentState = false;
+        private static final String __OBFID = "CL_00002554";
+
+        public BooleanState(int capabilityIn) {
+            this.capability = capabilityIn;
+        }
+
+        public void setDisabled() {
+            this.setState(false);
+        }
+
+        public void setEnabled() {
+            this.setState(true);
+        }
+
+        public void setState(boolean state) {
+            if (state != this.currentState) {
+                this.currentState = state;
+
+                if (state) {
+                    _wglEnable(this.capability);
+                } else {
+                    _wglDisable(this.capability);
+                }
+            }
+        }
+    }
+
+	static class TextureState {
+        public GlStateManager.BooleanState texture2DState;
+        public int textureName;
+        private static final String __OBFID = "CL_00002539";
+
+        private TextureState() {
+            this.texture2DState = new GlStateManager.BooleanState(3553);
+            this.textureName = 0;
+        }
+
+        TextureState(GlStateManager.GlStateManager$1 p_i46476_1_) {
+            this();
+        }
+    }
 }

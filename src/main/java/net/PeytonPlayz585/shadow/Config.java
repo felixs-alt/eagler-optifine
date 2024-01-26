@@ -247,6 +247,10 @@ public class Config {
         return Minecraft.getMinecraft().gameSettings.ofSmoothBiomes;
     }
 
+    public static boolean isCustomItems() {
+        return Minecraft.getMinecraft().gameSettings.ofCustomItems;
+    }
+
 	public static int limit(int p_limit_0_, int p_limit_1_, int p_limit_2_) {
         return p_limit_0_ < p_limit_1_ ? p_limit_1_ : (p_limit_0_ > p_limit_2_ ? p_limit_2_ : p_limit_0_);
     }
@@ -356,6 +360,19 @@ public class Config {
             }
 
             return stringbuffer.toString();
+        }
+    }
+
+    public static boolean parseBoolean(String p_parseBoolean_0_, boolean p_parseBoolean_1_) {
+        try {
+            if (p_parseBoolean_0_ == null) {
+                return p_parseBoolean_1_;
+            } else {
+                p_parseBoolean_0_ = p_parseBoolean_0_.trim();
+                return Boolean.parseBoolean(p_parseBoolean_0_);
+            }
+        } catch (NumberFormatException var3) {
+            return p_parseBoolean_1_;
         }
     }
 

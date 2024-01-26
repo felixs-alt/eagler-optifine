@@ -202,6 +202,7 @@ public class GameSettings {
 	public boolean ofCustomColors = true;
 	public boolean ofSwampColors = true;
 	public boolean ofSmoothBiomes = true;
+	public boolean ofCustomItems = true;
 	
 	//Detail Settings
 	/** Clouds flag */
@@ -813,6 +814,11 @@ public class GameSettings {
             this.mc.renderGlobal.loadRenderers();
         }
 
+		if (parOptions == GameSettings.Options.CUSTOM_ITEMS) {
+            this.ofCustomItems = !this.ofCustomItems;
+            this.mc.refreshResources();
+        }
+
 		this.saveOptions();
 	}
 
@@ -1183,6 +1189,8 @@ public class GameSettings {
             return this.ofSwampColors ? s + "ON" : s + "OFF";
         } else if (parOptions == GameSettings.Options.SMOOTH_BIOMES) {
             return this.ofSmoothBiomes ? s + "ON" : s + "OFF";
+        } else if (parOptions == GameSettings.Options.CUSTOM_ITEMS) {
+            return this.ofCustomItems ? s + "ON" : s + "OFF";
         } else {
 			return s;
 		}
@@ -1692,6 +1700,10 @@ public class GameSettings {
                         this.ofSmoothBiomes = Boolean.valueOf(astring[1]).booleanValue();
                     }
 
+					if (astring[0].equals("ofCustomItems") && astring.length >= 2) {
+                        this.ofCustomItems = Boolean.valueOf(astring[1]).booleanValue();
+                    }
+
 					Keyboard.setFunctionKeyModifier(keyBindFunction.getKeyCode());
 
 					for (SoundCategory soundcategory : SoundCategory.values()) {
@@ -1850,6 +1862,7 @@ public class GameSettings {
 			printwriter.println("ofCustomColors:" + this.ofCustomColors);
 			printwriter.println("ofSwampColors:" + this.ofSwampColors);
 			printwriter.println("ofSmoothBiomes:" + this.ofSmoothBiomes);
+			printwriter.println("ofDroppedItems:" + this.ofDroppedItems);
 
 			for (KeyBinding keybinding : this.keyBindings) {
 				printwriter.println("key_" + keybinding.getKeyDescription() + ":" + keybinding.getKeyCode());
@@ -2046,7 +2059,8 @@ public class GameSettings {
 		HIDE_PASSWORD("Hide Password", false, false),
 		CUSTOM_COLORS("Custom Colors", false, false),
 		SWAMP_COLORS("Swamp Colors", false, false),
-		SMOOTH_BIOMES("Smooth Biomes", false, false);
+		SMOOTH_BIOMES("Smooth Biomes", false, false),
+		CUSTOM_ITEMS("Custom Items", false, false);
 
 		private final boolean enumFloat;
 		private final boolean enumBoolean;

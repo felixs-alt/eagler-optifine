@@ -582,6 +582,11 @@ public class TextureMap extends AbstractTexture implements ITickableTextureObjec
 			GlStateManager.setActiveTexture(GL_TEXTURE0);
 		}
 	}
+
+	public EaglerTextureAtlasSprite getSpriteSafe(String p_getSpriteSafe_1_) {
+        ResourceLocation resourcelocation = new ResourceLocation(p_getSpriteSafe_1_);
+        return (EaglerTextureAtlasSprite)this.mapRegisteredSprites.get(resourcelocation.toString());
+    }
 	
 	private boolean isTerrainAnimationActive(EaglerTextureAtlasSprite p_isTerrainAnimationActive_0_) {
 		String p_isTerrainAnimationActive_1_ = p_isTerrainAnimationActive_0_.iconName; 
