@@ -72,7 +72,7 @@ public class GuiShaders extends GuiScreen {
 	    java.util.Map<Integer, String> languageMap = new java.util.HashMap<>();
 
 		public List(Minecraft mcIn) {
-			super(mcIn, GuiShaders.width - 120 - 20, GuiShaders.height, 30, GuiShaders.height - 50, 16);
+			super(mcIn, GuiShaders.this.width - 120 - 20, GuiShaders.this.height, 30, GuiShaders.this.height - 50, 16);
 			
 			languageMap.put(1, "OFF");
 			languageMap.put(2, "High Performance PBR");

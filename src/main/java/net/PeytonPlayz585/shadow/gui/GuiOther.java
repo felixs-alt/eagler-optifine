@@ -68,7 +68,7 @@ public class GuiOther extends GuiScreen implements GuiYesNoCallback {
 
     public void confirmClicked(boolean result, int id) {
         if (result) {
-            this.mc.gameSettings.resetSettings();
+            //this.mc.gameSettings.resetSettings();
         }
 
         this.mc.displayGuiScreen(this);

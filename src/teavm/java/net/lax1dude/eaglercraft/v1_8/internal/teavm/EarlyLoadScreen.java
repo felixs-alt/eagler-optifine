@@ -20,16 +20,18 @@ import net.lax1dude.eaglercraft.v1_8.Base64;
 import net.lax1dude.eaglercraft.v1_8.EagUtils;
 
 /**
- * Copyright (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * Copyright (c) 2022 lax1dude. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info)
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class EarlyLoadScreen {
@@ -53,7 +55,7 @@ public class EarlyLoadScreen {
 		ImageData img = PlatformAssets.loadImageFile(Base64.decodeBase64(loadScreen));
 		ByteBuffer upload = PlatformRuntime.allocateByteBuffer(192*192*4);
 		IntBuffer pixelUpload = upload.asIntBuffer();
-		pixelUpload.put(img.getPixels());
+		pixelUpload.put(img.pixels);
 		pixelUpload.flip();
 		_wglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 192, 192, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelUpload);
 		
@@ -142,7 +144,7 @@ public class EarlyLoadScreen {
 		_wglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		ImageData img = PlatformAssets.loadImageFile(Base64.decodeBase64(enableScreen));
 		IntBuffer upload = PlatformRuntime.allocateIntBuffer(128*128);
-		upload.put(img.getPixels());
+		upload.put(img.pixels);
 		upload.flip();
 		_wglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, upload);
 		
@@ -199,7 +201,7 @@ public class EarlyLoadScreen {
 		_wglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		ImageData img = PlatformAssets.loadImageFile(image);
 		IntBuffer upload = PlatformRuntime.allocateIntBuffer(256*256);
-		upload.put(img.getPixels());
+		upload.put(img.pixels);
 		upload.flip();
 		_wglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, upload);
 		

@@ -11,16 +11,18 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * Copyright (c) 2023 LAX1DUDE. All Rights Reserved.
+ * Copyright (c) 2023 lax1dude. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class PBRTextureMapUtils {
@@ -48,11 +50,11 @@ public class PBRTextureMapUtils {
 				if(res.getResourcePackName().equals(resourcePack)) {
 					ImageData toRet = TextureUtil.readBufferedImage(res.getInputStream());
 					if(ext.equals("_s")) {
-						for(int i = 0, j; i < toRet.getPixels().length; ++i) {
+						for(int i = 0, j; i < toRet.pixels.length; ++i) {
 							// swap B and A, because labPBR support
-							int a = (toRet.getPixels()[i] >>> 24) & 0xFF;
+							int a = (toRet.pixels[i] >>> 24) & 0xFF;
 							if(a == 0xFF) a = 0;
-							toRet.getPixels()[i] = (toRet.getPixels()[i] & 0x0000FFFF) | Math.min(a << 18, 0xFF0000) | 0xFF000000;
+							toRet.pixels[i] = (toRet.pixels[i] & 0x0000FFFF) | Math.min(a << 18, 0xFF0000) | 0xFF000000;
 						}
 					}
 					return toRet;
@@ -104,14 +106,14 @@ public class PBRTextureMapUtils {
 			if(in.width != resX || in.height != resY) {
 				out = new ImageData(resX, resY, true);
 				if(in.width == 1 && in.height == 1) {
-					int px = in.getPixels()[0];
-					for(int j = 0; j < out.getPixels().length; ++j) {
-						out.getPixels()[j] = px;
+					int px = in.pixels[0];
+					for(int j = 0; j < out.pixels.length; ++j) {
+						out.pixels[j] = px;
 					}
 				}else {
 					for(int y = 0; y < resY; ++y) {
 						for(int x = 0; x < resX; ++x) {
-							out.getPixels()[y * resX + x] = in.getPixels()[((y * in.height / resY)) * in.width + (x * in.width / resX)];
+							out.pixels[y * resX + x] = in.pixels[((y * in.height / resY)) * in.width + (x * in.width / resX)];
 						}
 					}
 				}

@@ -11,16 +11,18 @@ import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 import static net.lax1dude.eaglercraft.v1_8.internal.PlatformOpenGL.*;
 
 /**
- * Copyright (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * Copyright (c) 2022-2023 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GlStateManager {
@@ -119,7 +121,7 @@ public class GlStateManager {
 	static float clearColorA = 1.0f;
 	
 	static float clearDepth = -999.0f;
-
+	
 	private static GlStateManager.TextureState[] textureState = new GlStateManager.TextureState[32];
 	
 	public static enum TexGen {
@@ -230,10 +232,6 @@ public class GlStateManager {
 
 	public static final void enableAlpha() {
 		stateAlphaTest = true;
-	}
-
-	public static final boolean isAlpha() {
-		return stateAlphaTest;
 	}
 
 	public static final void alphaFunc(int func, float ref) {
@@ -362,10 +360,6 @@ public class GlStateManager {
 		}
 	}
 
-	public static final boolean isBlend() {
-		return stateBlend;
-	}
-
 	public static final void globalDisableBlend() {
 		if(stateBlend) {
 			_wglDisable(GL_BLEND);
@@ -452,10 +446,6 @@ public class GlStateManager {
 
 	public static final void enableFog() {
 		stateFog = true;
-	}
-
-	public static final boolean isFogEnabled() {
-		return stateFog;
 	}
 
 	public static final void disableFog() {
@@ -1199,6 +1189,18 @@ public class GlStateManager {
 		FixedFunctionPipeline.flushCache();
 	}
 
+	public static boolean isAlpha() {
+		return stateAlphaTest;
+	}
+
+	public static boolean isBlend() {
+		return stateBlend;
+	}
+
+	public static boolean isFogEnabled() {
+		return stateFog;
+	}
+	
 	public static int getBoundTexture() {
         return textureState[activeTexture].textureName;
     }

@@ -6,7 +6,6 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import net.PeytonPlayz585.shadow.input.Controller;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IntHashMap;
 
@@ -16,16 +15,18 @@ import net.minecraft.util.IntHashMap;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class KeyBinding implements Comparable<KeyBinding> {
@@ -38,7 +39,6 @@ public class KeyBinding implements Comparable<KeyBinding> {
 	public int keyCode;
 	public boolean pressed;
 	private int pressTime;
-	private int buttonID;
 
 	public static void onTick(int keyCode) {
 		if (keyCode != 0) {
@@ -88,18 +88,6 @@ public class KeyBinding implements Comparable<KeyBinding> {
 		keybindArray.add(this);
 		hash.addKey(keyCode, this);
 		keybindSet.add(category);
-		buttonID = -1;
-	}
-
-	public KeyBinding(int parButtonID, String description, int keyCode, String category) {
-		this.keyDescription = description;
-		this.keyCode = keyCode;
-		this.keyCodeDefault = keyCode;
-		this.keyCategory = category;
-		keybindArray.add(this);
-		hash.addKey(keyCode, this);
-		keybindSet.add(category);
-		buttonID = parButtonID;
 	}
 
 	/**+
@@ -107,7 +95,7 @@ public class KeyBinding implements Comparable<KeyBinding> {
 	 * querying). Should be used in tickers.
 	 */
 	public boolean isKeyDown() {
-		return this.pressed | Controller.isKeyDown(keyDescription);
+		return this.pressed;
 	}
 
 	public String getKeyCategory() {

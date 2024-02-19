@@ -13,7 +13,11 @@ import java.util.concurrent.Callable;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
-import net.FatalCodes.shadow.Shadow;
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
+import net.PeytonPlayz585.shadow.Lagometer;
+import net.PeytonPlayz585.shadow.TextureUtils;
+import net.PeytonPlayz585.shadow.debug.DebugChunkRenderer;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.Mouse;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
@@ -87,28 +91,24 @@ import net.minecraft.util.Vec3i;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.biome.BiomeGenBase;
 
-import net.PeytonPlayz585.shadow.Config;
-import net.PeytonPlayz585.shadow.CustomColors;
-import net.PeytonPlayz585.shadow.Lagometer;
-import net.PeytonPlayz585.shadow.TextureUtils;
-import net.PeytonPlayz585.shadow.debug.DebugChunkRenderer;
-
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
  * 
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class EntityRenderer implements IResourceManagerReloadListener {
@@ -215,7 +215,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		}
 
 		chunkRenderer = new DebugChunkRenderer();
-
+		
 	}
 
 	public boolean isShaderActive() {
@@ -686,11 +686,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			GlStateManager.loadIdentity();
 			float f = 0.07F;
 			if (this.mc.gameSettings.anaglyph) {
-				if(this.mc.gameSettings.leftHand) {
-					GlStateManager.translate((float) (-(xOffset * 2 - 1)) * f, 0.0F, 0.0F);
-				} else {
-					GlStateManager.translate((float) (-(xOffset * 2 + 1)) * f, 0.0F, 0.0F);
-				}
+				GlStateManager.translate((float) (-(xOffset * 2 - 1)) * f, 0.0F, 0.0F);
 			}
 
 			GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, false),
@@ -926,7 +922,6 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		this.mc.mcProfiler.startSection("mouse");
 
 		if (this.mc.inGameHasFocus && flag) {
-
 			this.mc.mouseHelper.mouseXYChange();
 			float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
 			if (this.mc.gameSettings.keyBindZoomCamera.isKeyDown()) {
@@ -989,14 +984,12 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 					this.setupOverlayRendering();
 					GlStateManager.disableLighting();
 					GlStateManager.enableBlend();
-					
 					if (Config.isVignetteEnabled()) {
 						this.mc.ingameGUI.renderVignette(parFloat1, l, i1);
 					} else {
 			            GlStateManager.enableDepth();
 			            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 			        }
-					
 					this.mc.ingameGUI.renderGameOverlayCrosshairs(l, i1);
 					GlStateManager.bindTexture(this.overlayFramebuffer.getTexture());
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1018,9 +1011,9 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 					GlStateManager.enableAlpha();
 					GlStateManager.disableBlend();
 					if (this.mc.gameSettings.hudPlayer) { // give the player model HUD good fps
-						this.mc.ingameGUI.drawEaglerPlayerOverlay(l - 3, 3, parFloat1);
+						this.mc.ingameGUI.drawEaglerPlayerOverlay(l - 3, 3 + this.mc.ingameGUI.overlayDebug.playerOffset, parFloat1);
 					}
-
+					
 					if (this.mc.gameSettings.showDebugInfo) {
                         Lagometer.showLagometer(scaledresolution);
                     }
@@ -1072,7 +1065,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			}
 
 		}
-
+		
 		Lagometer.updateLagometer();
 
 		if (this.mc.gameSettings.ofProfiler) {
@@ -1292,15 +1285,6 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			GlStateManager.enableAlpha();
 		}
 
-		if (this.chunkRenderer.shouldRender()) {
-            boolean fogEnabled = GlStateManager.isFogEnabled();
-            GlStateManager.disableFog();
-            this.chunkRenderer.render(partialTicks, finishTimeNano);
-			if(fogEnabled) {
-				GlStateManager.enableFog();
-			}
-        }
-
 		this.mc.mcProfiler.endStartSection("destroyProgress");
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, 1, 1, 0);
@@ -1322,6 +1306,16 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 
 		GlStateManager.depthMask(false);
 		GlStateManager.enableCull();
+		
+		if (this.chunkRenderer.shouldRender()) {
+            boolean fogEnabled = GlStateManager.isFogEnabled();
+            GlStateManager.disableFog();
+            this.chunkRenderer.render(partialTicks, finishTimeNano);
+			if(fogEnabled) {
+				GlStateManager.enableFog();
+			}
+        }
+		
 		this.mc.mcProfiler.endStartSection("weather");
 		this.renderRainSnow(partialTicks);
 		GlStateManager.depthMask(true);
@@ -1348,7 +1342,6 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         }
 
 		this.mc.mcProfiler.endStartSection("hand");
-		Shadow.moduleManager.onRender();
 		if (this.renderHand) {
 			GlStateManager.clear(GL_DEPTH_BUFFER_BIT);
 			this.renderHand(partialTicks, pass);
@@ -1359,7 +1352,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 
 	private void renderCloudsCheck(RenderGlobal renderGlobalIn, float partialTicks, int pass) {
 		if (this.mc.gameSettings.renderDistanceChunks >= 4 && !Config.isCloudsOff()) {
-            this.mc.mcProfiler.endStartSection("clouds");
+			this.mc.mcProfiler.endStartSection("clouds");
             GlStateManager.matrixMode(5889);
             GlStateManager.loadIdentity();
             GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance * 4.0F);
@@ -1373,76 +1366,80 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             GlStateManager.loadIdentity();
             GlStateManager.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.clipDistance);
             GlStateManager.matrixMode(5888);
-        }
+		}
+
 	}
 
 	private void addRainParticles() {
-		if (DeferredStateManager.isDeferredRenderer()) {
+		if (DeferredStateManager.isDeferredRenderer())
 			return;
-		}
+		float f = this.mc.theWorld.getRainStrength(1.0F);
 		
-        float f = this.mc.theWorld.getRainStrength(1.0F);
-
-        if (!Config.isRainFancy()) {
+		if (!Config.isRainFancy()) {
             f /= 2.0F;
         }
 
-        if (f != 0.0F && Config.isRainSplash()) {
-            this.random.setSeed((long)this.rendererUpdateCount * 312987231L);
-            Entity entity = this.mc.getRenderViewEntity();
-            WorldClient worldclient = this.mc.theWorld;
-            BlockPos blockpos = new BlockPos(entity);
-            byte b0 = 10;
-            double d0 = 0.0D;
-            double d1 = 0.0D;
-            double d2 = 0.0D;
-            int i = 0;
-            int j = (int)(100.0F * f * f);
+		if (f != 0.0F && Config.isRainSplash()) {
+			this.random.setSeed((long) this.rendererUpdateCount * 312987231L);
+			Entity entity = this.mc.getRenderViewEntity();
+			WorldClient worldclient = this.mc.theWorld;
+			BlockPos blockpos = new BlockPos(entity);
+			byte b0 = 10;
+			double d0 = 0.0D;
+			double d1 = 0.0D;
+			double d2 = 0.0D;
+			int i = 0;
+			int j = (int) (100.0F * f * f);
+			if (this.mc.gameSettings.particleSetting == 1) {
+				j >>= 1;
+			} else if (this.mc.gameSettings.particleSetting == 2) {
+				j = 0;
+			}
 
-            if (this.mc.gameSettings.particleSetting == 1) {
-                j >>= 1;
-            } else if (this.mc.gameSettings.particleSetting == 2) {
-                j = 0;
-            }
+			for (int k = 0; k < j; ++k) {
+				BlockPos blockpos1 = worldclient
+						.getPrecipitationHeight(blockpos.add(this.random.nextInt(b0) - this.random.nextInt(b0), 0,
+								this.random.nextInt(b0) - this.random.nextInt(b0)));
+				BiomeGenBase biomegenbase = worldclient.getBiomeGenForCoords(blockpos1);
+				BlockPos blockpos2 = blockpos1.down();
+				Block block = worldclient.getBlockState(blockpos2).getBlock();
+				if (blockpos1.getY() <= blockpos.getY() + b0 && blockpos1.getY() >= blockpos.getY() - b0
+						&& biomegenbase.canSpawnLightningBolt()
+						&& biomegenbase.getFloatTemperature(blockpos1) >= 0.15F) {
+					double d3 = this.random.nextDouble();
+					double d4 = this.random.nextDouble();
+					if (block.getMaterial() == Material.lava) {
+						this.mc.theWorld.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, (double) blockpos1.getX() + d3,
+								(double) ((float) blockpos1.getY() + 0.1F) - block.getBlockBoundsMinY(),
+								(double) blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+					} else if (block.getMaterial() != Material.air) {
+						block.setBlockBoundsBasedOnState(worldclient, blockpos2);
+						++i;
+						if (this.random.nextInt(i) == 0) {
+							d0 = (double) blockpos2.getX() + d3;
+							d1 = (double) ((float) blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY() - 1.0D;
+							d2 = (double) blockpos2.getZ() + d4;
+						}
 
-            for (int k = 0; k < j; ++k) {
-                BlockPos blockpos1 = worldclient.getPrecipitationHeight(blockpos.add(this.random.nextInt(b0) - this.random.nextInt(b0), 0, this.random.nextInt(b0) - this.random.nextInt(b0)));
-                BiomeGenBase biomegenbase = worldclient.getBiomeGenForCoords(blockpos1);
-                BlockPos blockpos2 = blockpos1.down();
-                Block block = worldclient.getBlockState(blockpos2).getBlock();
+						this.mc.theWorld.spawnParticle(EnumParticleTypes.WATER_DROP, (double) blockpos2.getX() + d3,
+								(double) ((float) blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY(),
+								(double) blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+					}
+				}
+			}
 
-                if (blockpos1.getY() <= blockpos.getY() + b0 && blockpos1.getY() >= blockpos.getY() - b0 && biomegenbase.canSpawnLightningBolt() && biomegenbase.getFloatTemperature(blockpos1) >= 0.15F) {
-                    double d3 = this.random.nextDouble();
-                    double d4 = this.random.nextDouble();
+			if (i > 0 && this.random.nextInt(3) < this.rainSoundCounter++) {
+				this.rainSoundCounter = 0;
+				if (d1 > (double) (blockpos.getY() + 1) && worldclient.getPrecipitationHeight(blockpos)
+						.getY() > MathHelper.floor_float((float) blockpos.getY())) {
+					this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.1F, 0.5F, false);
+				} else {
+					this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.2F, 1.0F, false);
+				}
+			}
 
-                    if (block.getMaterial() == Material.lava) {
-                        this.mc.theWorld.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, (double)blockpos1.getX() + d3, (double)((float)blockpos1.getY() + 0.1F) - block.getBlockBoundsMinY(), (double)blockpos1.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
-                    } else if (block.getMaterial() != Material.air) {
-                        block.setBlockBoundsBasedOnState(worldclient, blockpos2);
-                        ++i;
-
-                        if (this.random.nextInt(i) == 0) {
-                            d0 = (double)blockpos2.getX() + d3;
-                            d1 = (double)((float)blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY() - 1.0D;
-                            d2 = (double)blockpos2.getZ() + d4;
-                        }
-
-                        this.mc.theWorld.spawnParticle(EnumParticleTypes.WATER_DROP, (double)blockpos2.getX() + d3, (double)((float)blockpos2.getY() + 0.1F) + block.getBlockBoundsMaxY(), (double)blockpos2.getZ() + d4, 0.0D, 0.0D, 0.0D, new int[0]);
-                    }
-                }
-            }
-
-            if (i > 0 && this.random.nextInt(3) < this.rainSoundCounter++) {
-                this.rainSoundCounter = 0;
-
-                if (d1 > (double)(blockpos.getY() + 1) && worldclient.getPrecipitationHeight(blockpos).getY() > MathHelper.floor_float((float)blockpos.getY())) {
-                    this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.1F, 0.5F, false);
-                } else {
-                    this.mc.theWorld.playSound(d0, d1, d2, "ambient.weather.rain", 0.2F, 1.0F, false);
-                }
-            }
-        }
-    }
+		}
+	}
 
 	/**+
 	 * Render rain and snow
@@ -1474,6 +1471,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 				DeferredStateManager.reportForwardRenderObjectPosition2(0.0f, 0.0f, 0.0f);
 				GlStateManager.alphaFunc(GL_GREATER, 0.01F);
 				GlStateManager.depthMask(false);
+				GlStateManager.enableDepth();
 				EaglerDeferredPipeline.instance.setForwardRenderLightFactors(0.65f,
 						4.75f - MathHelper.clamp_float(DeferredStateManager.getSunHeight() * 8.0f - 3.0f, 0.0f, 4.0f),
 						1.0f, 0.03f);
@@ -1637,6 +1635,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				DeferredStateManager.setDefaultMaterialConstants();
 				GlStateManager.depthMask(true);
+				GlStateManager.disableDepth();
 				EaglerDeferredPipeline.instance.setForwardRenderLightFactors(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 			GlStateManager.alphaFunc(GL_GREATER, 0.1F);
@@ -1829,24 +1828,22 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		Block block = ActiveRenderInfo.getBlockAtEntityViewpoint(this.mc.theWorld, entity, parFloat1);
 		if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).isPotionActive(Potion.blindness)) {
-			float f2 = 5.0F;
-            int i = ((EntityLivingBase)entity).getActivePotionEffect(Potion.blindness).getDuration();
+			float f1 = 5.0F;
+			int i = ((EntityLivingBase) entity).getActivePotionEffect(Potion.blindness).getDuration();
+			if (i < 20) {
+				f1 = 5.0F + (this.farPlaneDistance - 5.0F) * (1.0F - (float) i / 20.0F);
+			}
 
-            if (i < 20) {
-                f2 = 5.0F + (this.farPlaneDistance - 5.0F) * (1.0F - (float)i / 20.0F);
-            }
-
-            GlStateManager.setFog(9729);
-
-            if (partialTicks == -1) {
-                GlStateManager.setFogStart(0.0F);
-                GlStateManager.setFogEnd(f2 * 0.8F);
-            } else {
-                GlStateManager.setFogStart(f2 * 0.25F);
-                GlStateManager.setFogEnd(f2);
-            }
-
-            if (Config.isFogFancy()) {
+			GlStateManager.setFog(GL_LINEAR);
+			if (partialTicks == -1) {
+				GlStateManager.setFogStart(0.0F);
+				GlStateManager.setFogEnd(f1 * 0.8F);
+			} else {
+				GlStateManager.setFogStart(f1 * 0.25F);
+				GlStateManager.setFogEnd(f1);
+			}
+			
+			if (Config.isFogFancy()) {
                 EaglercraftGPU.glFogi(34138, 34139);
             }
 		} else if (this.cloudFog) {
@@ -1860,13 +1857,16 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			} else {
 				GlStateManager.setFogDensity(0.1F - (float) EnchantmentHelper.getRespiration(entity) * 0.03F);
 			}
-
+			
 			if (Config.isClearWater()) {
                 GlStateManager.setFogDensity(0.02F);
             }
 		} else if (block.getMaterial() == Material.lava) {
 			GlStateManager.setFog(GL_EXP);
 			GlStateManager.setFogDensity(2.0F);
+		} else if (!this.mc.gameSettings.fog) {
+			GlStateManager.setFog(GL_EXP);
+			GlStateManager.setFogDensity(0.0F);
 		} else {
 			GlStateManager.setFogDensity(0.001F);
 			float f = this.farPlaneDistance;
@@ -1980,10 +1980,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 
 		DeferredStateManager.setWavingBlockOffset(blockWaveDistX, blockWaveDistY, blockWaveDistZ);
 		if (wavingBlocks) {
-			DeferredStateManager.setWavingBlockParams(1.0f * waveTimer,
-					200.0f * waveTimer
-							+ MathHelper.sin(waveTimer * 0.125f + MathHelper.sin(waveTimer * 1.5f) * 0.2f) * 125.0f,
-					0.0f, 0.0f);
+			DeferredStateManager.setWavingBlockParams(1.0f * waveTimer, 200.0f * waveTimer, 0.0f, 0.0f);
 		}
 
 		// if (mc.gameSettings.renderDistanceChunks >= 4) vanilla shows sky not fog
@@ -2611,7 +2608,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			}
 			ds *= 1.5f + mc.theWorld.getRainStrength(partialTicks) * 10.0f
 					+ mc.theWorld.getThunderStrength(partialTicks) * 5.0f;
-			ds *= MathHelper.clamp_float(6.0f - DeferredStateManager.getSunHeight() * 17.0f, 1.0f, 2.0f);
+			ds *= MathHelper.clamp_float(6.0f - DeferredStateManager.getSunHeight() * 17.0f, 1.0f, 3.0f);
+			if (conf.is_rendering_lightShafts) {
+				ds *= Math.max(2.0f - Math.abs(DeferredStateManager.getSunHeight()) * 5.0f, 1.0f);
+			}
 			DeferredStateManager.enableFogExp(ds, true, 1.0f, 1.0f, 1.0f, 1.0f, ff, ff, ff, 1.0f);
 		}
 

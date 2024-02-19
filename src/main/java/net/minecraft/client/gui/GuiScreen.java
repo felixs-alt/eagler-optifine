@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
+import net.lax1dude.eaglercraft.v1_8.EaglerXBungeeVersion;
 import net.lax1dude.eaglercraft.v1_8.Keyboard;
 import net.lax1dude.eaglercraft.v1_8.Mouse;
 import net.lax1dude.eaglercraft.v1_8.internal.KeyboardConstants;
@@ -41,14 +42,34 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 
+/**+
+ * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
+ * 
+ * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
+ * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
+ * 
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * 
+ */
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private static final Set<String> PROTOCOLS = Sets.newHashSet(new String[] { "http", "https" });
 	private static final Splitter NEWLINE_SPLITTER = Splitter.on('\n');
 	protected Minecraft mc;
 	protected RenderItem itemRender;
-	public static int width;
-	public static int height;
+	public int width;
+	public int height;
 	/**+
 	 * A list of all the buttons in this container.
 	 */
@@ -370,6 +391,13 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
 					 * GuiTwitchUserMode(this.mc.getTwitchStream(), chatuserinfo)); } else { }
 					 */
 					LOGGER.error("Tried to handle twitch user but couldn\'t find them!");
+				} else if (clickevent.getAction() == ClickEvent.Action.EAGLER_PLUGIN_DOWNLOAD) {
+					if (EaglerXBungeeVersion.pluginFileEPK.equals(clickevent.getValue())) {
+						EaglerXBungeeVersion.startPluginDownload();
+					} else {
+						LOGGER.error("Invalid plugin download from EPK was blocked: {}",
+								EaglerXBungeeVersion.pluginFileEPK);
+					}
 				} else {
 					LOGGER.error("Don\'t know how to handle " + clickevent);
 				}
@@ -640,5 +668,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
 	 */
 	public void onResize(Minecraft mcIn, int parInt1, int parInt2) {
 		this.setWorldAndResolution(mcIn, parInt1, parInt2);
+	}
+
+	public boolean shouldHangupIntegratedServer() {
+		return true;
 	}
 }

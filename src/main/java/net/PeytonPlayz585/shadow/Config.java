@@ -38,6 +38,7 @@ public class Config {
 	public static boolean chunkFixNether = false;
 	public static boolean chunkFixEnd = false;
 	public static WorldClient worldClient = null;
+	public static boolean waterOpacityChanged = false;
 	
 	public static boolean isAnimatedWater() {
         return Minecraft.getMinecraft().gameSettings.ofAnimatedWater != 2;

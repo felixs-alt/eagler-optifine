@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
+import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftUUID;
 
@@ -16,6 +16,7 @@ import net.lax1dude.eaglercraft.v1_8.netty.Unpooled;
 import net.lax1dude.eaglercraft.v1_8.profile.ServerSkinCache;
 import net.lax1dude.eaglercraft.v1_8.profile.SkinPackets;
 import net.lax1dude.eaglercraft.v1_8.socket.EaglercraftNetworkManager;
+import net.lax1dude.eaglercraft.v1_8.update.UpdateService;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
 import net.lax1dude.eaglercraft.v1_8.mojang.authlib.GameProfile;
@@ -213,16 +214,18 @@ import net.minecraft.world.storage.MapData;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class NetHandlerPlayClient implements INetHandlerPlayClient {
@@ -714,14 +717,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 			this.gameController.loadWorld((WorldClient) null);
 		}
 		if (this.guiScreenServer != null) {
-			this.gameController
-					.displayGuiScreen(new GuiDisconnected(this.guiScreenServer, "disconnect.lost", ichatcomponent));
+			this.gameController.shutdownIntegratedServer(
+					new GuiDisconnected(this.guiScreenServer, "disconnect.lost", ichatcomponent));
 		} else {
-			if(!Minecraft.getMinecraft().gameSettings.secret) {
-				this.gameController.displayGuiScreen(new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), "disconnect.lost", ichatcomponent));
-			} else {
-				this.gameController.displayGuiScreen(new GuiDisconnected(new GuiMultiplayer(new GuiSecretMainMenu()), "disconnect.lost", ichatcomponent));
-			}
+			this.gameController.shutdownIntegratedServer(
+					new GuiDisconnected(new GuiMultiplayer(new GuiMainMenu()), "disconnect.lost", ichatcomponent));
 		}
 	}
 
@@ -1534,6 +1534,18 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 			} catch (IOException e) {
 				logger.error("Couldn't read EAG|Skins-1.8 packet!");
 				logger.error(e);
+			}
+		} else if ("EAG|UpdateCert-1.8".equals(packetIn.getChannelName())) {
+			if (EagRuntime.getConfiguration().allowUpdateSvc()) {
+				try {
+					PacketBuffer pb = packetIn.getBufferData();
+					byte[] c = new byte[pb.readableBytes()];
+					pb.readBytes(c);
+					UpdateService.addCertificateToSet(c);
+				} catch (Throwable e) {
+					logger.error("Couldn't process EAG|UpdateCert-1.8 packet!");
+					logger.error(e);
+				}
 			}
 		}
 

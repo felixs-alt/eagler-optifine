@@ -142,7 +142,7 @@ public class FontRenderer implements IResourceManagerReloadListener {
 		Properties properties = FontUtils.readFontProperties(this.locationFontTexture);
 		int i = bufferedimage.width;
 		int j = bufferedimage.height;
-		int[] aint = bufferedimage.getPixels();
+		int[] aint = bufferedimage.pixels;
 		int k = j / 16;
 		int l = i / 16;
 		byte b0 = 1;

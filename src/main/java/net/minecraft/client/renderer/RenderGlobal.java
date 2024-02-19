@@ -19,6 +19,7 @@ import net.PeytonPlayz585.shadow.other.CloudRenderer;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.HString;
 import net.lax1dude.eaglercraft.v1_8.Keyboard;
+import net.lax1dude.eaglercraft.v1_8.internal.PlatformOpenGL;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -59,7 +60,6 @@ import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.IRenderChunkFactory;
 import net.minecraft.client.renderer.chunk.ListChunkFactory;
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.chunk.VboChunkFactory;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
@@ -88,6 +88,7 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
@@ -101,6 +102,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.Vector3d;
 import net.minecraft.world.IWorldAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 
@@ -110,16 +112,18 @@ import net.minecraft.world.chunk.Chunk;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener {
@@ -208,7 +212,6 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		this.vboEnabled = false;
 		this.renderContainer = new RenderList();
 		this.renderChunkFactory = new ListChunkFactory();
-		
 		this.generateStars();
 		this.generateSky();
 		this.generateSky2();
@@ -417,7 +420,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			this.renderDistanceChunks = this.mc.gameSettings.renderDistanceChunks;
 			this.renderDistance = this.renderDistanceChunks * 16;
             this.renderDistanceSq = this.renderDistance * this.renderDistance;
-			
+
 			if (this.viewFrustum != null) {
 				this.viewFrustum.deleteGlResources();
 			}
@@ -468,11 +471,10 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 					EaglerDeferredPipeline.isSuspended = true;
 				}
 				if (flag && !EaglerDeferredPipeline.isSuspended) {
-					ChatComponentText shaderF4Msg = new ChatComponentText("[EaglercraftX]");
+					ChatComponentText shaderF4Msg = new ChatComponentText("[EaglercraftX] ");
 					shaderF4Msg.getChatStyle().setColor(EnumChatFormatting.GOLD);
-					ChatComponentText shaderF4Msg2 = new ChatComponentText(
-							" Press " + Keyboard.getKeyName(mc.gameSettings.keyBindFunction.getKeyCode())
-									+ "+4 to access the shader debug menu");
+					ChatComponentTranslation shaderF4Msg2 = new ChatComponentTranslation("shaders.debugMenuTip",
+							Keyboard.getKeyName(mc.gameSettings.keyBindFunction.getKeyCode()));
 					shaderF4Msg2.getChatStyle().setColor(EnumChatFormatting.AQUA);
 					shaderF4Msg.appendSibling(shaderF4Msg2);
 					mc.ingameGUI.getChatGUI().printChatMessage(shaderF4Msg);
@@ -946,7 +948,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			}
 
 			while (!linkedlist.isEmpty()) {
-				RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation1 = (RenderGlobal.ContainerLocalRenderInformation) linkedlist.poll();
+				RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation1 = (RenderGlobal.ContainerLocalRenderInformation) linkedlist
+						.poll();
 				RenderChunk renderchunk3 = renderglobal$containerlocalrenderinformation1.renderChunk;
 				EnumFacing enumfacing2 = renderglobal$containerlocalrenderinformation1.facing;
 				BlockPos blockpos2 = renderchunk3.getPosition();
@@ -975,7 +978,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			this.fixTerrainFrustum(d3, d4, d5);
 			this.debugFixTerrainFrustum = false;
 		}
-
+		
 		Lagometer.timerVisibility.end();
 
 		Set set = this.chunksToUpdate;
@@ -1213,13 +1216,13 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		this.mc.entityRenderer.enableLightmap();
 		
 		if (Minecraft.getMinecraft().gameSettings.useVbo) {
-			//OpenGLManager.glEnableClientState(GL_VERTEX_ARRAY);
+			PlatformOpenGL._wglEnableVertexAttribArray(GL_VERTEX_ARRAY);
             GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-            //OpenGLManager.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            PlatformOpenGL._wglEnableVertexAttribArray(GL_TEXTURE_COORD_ARRAY);
             GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-            //OpenGLManager.glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            PlatformOpenGL._wglEnableVertexAttribArray(GL_TEXTURE_COORD_ARRAY);
             GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-            //OpenGLManager.glEnableClientState(GL_COLOR_ARRAY);
+            PlatformOpenGL._wglEnableVertexAttribArray(GL_COLOR_ARRAY);
         }
 		
 		this.renderContainer.renderChunkLayer(blockLayerIn);
@@ -2307,11 +2310,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	 * tracker.
 	 */
 	public void onEntityAdded(Entity var1) {
-		
 		if (Config.isDynamicLights()) {
             DynamicLights.entityAdded(var1, this);
         }
-		
 	}
 
 	/**+
@@ -2321,11 +2322,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	 * entity tracker.
 	 */
 	public void onEntityRemoved(Entity var1) {
-		
 		if (Config.isDynamicLights()) {
             DynamicLights.entityRemoved(var1, this);
         }
-		
 	}
 
 	/**+
@@ -2614,7 +2613,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		return "" + Minecraft.getDebugFPS() + "fps | C: " + j + "/" + i + ", E: " + this.countEntitiesRendered + "+" + k
 				+ ", " + renderDispatcher.getDebugInfo();
 	}
-	
+
 	public WorldClient getWorld() {
         return this.theWorld;
     }

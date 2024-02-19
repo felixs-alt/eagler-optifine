@@ -14,18 +14,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import net.lax1dude.eaglercraft.v1_8.internal.PlatformInput;
+
 import org.apache.commons.lang3.Validate;
 
 import com.google.common.collect.Lists;
 
-import net.FatalCodes.shadow.Shadow;
 import net.PeytonPlayz585.shadow.Config;
-import net.PeytonPlayz585.shadow.chunk.ChunkBorders;
-import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
-import net.PeytonPlayz585.shadow.input.Controller;
 import net.lax1dude.eaglercraft.v1_8.Display;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
-import net.lax1dude.eaglercraft.v1_8.EagUtils;
+import net.lax1dude.eaglercraft.v1_8.EaglerXBungeeVersion;
 import net.lax1dude.eaglercraft.v1_8.HString;
 import net.lax1dude.eaglercraft.v1_8.IOUtils;
 import net.lax1dude.eaglercraft.v1_8.Keyboard;
@@ -58,6 +55,14 @@ import net.lax1dude.eaglercraft.v1_8.profile.SkinPreviewRenderer;
 import net.lax1dude.eaglercraft.v1_8.socket.AddressResolver;
 import net.lax1dude.eaglercraft.v1_8.socket.EaglercraftNetworkManager;
 import net.lax1dude.eaglercraft.v1_8.socket.RateLimitTracker;
+import net.lax1dude.eaglercraft.v1_8.sp.IntegratedServerState;
+import net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController;
+import net.lax1dude.eaglercraft.v1_8.sp.SkullCommand;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenDemoIntegratedServerStartup;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenIntegratedServerBusy;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenSingleplayerConnecting;
+import net.lax1dude.eaglercraft.v1_8.sp.lan.LANServerController;
+import net.lax1dude.eaglercraft.v1_8.update.RelayUpdateChecker;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.audio.MusicTicker;
@@ -134,6 +139,7 @@ import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.event.ClickEvent;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -150,6 +156,8 @@ import net.minecraft.stats.StatFileWriter;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.IThreadListener;
@@ -169,6 +177,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldProviderEnd;
 import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldSettings;
+import net.minecraft.world.storage.ISaveFormat;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -176,16 +185,18 @@ import net.minecraft.world.WorldSettings;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class Minecraft implements IThreadListener {
@@ -215,6 +226,7 @@ public class Minecraft implements IThreadListener {
 	public EffectRenderer effectRenderer;
 	private final Session session;
 	private boolean isGamePaused;
+	private boolean wasPaused;
 	public FontRenderer fontRendererObj;
 	public FontRenderer standardGalacticFontRenderer;
 	public GuiScreen currentScreen;
@@ -240,7 +252,6 @@ public class Minecraft implements IThreadListener {
 	public final FrameTimer field_181542_y = new FrameTimer();
 	long field_181543_z = System.nanoTime();
 	private final boolean jvm64bit;
-	private final boolean isDemo;
 	private EaglercraftNetworkManager myNetworkManager;
 	private boolean integratedServerIsRunning;
 	/**+
@@ -290,7 +301,9 @@ public class Minecraft implements IThreadListener {
 	public int joinWorldTickCounter = 0;
 	private int dontPauseTimer = 0;
 	public int bungeeOutdatedMsgTimer = 0;
-	public String bungeeOutdatedMsgVer = null;
+	private boolean isLANOpen = false;
+
+	public SkullCommand eagskullCommand;
 
 	public Minecraft(GameConfiguration gameConfig) {
 		theMinecraft = this;
@@ -299,7 +312,6 @@ public class Minecraft implements IThreadListener {
 		this.mcDefaultResourcePack = new DefaultResourcePack();
 		this.session = gameConfig.userInfo.session;
 		logger.info("Setting user: " + this.session.getProfile().getName());
-		this.isDemo = gameConfig.gameInfo.isDemo;
 		this.displayWidth = gameConfig.displayInfo.width > 0 ? gameConfig.displayInfo.width : 1;
 		this.displayHeight = gameConfig.displayInfo.height > 0 ? gameConfig.displayInfo.height : 1;
 		this.tempDisplayWidth = gameConfig.displayInfo.width;
@@ -335,13 +347,7 @@ public class Minecraft implements IThreadListener {
 				}
 
 				if (!this.hasCrashed || this.crashReporter == null) {
-					try {
-						this.runGameLoop();
-					} catch (OutOfMemoryError var10) {
-						this.freeMemory();
-						this.displayGuiScreen(new GuiMemoryErrorScreen());
-						System.gc();
-					}
+					this.runGameLoop();
 					continue;
 				}
 
@@ -351,13 +357,11 @@ public class Minecraft implements IThreadListener {
 			// ??
 		} catch (ReportedException reportedexception) {
 			this.addGraphicsAndWorldToCrashReport(reportedexception.getCrashReport());
-			this.freeMemory();
 			logger.fatal("Reported exception thrown!", reportedexception);
 			this.displayCrashReport(reportedexception.getCrashReport());
 		} catch (Throwable throwable1) {
 			CrashReport crashreport1 = this
 					.addGraphicsAndWorldToCrashReport(new CrashReport("Unexpected error", throwable1));
-			this.freeMemory();
 			logger.fatal("Unreported exception thrown!", throwable1);
 			this.displayCrashReport(crashreport1);
 		} finally {
@@ -461,31 +465,24 @@ public class Minecraft implements IThreadListener {
 		SkinPreviewRenderer.initialize();
 		this.checkGLError("Post startup");
 		this.ingameGUI = new GuiIngame(this);
-		Shadow.ShadowClientStartup();
+		this.eagskullCommand = new SkullCommand(this);
 
 		ServerList.initServerList(this);
 		EaglerProfile.read();
 
-		if(!this.gameSettings.secret) {
-			if (this.serverName != null) {
-				this.displayGuiScreen(new GuiScreenEditProfile(new GuiConnecting(new GuiMainMenu(), this, this.serverName, this.serverPort)));
-			} else {
-				this.displayGuiScreen(new GuiScreenEditProfile(new GuiMainMenu()));
-			}
-		} else {
-			if (this.serverName != null) {
-				this.displayGuiScreen(new GuiScreenEditProfile(new GuiConnecting(new GuiSecretMainMenu(), this, this.serverName, this.serverPort)));
-			} else {
-				this.displayGuiScreen(new GuiScreenEditProfile(new GuiSecretMainMenu()));
-			}
+		GuiScreen mainMenu = new GuiMainMenu();
+		if (isDemo()) {
+			mainMenu = new GuiScreenDemoIntegratedServerStartup(mainMenu);
 		}
+		if (this.serverName != null) {
+			mainMenu = new GuiConnecting(mainMenu, this, this.serverName, this.serverPort);
+		}
+
+		this.displayGuiScreen(new GuiScreenEditProfile(mainMenu));
 
 		this.renderEngine.deleteTexture(this.mojangLogo);
 		this.mojangLogo = null;
 		this.loadingScreen = new LoadingScreenRenderer(this);
-
-		PlatformRuntime.die();
-		EagUtils.sleep(400l);
 	}
 
 	private void registerMetadataSerializers() {
@@ -666,37 +663,19 @@ public class Minecraft implements IThreadListener {
 	 * screen.
 	 */
 	public void displayGuiScreen(GuiScreen guiScreenIn) {
-		
-		if(guiScreenIn instanceof GuiMainMenu && this.gameSettings.secret) {
-			guiScreenIn = new GuiSecretMainMenu();
-		} else if(guiScreenIn instanceof GuiSecretMainMenu && !this.gameSettings.secret) {
-			guiScreenIn = new GuiMainMenu();
-		}
-		
 		if (this.currentScreen != null) {
 			this.currentScreen.onGuiClosed();
 		}
 
 		if (guiScreenIn == null && this.theWorld == null) {
-			if(!this.gameSettings.secret) {
-				guiScreenIn = new GuiMainMenu();
-			} else {
-				guiScreenIn = new GuiSecretMainMenu();
-			}
+			guiScreenIn = new GuiMainMenu();
 		} else if (guiScreenIn == null && this.thePlayer.getHealth() <= 0.0F) {
 			guiScreenIn = new GuiGameOver();
 		}
 
-		if(!this.gameSettings.secret) {
-			if (guiScreenIn instanceof GuiMainMenu) {
-				this.gameSettings.showDebugInfo = false;
-				this.ingameGUI.getChatGUI().clearChatMessages();
-			}
-		} else {
-			if (guiScreenIn instanceof GuiSecretMainMenu) {
-				this.gameSettings.showDebugInfo = false;
-				this.ingameGUI.getChatGUI().clearChatMessages();
-			}
+		if (guiScreenIn instanceof GuiMainMenu) {
+			this.gameSettings.showDebugInfo = false;
+			this.ingameGUI.getChatGUI().clearChatMessages();
 		}
 
 		this.currentScreen = (GuiScreen) guiScreenIn;
@@ -712,6 +691,16 @@ public class Minecraft implements IThreadListener {
 			this.setIngameFocus();
 		}
 
+	}
+
+	public void shutdownIntegratedServer(GuiScreen cont) {
+		if (SingleplayerServerController.shutdownEaglercraftServer()
+				|| SingleplayerServerController.getStatusState() == IntegratedServerState.WORLD_UNLOADING) {
+			displayGuiScreen(new GuiScreenIntegratedServerBusy(cont, "singleplayer.busy.stoppingIntegratedServer",
+					"singleplayer.failed.stoppingIntegratedServer", () -> SingleplayerServerController.isReady()));
+		} else {
+			displayGuiScreen(cont);
+		}
 	}
 
 	/**+
@@ -747,6 +736,7 @@ public class Minecraft implements IThreadListener {
 			}
 
 			this.mcSoundHandler.unloadSounds();
+			SingleplayerServerController.shutdownEaglercraftServer();
 		} finally {
 			EagRuntime.destroy();
 			if (!this.hasCrashed) {
@@ -842,7 +832,6 @@ public class Minecraft implements IThreadListener {
 		this.checkGLError("Post render");
 
 		++this.fpsCounter;
-		this.isGamePaused = false;
 		long k = System.nanoTime();
 		this.field_181542_y.func_181747_a(k - this.field_181543_z);
 		this.field_181543_z = k;
@@ -868,6 +857,7 @@ public class Minecraft implements IThreadListener {
 			this.mcProfiler.endSection();
 		}
 
+		Mouse.tickCursorShape();
 		this.mcProfiler.endSection();
 	}
 
@@ -905,17 +895,6 @@ public class Minecraft implements IThreadListener {
 
 	public boolean isFramerateLimitBelowMax() {
 		return (float) this.getLimitFramerate() < GameSettings.Options.FRAMERATE_LIMIT.getValueMax();
-	}
-
-	public void freeMemory() {
-		try {
-			System.gc();
-			this.loadWorld((WorldClient) null);
-		} catch (Throwable var2) {
-			;
-		}
-
-		System.gc();
 	}
 
 	/**+
@@ -1252,6 +1231,23 @@ public class Minecraft implements IThreadListener {
 
 		RateLimitTracker.tick();
 
+		boolean isHostingLAN = LANServerController.isHostingLAN();
+		this.isGamePaused = !isHostingLAN && this.isSingleplayer() && this.theWorld != null && this.thePlayer != null
+				&& this.currentScreen != null && this.currentScreen.doesGuiPauseGame();
+
+		if (isLANOpen && !isHostingLAN) {
+			ingameGUI.getChatGUI().printChatMessage(new ChatComponentTranslation("lanServer.relayDisconnected"));
+		}
+		isLANOpen = isHostingLAN;
+
+		if (wasPaused != isGamePaused) {
+			SingleplayerServerController.setPaused(this.isGamePaused);
+			wasPaused = isGamePaused;
+		}
+
+		SingleplayerServerController.runTick();
+		RelayUpdateChecker.runTick();
+
 		this.mcProfiler.startSection("gui");
 		if (!this.isGamePaused) {
 			this.ingameGUI.updateTick();
@@ -1267,7 +1263,7 @@ public class Minecraft implements IThreadListener {
 		this.mcProfiler.endStartSection("textures");
 		if (!this.isGamePaused) {
 			this.renderEngine.tick();
-			//GlStateManager.viewport(0, 0, displayWidth, displayHeight); // to be safe
+			GlStateManager.viewport(0, 0, displayWidth, displayHeight); // to be safe
 		}
 
 		if (this.currentScreen == null && this.thePlayer != null) {
@@ -1342,7 +1338,7 @@ public class Minecraft implements IThreadListener {
 
 				long i1 = getSystemTime() - this.systemTime;
 				if (i1 <= 200L) {
-					int j = Mouse.getEventDWheel() + Controller.getEventDWheel();
+					int j = Mouse.getEventDWheel();
 					if (j != 0) {
 						if (this.thePlayer.isSpectator()) {
 							j = j < 0 ? -1 : 1;
@@ -1412,7 +1408,6 @@ public class Minecraft implements IThreadListener {
 					if (this.currentScreen != null) {
 						this.currentScreen.handleKeyboardInput();
 					} else {
-						Shadow.moduleManager.onKey(k);
 						if (k == 1 || (k > -1 && k == this.gameSettings.keyBindClose.getKeyCode())) {
 							this.displayInGameMenu();
 						}
@@ -1479,11 +1474,11 @@ public class Minecraft implements IThreadListener {
 							this.gameSettings.pauseOnLostFocus = !this.gameSettings.pauseOnLostFocus;
 							this.gameSettings.saveOptions();
 						}
-
+						
 						if(Keyboard.isKeyDown(34)) {
 							this.gameSettings.chunkBorders = !this.gameSettings.chunkBorders;
 						}
- 
+
 						if (k == 59) {
 							this.gameSettings.hideGUI = !this.gameSettings.hideGUI;
 						}
@@ -1630,6 +1625,7 @@ public class Minecraft implements IThreadListener {
 
 				this.theWorld.updateEntities();
 			}
+			this.eagskullCommand.tick();
 		} else if (this.entityRenderer.isShaderActive()) {
 			this.entityRenderer.func_181022_b();
 		}
@@ -1673,36 +1669,49 @@ public class Minecraft implements IThreadListener {
 			this.myNetworkManager.processReceivedPackets();
 		}
 
-
 		if (this.theWorld != null) {
 			++joinWorldTickCounter;
 			if (bungeeOutdatedMsgTimer > 0) {
-				if (--bungeeOutdatedMsgTimer == 0) {
-					String pfx = EnumChatFormatting.GOLD + "[EagX]" + EnumChatFormatting.AQUA;
-					ingameGUI.getChatGUI()
-							.printChatMessage(new ChatComponentText(pfx + " ---------------------------------------"));
-					ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(
-							pfx + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + " MESSAGE FROM LAX:"));
-					ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(pfx));
-					ingameGUI.getChatGUI()
-							.printChatMessage(new ChatComponentText(
-									pfx + " This server appears to be using version " + EnumChatFormatting.YELLOW
-											+ bungeeOutdatedMsgVer + EnumChatFormatting.AQUA + " of"));
-					ingameGUI.getChatGUI().printChatMessage(
-							new ChatComponentText(pfx + " the EaglerXBungee plugin which has memory leaks"));
-					ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(pfx));
-					ingameGUI.getChatGUI()
-							.printChatMessage(new ChatComponentText(pfx + " If you are the admin update to "
-									+ EnumChatFormatting.YELLOW + "1.0.6" + EnumChatFormatting.AQUA + " or newer"));
-					ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(pfx));
-					ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(pfx + EnumChatFormatting.GREEN
-							+ " https://ftp.deev.is/EaglerXBungee-1.0.6-MemleakFix.jar"));
-					ingameGUI.getChatGUI()
-							.printChatMessage(new ChatComponentText(pfx + " ---------------------------------------"));
+				if (--bungeeOutdatedMsgTimer == 0 && this.thePlayer.sendQueue != null) {
+					String pluginBrand = this.thePlayer.sendQueue.getNetworkManager().getPluginBrand();
+					String pluginVersion = this.thePlayer.sendQueue.getNetworkManager().getPluginVersion();
+					if (pluginBrand != null && pluginVersion != null
+							&& EaglerXBungeeVersion.isUpdateToPluginAvailable(pluginBrand, pluginVersion)) {
+						String pfx = EnumChatFormatting.GOLD + "[EagX]" + EnumChatFormatting.AQUA;
+						ingameGUI.getChatGUI().printChatMessage(
+								new ChatComponentText(pfx + " ---------------------------------------"));
+						ingameGUI.getChatGUI().printChatMessage(
+								new ChatComponentText(pfx + " This server appears to be using version "
+										+ EnumChatFormatting.YELLOW + pluginVersion));
+						ingameGUI.getChatGUI().printChatMessage(
+								new ChatComponentText(pfx + " of the EaglerXBungee plugin which is outdated"));
+						ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(pfx));
+						ingameGUI.getChatGUI()
+								.printChatMessage(new ChatComponentText(pfx + " If you are the admin update to "
+										+ EnumChatFormatting.YELLOW + EaglerXBungeeVersion.getPluginVersion()
+										+ EnumChatFormatting.AQUA + " or newer"));
+						ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(pfx));
+						ingameGUI.getChatGUI().printChatMessage((new ChatComponentText(pfx + " Click: "))
+								.appendSibling((new ChatComponentText("" + EnumChatFormatting.GREEN
+										+ EnumChatFormatting.UNDERLINE + EaglerXBungeeVersion.getPluginButton()))
+												.setChatStyle((new ChatStyle()).setChatClickEvent(
+														new ClickEvent(ClickEvent.Action.EAGLER_PLUGIN_DOWNLOAD,
+																"plugin_download.zip")))));
+						ingameGUI.getChatGUI().printChatMessage(
+								new ChatComponentText(pfx + " ---------------------------------------"));
+					}
 				}
 			}
 		} else {
 			joinWorldTickCounter = 0;
+			if (currentScreen != null && currentScreen.shouldHangupIntegratedServer()) {
+				if (SingleplayerServerController.hangupEaglercraftServer()) {
+					this.displayGuiScreen(new GuiScreenIntegratedServerBusy(currentScreen,
+							"singleplayer.busy.stoppingIntegratedServer",
+							"singleplayer.failed.stoppingIntegratedServer",
+							() -> SingleplayerServerController.isReady()));
+				}
+			}
 		}
 
 		this.mcProfiler.endSection();
@@ -1713,7 +1722,17 @@ public class Minecraft implements IThreadListener {
 	 * Arguments: World foldername, World ingame name, WorldSettings
 	 */
 	public void launchIntegratedServer(String folderName, String worldName, WorldSettings worldSettingsIn) {
-		throw new UnsupportedOperationException("singleplayer has been removed");
+		this.loadWorld((WorldClient) null);
+		session.reset();
+		SingleplayerServerController.launchEaglercraftServer(folderName, gameSettings.difficulty.getDifficultyId(),
+				Math.max(gameSettings.renderDistanceChunks, 2), worldSettingsIn);
+		this.displayGuiScreen(new GuiScreenIntegratedServerBusy(
+				new GuiScreenSingleplayerConnecting(new GuiMainMenu(), "Connecting to " + folderName),
+				"singleplayer.busy.startingIntegratedServer", "singleplayer.failed.startingIntegratedServer",
+				() -> SingleplayerServerController.isWorldReady(), (t, u) -> {
+					Minecraft.this.displayGuiScreen(GuiScreenIntegratedServerBusy.createException(new GuiMainMenu(),
+							((GuiScreenIntegratedServerBusy) t).failMessage, u));
+				}));
 	}
 
 	/**+
@@ -1817,7 +1836,7 @@ public class Minecraft implements IThreadListener {
 	 * Gets whether this is a demo or not.
 	 */
 	public final boolean isDemo() {
-		return this.isDemo;
+		return EagRuntime.getConfiguration().isDemo();
 	}
 
 	public NetHandlerPlayClient getNetHandler() {
@@ -2073,7 +2092,7 @@ public class Minecraft implements IThreadListener {
 	}
 
 	public boolean isIntegratedServerRunning() {
-		return this.integratedServerIsRunning;
+		return SingleplayerServerController.isWorldRunning();
 	}
 
 	/**+
@@ -2081,7 +2100,7 @@ public class Minecraft implements IThreadListener {
 	 * current server is the integrated one.
 	 */
 	public boolean isSingleplayer() {
-		return false;
+		return SingleplayerServerController.isWorldRunning();
 	}
 
 	public static void stopIntegratedServer() {
@@ -2139,11 +2158,15 @@ public class Minecraft implements IThreadListener {
 	}
 
 	public MusicTicker.MusicType getAmbientMusicType() {
-		if(!this.gameSettings.secret) {
-			return this.thePlayer != null ? (this.thePlayer.worldObj.provider instanceof WorldProviderHell ? MusicTicker.MusicType.NETHER : (this.thePlayer.worldObj.provider instanceof WorldProviderEnd ? (BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? MusicTicker.MusicType.END_BOSS : MusicTicker.MusicType.END) : (this.thePlayer.capabilities.isCreativeMode && this.thePlayer.capabilities.allowFlying ? MusicTicker.MusicType.CREATIVE : MusicTicker.MusicType.GAME))) : MusicTicker.MusicType.MENU;
-		} else {
-			return this.thePlayer != null ? (this.thePlayer.worldObj.provider instanceof WorldProviderHell ? MusicTicker.MusicType.NETHER : (this.thePlayer.worldObj.provider instanceof WorldProviderEnd ? (BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? MusicTicker.MusicType.END_BOSS : MusicTicker.MusicType.END) : (this.thePlayer.capabilities.isCreativeMode && this.thePlayer.capabilities.allowFlying ? MusicTicker.MusicType.CREATIVE : MusicTicker.MusicType.GAME))) : MusicTicker.MusicType.MENU_SECRET;
-		}
+		return this.thePlayer != null ? (this.thePlayer.worldObj.provider instanceof WorldProviderHell
+				? MusicTicker.MusicType.NETHER
+				: (this.thePlayer.worldObj.provider instanceof WorldProviderEnd
+						? (BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? MusicTicker.MusicType.END_BOSS
+								: MusicTicker.MusicType.END)
+						: (this.thePlayer.capabilities.isCreativeMode && this.thePlayer.capabilities.allowFlying
+								? MusicTicker.MusicType.CREATIVE
+								: MusicTicker.MusicType.GAME)))
+				: MusicTicker.MusicType.MENU;
 	}
 
 	public void dispatchKeypresses() {
@@ -2228,5 +2251,16 @@ public class Minecraft implements IThreadListener {
 
 	public ModelManager getModelManager() {
 		return modelManager;
+	}
+
+	/**+
+	 * Returns the save loader that is currently being used
+	 */
+	public ISaveFormat getSaveLoader() {
+		return SingleplayerServerController.instance;
+	}
+
+	public void clearTitles() {
+		ingameGUI.displayTitle(null, null, -1, -1, -1);
 	}
 }

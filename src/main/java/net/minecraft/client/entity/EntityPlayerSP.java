@@ -1,7 +1,9 @@
 package net.minecraft.client.entity;
 
-import net.FatalCodes.shadow.Shadow;
-import net.minecraft.client.settings.GameSettings;
+import net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController;
+import net.lax1dude.eaglercraft.v1_8.sp.lan.LANClientNetworkManager;
+import net.lax1dude.eaglercraft.v1_8.sp.lan.LANServerController;
+import net.lax1dude.eaglercraft.v1_8.sp.socket.ClientIntegratedServerNetworkManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -21,6 +23,7 @@ import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.client.gui.inventory.GuiScreenHorseInventory;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IMerchant;
@@ -60,16 +63,18 @@ import net.minecraft.world.World;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class EntityPlayerSP extends AbstractClientPlayer {
@@ -247,7 +252,13 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 	 * Sends a chat message from the player. Args: chatMessage
 	 */
 	public void sendChatMessage(String message) {
-		this.sendQueue.addToSendQueue(new C01PacketChatMessage(message));
+		if (((sendQueue.getNetworkManager() instanceof ClientIntegratedServerNetworkManager)
+				|| (sendQueue.getNetworkManager() instanceof LANClientNetworkManager))
+				&& message.startsWith("/eagskull")) {
+			this.mc.eagskullCommand.openFileChooser();
+		} else {
+			this.sendQueue.addToSendQueue(new C01PacketChatMessage(message));
+		}
 	}
 
 	/**+
@@ -596,7 +607,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 	 * to react to sunlight and start to burn.
 	 */
 	public void onLivingUpdate() {
-		Shadow.moduleManager.onUpdate();
 		if (this.sprintingTicksLeft > 0) {
 			--this.sprintingTicksLeft;
 			if (this.sprintingTicksLeft == 0) {
@@ -752,10 +762,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 		if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode()) {
 			this.capabilities.isFlying = false;
 			this.sendPlayerAbilities();
-		}
-
-		if(Minecraft.getMinecraft().gameSettings.keyBindSprint.isPressed() && Minecraft.getMinecraft().gameSettings.toggleSprint) {
-			GameSettings.toggleSprintEnabled = !GameSettings.toggleSprintEnabled;
 		}
 	}
 }

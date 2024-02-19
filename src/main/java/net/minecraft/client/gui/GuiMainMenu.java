@@ -11,25 +11,34 @@ import java.util.Calendar;
 import java.util.Date;
 
 import net.PeytonPlayz585.shadow.gui.GuiCredits;
-import net.PeytonPlayz585.shadow.gui.button.MainButton;
 import net.PeytonPlayz585.shadow.gui.button.ImageButton;
-import net.PeytonPlayz585.shadow.gui.GuiSecretMainMenu;
+import net.PeytonPlayz585.shadow.gui.button.MainButton;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftRandom;
 import net.lax1dude.eaglercraft.v1_8.EaglercraftVersion;
+import net.lax1dude.eaglercraft.v1_8.Mouse;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 
 import net.lax1dude.eaglercraft.v1_8.crypto.MD5Digest;
 import net.lax1dude.eaglercraft.v1_8.crypto.SHA1Digest;
+import net.lax1dude.eaglercraft.v1_8.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.v1_8.profile.GuiScreenEditProfile;
+import net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenDemoPlayWorldSelection;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenIntegratedServerBusy;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenIntegratedServerStartup;
+import net.lax1dude.eaglercraft.v1_8.update.GuiUpdateCheckerOverlay;
+import net.lax1dude.eaglercraft.v1_8.update.GuiUpdateVersionSlot;
+import net.lax1dude.eaglercraft.v1_8.update.UpdateCertificate;
+import net.lax1dude.eaglercraft.v1_8.update.UpdateService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.renderer.Tessellator;
@@ -38,6 +47,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.demo.DemoWorldServer;
+import net.minecraft.world.storage.ISaveFormat;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -45,16 +56,18 @@ import net.minecraft.util.ResourceLocation;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
@@ -81,6 +94,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 	private static final ResourceLocation splashTexts = new ResourceLocation("texts/splashes.txt");
 	private static final ResourceLocation minecraftTitleTextures = new ResourceLocation(
 			"textures/gui/title/minecraft.png");
+	private static final ResourceLocation eaglerGuiTextures = new ResourceLocation("eagler:gui/eagler_gui.png");
 	/**+
 	 * An array of all the paths to the panorama pictures.
 	 */
@@ -98,14 +112,12 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 	private int field_92020_v;
 	private int field_92019_w;
 	private static ResourceLocation backgroundTexture = null;
+	private GuiUpdateCheckerOverlay updateCheckerOverlay;
+	private GuiButton downloadOfflineButton;
 
 	public GuiMainMenu() {
-		if(Minecraft.getMinecraft().gameSettings.secret) {
-			this.mc.displayGuiScreen(new GuiSecretMainMenu());
-			return;
-		}
-		
 		this.splashText = "missingno";
+		updateCheckerOverlay = new GuiUpdateCheckerOverlay(false, this);
 		BufferedReader bufferedreader = null;
 
 		try {
@@ -145,25 +157,29 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 
 		this.updateCounter = RANDOM.nextFloat();
 
-		MD5Digest md5 = new MD5Digest();
-		SHA1Digest sha1 = new SHA1Digest();
-		byte[] md5out = new byte[16];
-		byte[] sha1out = new byte[20];
-		try {
-			byte[] bytes = EaglerInputStream.inputStreamToBytesQuiet(
-					Minecraft.getMinecraft().getResourceManager().getResource(minecraftTitleTextures).getInputStream());
-			if (bytes != null) {
-				md5.update(bytes, 0, bytes.length);
-				sha1.update(bytes, 0, bytes.length);
-				md5.doFinal(md5out, 0);
-				sha1.doFinal(sha1out, 0);
-				this.isDefault = bytes.length == lendef && Arrays.equals(md5out, md5def)
-						&& Arrays.equals(sha1out, sha1def);
-			} else {
+		if (Minecraft.getMinecraft().isDemo()) {
+			this.isDefault = false;
+		} else {
+			MD5Digest md5 = new MD5Digest();
+			SHA1Digest sha1 = new SHA1Digest();
+			byte[] md5out = new byte[16];
+			byte[] sha1out = new byte[20];
+			try {
+				byte[] bytes = EaglerInputStream.inputStreamToBytesQuiet(Minecraft.getMinecraft().getResourceManager()
+						.getResource(minecraftTitleTextures).getInputStream());
+				if (bytes != null) {
+					md5.update(bytes, 0, bytes.length);
+					sha1.update(bytes, 0, bytes.length);
+					md5.doFinal(md5out, 0);
+					sha1.doFinal(sha1out, 0);
+					this.isDefault = bytes.length == lendef && Arrays.equals(md5out, md5def)
+							&& Arrays.equals(sha1out, sha1def);
+				} else {
+					this.isDefault = false;
+				}
+			} catch (IOException e) {
 				this.isDefault = false;
 			}
-		} catch (IOException e) {
-			this.isDefault = false;
 		}
 	}
 
@@ -172,6 +188,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 	 */
 	public void updateScreen() {
 		++this.panoramaTimer;
+		if (downloadOfflineButton != null) {
+			downloadOfflineButton.enabled = !UpdateService.shouldDisableDownloadButton();
+		}
 	}
 
 	/**+
@@ -201,7 +220,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 			viewportTexture = new DynamicTexture(256, 256);
 			backgroundTexture = this.mc.getTextureManager().getDynamicTextureLocation("background", viewportTexture);
 		}
-		Calendar calendar = Calendar.getInstance();
+		this.updateCheckerOverlay.setResolution(mc, width, height);
+		Calendar calendar = EagRuntime.getLocaleCalendar();
 		calendar.setTime(new Date());
 		if (calendar.get(2) + 1 == 12 && calendar.get(5) == 24) {
 			this.splashText = "Merry X-mas!";
@@ -209,8 +229,6 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 			this.splashText = "Happy new year!";
 		} else if (calendar.get(2) + 1 == 10 && calendar.get(5) == 31) {
 			this.splashText = "OOoooOOOoooo! Spooky!";
-		} else if (calendar.get(2) + 1 == 11 && calendar.get(5) == 12) {
-			this.splashText = "Happy Birthday, PeytonPlayz585!";
 		}
 
 		int i = this.height / 4 + 48;
@@ -221,7 +239,11 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 			i += 11;
 		}
 
-		this.addSingleplayerMultiplayerButtons(i, 24);
+		if (this.mc.isDemo()) {
+			this.addDemoButtons(i, 24);
+		} else {
+			this.addSingleplayerMultiplayerButtons(i, 24);
+		}
 
 		int yPos = height - 20;
 		this.buttonList.add(new ImageButton(0, width / 2 - 15, yPos, "MINECRAFT SETTINGS", new ResourceLocation("textures/shadow/icons/settings.png")));
@@ -250,12 +272,38 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 	 * players who have bought the game.
 	 */
 	private void addSingleplayerMultiplayerButtons(int parInt1, int parInt2) {
-		// this.buttonList
-		// .add(new GuiButton(1, this.width / 2 - 100, parInt1,
-		// I18n.format("menu.singleplayer", new Object[0])));
-		this.buttonList.add(new MainButton(2, width / 2 - 66, height / 2, "MULTIPLAYER"));
-		this.buttonList.add(new MainButton(3, width / 2 - 66, height / 2 + 30, "CREDITS"));
-		this.buttonList.add(new MainButton(14, width / 2 - 66, height / 2 + 15, "DISCORD"));
+//		this.buttonList
+//				.add(new GuiButton(1, this.width / 2 - 100, parInt1, I18n.format("menu.singleplayer", new Object[0])));
+//		this.buttonList.add(new GuiButton(2, this.width / 2 - 100, parInt1 + parInt2 * 1,
+//				I18n.format("menu.multiplayer", new Object[0])));
+//		if (EaglercraftVersion.mainMenuEnableGithubButton) {
+//			this.buttonList.add(
+//					new GuiButton(14, this.width / 2 - 100, parInt1 + parInt2 * 2, I18n.format("menu.forkOnGitlab")));
+//		} else {
+//			if (EagRuntime.getConfiguration().isEnableDownloadOfflineButton()
+//					&& (EagRuntime.getConfiguration().getDownloadOfflineButtonLink() != null
+//							|| (!EagRuntime.isOfflineDownloadURL() && UpdateService.supported()
+//									&& UpdateService.getClientSignatureData() != null))) {
+//				this.buttonList.add(downloadOfflineButton = new GuiButton(15, this.width / 2 - 100,
+//						parInt1 + parInt2 * 2, I18n.format("update.downloadOffline")));
+//				downloadOfflineButton.enabled = !UpdateService.shouldDisableDownloadButton();
+//			}
+//		}
+		this.buttonList.add(new MainButton(1, width / 2 - 66, height / 2, "SINGLEPLAYER"));
+		this.buttonList.add(new MainButton(2, width / 2 - 66, height / 2 + 30, "MULTIPLAYER"));
+		this.buttonList.add(new MainButton(14, width / 2 - 66, height / 2 + 15, "CREDITS"));
+	}
+
+	/**+
+	 * Adds Demo buttons on Main Menu for players who are playing
+	 * Demo.
+	 */
+	private void addDemoButtons(int parInt1, int parInt2) {
+		this.buttonList
+				.add(new GuiButton(11, this.width / 2 - 100, parInt1, I18n.format("menu.playdemo", new Object[0])));
+		this.buttonList.add(this.buttonResetDemo = new GuiButton(12, this.width / 2 - 100, parInt1 + parInt2 * 1,
+				I18n.format("menu.resetdemo", new Object[0])));
+		this.buttonResetDemo.enabled = this.mc.gameSettings.hasCreatedDemoWorld;
 	}
 
 	/**+
@@ -272,15 +320,11 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		}
 
 		if (parGuiButton.id == 1) {
-			logger.error("Singleplayer was removed dumbass");
+			this.mc.displayGuiScreen(new GuiScreenIntegratedServerStartup(this));
 		}
 
 		if (parGuiButton.id == 2) {
 			this.mc.displayGuiScreen(new GuiMultiplayer(this));
-		}
-
-		if (parGuiButton.id == 3) {
-			this.mc.displayGuiScreen(new GuiCredits());
 		}
 
 		if (parGuiButton.id == 4) {
@@ -288,9 +332,41 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 		}
 
 		if (parGuiButton.id == 14) {
-			EagRuntime.openLink("https://discord.com/invite/wQ8ynJ6A93");
+			this.mc.displayGuiScreen(new GuiCredits());
 		}
 
+		if (parGuiButton.id == 11) {
+			this.mc.displayGuiScreen(new GuiScreenDemoPlayWorldSelection(this));
+		}
+
+		if (parGuiButton.id == 12) {
+			GuiYesNo guiyesno = GuiSelectWorld.func_152129_a(this, "Demo World", 12);
+			this.mc.displayGuiScreen(guiyesno);
+		}
+
+		if (parGuiButton.id == 15) {
+			if (EagRuntime.getConfiguration().isEnableDownloadOfflineButton()) {
+				String link = EagRuntime.getConfiguration().getDownloadOfflineButtonLink();
+				if (link != null) {
+					EagRuntime.openLink(link);
+				} else {
+					UpdateService.quine();
+				}
+			}
+		}
+	}
+
+	public void confirmClicked(boolean flag, int i) {
+		if (flag && i == 12) {
+			this.mc.gameSettings.hasCreatedDemoWorld = false;
+			this.mc.gameSettings.saveOptions();
+			ISaveFormat isaveformat = this.mc.getSaveLoader();
+			isaveformat.deleteWorldDirectory("Demo World");
+			this.mc.displayGuiScreen(new GuiScreenIntegratedServerBusy(this, "singleplayer.busy.deleting",
+					"singleplayer.failed.deleting", () -> SingleplayerServerController.isReady()));
+		} else {
+			this.mc.displayGuiScreen(this);
+		}
 	}
 
 	/**+
@@ -568,10 +644,12 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback {
 				if (resStr != null) {
 					EagRuntime.openCreditsPopup(resStr);
 				}
-				mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+				mc.getSoundHandler()
+						.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
 				return;
 			}
 		}
+		this.updateCheckerOverlay.mouseClicked(par1, par2, par3);
 		super.mouseClicked(par1, par2, par3);
 	}
 }

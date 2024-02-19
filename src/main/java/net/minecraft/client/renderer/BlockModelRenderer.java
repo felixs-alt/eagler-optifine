@@ -3,7 +3,12 @@ package net.minecraft.client.renderer;
 import java.util.BitSet;
 import java.util.List;
 
-import net.PeytonPlayz585.shadow.*;
+import net.PeytonPlayz585.shadow.BetterGrass;
+import net.PeytonPlayz585.shadow.BetterSnow;
+import net.PeytonPlayz585.shadow.Config;
+import net.PeytonPlayz585.shadow.CustomColors;
+import net.PeytonPlayz585.shadow.RenderEnv;
+import net.PeytonPlayz585.shadow.SmartLeaves;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.DeferredStateManager;
@@ -31,16 +36,18 @@ import net.minecraft.world.IBlockAccess;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class BlockModelRenderer {
@@ -80,7 +87,8 @@ public class BlockModelRenderer {
 		}
 	}
 
-	public boolean renderModelAmbientOcclusion(IBlockAccess blockAccessIn, IBakedModel modelIn, Block blockIn, BlockPos blockPosIn, WorldRenderer worldRendererIn, boolean checkSides) {
+	public boolean renderModelAmbientOcclusion(IBlockAccess blockAccessIn, IBakedModel modelIn, Block blockIn,
+			BlockPos blockPosIn, WorldRenderer worldRendererIn, boolean checkSides) {
 		boolean flag = false;
 		RenderEnv renderenv = null;
 		float[] afloat = new float[EnumFacing.values().length * 2];
@@ -92,7 +100,7 @@ public class BlockModelRenderer {
 			if (!list.isEmpty()) {
 				BlockPos blockpos = blockPosIn.offset(enumfacing);
 				if (!checkSides || blockIn.shouldSideBeRendered(blockAccessIn, blockpos, enumfacing)) {
-
+					
 					if (renderenv == null) {
                         renderenv = RenderEnv.getInstance(blockAccessIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn);
                     }
@@ -100,7 +108,7 @@ public class BlockModelRenderer {
 					if (!renderenv.isBreakingAnimation(list) && Config.isBetterGrass()) {
                         list = BetterGrass.getFaceQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, list);
                     }
-
+					
 					this.renderModelAmbientOcclusionQuads(blockAccessIn, blockIn, blockPosIn, worldRendererIn, list, afloat, bitset, blockmodelrenderer$ambientocclusionface, renderenv);
 					flag = true;
 				}
@@ -109,11 +117,10 @@ public class BlockModelRenderer {
 
 		List list1 = modelIn.getGeneralQuads();
 		if (list1.size() > 0) {
-			this.renderModelAmbientOcclusionQuads(blockAccessIn, blockIn, blockPosIn, worldRendererIn, list1, afloat,
-					bitset, blockmodelrenderer$ambientocclusionface, renderenv);
+			this.renderModelAmbientOcclusionQuads(blockAccessIn, blockIn, blockPosIn, worldRendererIn, list1, afloat, bitset, blockmodelrenderer$ambientocclusionface, renderenv);
 			flag = true;
 		}
-
+		
 		if (renderenv != null && Config.isBetterSnow() && !renderenv.isBreakingAnimation() && BetterSnow.shouldRender(blockAccessIn, blockIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn)) {
             IBakedModel ibakedmodel = BetterSnow.getModelSnowLayer();
             IBlockState iblockstate = BetterSnow.getStateSnowLayer();
@@ -137,7 +144,7 @@ public class BlockModelRenderer {
 			if (!list.isEmpty()) {
 				BlockPos blockpos = blockPosIn.offsetEvenFaster(enumfacing, pointer);
 				if (!checkSides || blockIn.shouldSideBeRendered(blockAccessIn, blockpos, enumfacing)) {
-
+					
 					if (renderenv == null) {
                         renderenv = RenderEnv.getInstance(blockAccessIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn);
                     }
@@ -145,7 +152,7 @@ public class BlockModelRenderer {
 					if (!renderenv.isBreakingAnimation(list) && Config.isBetterGrass()) {
                         list = BetterGrass.getFaceQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, list);
                     }
-
+					
 					int i = blockIn.getMixedBrightnessForBlock(blockAccessIn, blockpos);
 					this.renderModelStandardQuads(blockAccessIn, blockIn, blockPosIn, enumfacing, i, false, worldRendererIn, list, bitset, afloat);
 					flag = true;
@@ -159,7 +166,7 @@ public class BlockModelRenderer {
 					worldRendererIn, list1, bitset, afloat);
 			flag = true;
 		}
-
+		
 		if (renderenv != null && Config.isBetterSnow() && !renderenv.isBreakingAnimation() && BetterSnow.shouldRender(blockAccessIn, blockIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn) && BetterSnow.shouldRender(blockAccessIn, blockIn, blockAccessIn.getBlockState(blockPosIn), blockPosIn)) {
             IBakedModel ibakedmodel = BetterSnow.getModelSnowLayer();
             IBlockState iblockstate = BetterSnow.getStateSnowLayer();
@@ -522,16 +529,16 @@ public class BlockModelRenderer {
     }
 
 	public static class AmbientOcclusionFace {
-		
 		private final float[] vertexColorMultiplier = new float[4];
-        private final int[] vertexBrightness = new int[4];
-        
-        public AmbientOcclusionFace(BlockModelRenderer p_i46235_1_) {
-        }
+		private final int[] vertexBrightness = new int[4];
 
-        public AmbientOcclusionFace() {
-        }
-		
+		private final BlockPos blockpos0 = new BlockPos(0, 0, 0);
+		private final BlockPos blockpos1 = new BlockPos(0, 0, 0);
+		private final BlockPos blockpos2 = new BlockPos(0, 0, 0);
+		private final BlockPos blockpos3 = new BlockPos(0, 0, 0);
+		private final BlockPos blockpos4 = new BlockPos(0, 0, 0);
+		private final BlockPos blockpos5 = new BlockPos(0, 0, 0);
+
 		public void updateVertexBrightness(IBlockAccess blockAccessIn, Block blockIn, BlockPos blockPosIn, EnumFacing facingIn, float[] quadBounds, BitSet boundsFlags) {
 			BlockPos blockpos = boundsFlags.get(0) ? blockPosIn.offset(facingIn) : blockPosIn;
             BlockModelRenderer.EnumNeighborInfo blockmodelrenderer$enumneighborinfo = BlockModelRenderer.EnumNeighborInfo.getNeighbourInfo(facingIn);

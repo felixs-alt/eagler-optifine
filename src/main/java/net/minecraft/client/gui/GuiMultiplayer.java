@@ -5,13 +5,25 @@ import java.io.IOException;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
+import net.lax1dude.eaglercraft.v1_8.EaglerXBungeeVersion;
 import net.lax1dude.eaglercraft.v1_8.Keyboard;
+import net.lax1dude.eaglercraft.v1_8.Mouse;
+import net.lax1dude.eaglercraft.v1_8.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
+import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiNetworkSettingsButton;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenConnectOption;
+import net.lax1dude.eaglercraft.v1_8.sp.gui.GuiScreenLANConnecting;
+import net.lax1dude.eaglercraft.v1_8.sp.lan.LANServerList;
+import net.lax1dude.eaglercraft.v1_8.sp.relay.RelayServer;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -19,16 +31,18 @@ import net.minecraft.client.resources.I18n;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
@@ -44,12 +58,27 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 	private boolean editingServer;
 	private boolean directConnect;
 	private String hoveringText;
+
+	public ServerData getSelectedServer() {
+		return selectedServer;
+	}
+
 	private ServerData selectedServer;
 	private boolean initialized;
 	private static long lastRefreshCommit = 0l;
 
+	private static LANServerList lanServerList = null;
+
+	public int ticksOpened;
+
+	private final GuiNetworkSettingsButton relaysButton;
+
 	public GuiMultiplayer(GuiScreen parentScreen) {
 		this.parentScreen = parentScreen;
+		this.relaysButton = new GuiNetworkSettingsButton(this);
+		if (lanServerList != null) {
+			lanServerList.forceRefresh();
+		}
 	}
 
 	/**+
@@ -67,6 +96,11 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 			this.serverListSelector = new ServerSelectionList(this, this.mc, this.width, this.height, 32,
 					this.height - 64, 36);
 			this.serverListSelector.func_148195_a(this.savedServerList);
+			if (lanServerList == null) {
+				lanServerList = new LANServerList();
+			} else {
+				lanServerList.forceRefresh();
+			}
 		} else {
 			this.serverListSelector.setDimensions(this.width, this.height, 32, this.height - 64);
 		}
@@ -106,6 +140,10 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 	public void updateScreen() {
 		super.updateScreen();
 		this.savedServerList.updateServerPing();
+		if (lanServerList.update()) {
+			this.selectServer(-1);
+		}
+		++ticksOpened;
 	}
 
 	/**+
@@ -140,9 +178,8 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 				this.connectToSelected();
 			} else if (parGuiButton.id == 4) {
 				this.directConnect = true;
-				this.mc.displayGuiScreen(new GuiScreenServerList(this,
-						this.selectedServer = new ServerData(I18n.format("selectServer.defaultName", new Object[0]), "",
-								false)));
+				this.selectedServer = new ServerData(I18n.format("selectServer.defaultName", new Object[0]), "", false);
+				this.mc.displayGuiScreen(new GuiScreenConnectOption(this));
 			} else if (parGuiButton.id == 3) {
 				this.addingServer = true;
 				this.mc.displayGuiScreen(new GuiScreenAddServer(this,
@@ -151,9 +188,11 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 			} else if (parGuiButton.id == 7 && guilistextended$iguilistentry instanceof ServerListEntryNormal) {
 				this.editingServer = true;
 				ServerData serverdata = ((ServerListEntryNormal) guilistextended$iguilistentry).getServerData();
-				this.selectedServer = new ServerData(serverdata.serverName, serverdata.serverIP, false);
-				this.selectedServer.copyFrom(serverdata);
-				this.mc.displayGuiScreen(new GuiScreenAddServer(this, this.selectedServer));
+				if (serverdata != null) {
+					this.selectedServer = new ServerData(serverdata.serverName, serverdata.serverIP, false);
+					this.selectedServer.copyFrom(serverdata);
+					this.mc.displayGuiScreen(new GuiScreenAddServer(this, this.selectedServer));
+				}
 			} else if (parGuiButton.id == 0) {
 				this.mc.displayGuiScreen(this.parentScreen);
 			} else if (parGuiButton.id == 8) {
@@ -293,19 +332,54 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 		if (this.hoveringText != null) {
 			this.drawHoveringText(Lists.newArrayList(Splitter.on("\n").split(this.hoveringText)), i, j);
 		}
+		relaysButton.drawScreen(i, j);
+		drawPluginDownloadLink(i, j);
+	}
 
+	private void drawPluginDownloadLink(int xx, int yy) {
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(0.75f, 0.75f, 0.75f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+
+		String text = EaglerXBungeeVersion.getPluginButton();
+		int w = mc.fontRendererObj.getStringWidth(text);
+		boolean hover = xx > width - 5 - (w + 5) * 3 / 4 && yy > 1 && xx < width - 2 && yy < 12;
+		if (hover) {
+			Mouse.showCursor(EnumCursorType.HAND);
+		}
+
+		drawString(mc.fontRendererObj, EnumChatFormatting.UNDERLINE + text, (width - 1) * 4 / 3 - w - 5, 5,
+				hover ? 0xFFEEEE22 : 0xFFCCCCCC);
+
+		GlStateManager.popMatrix();
 	}
 
 	public void connectToSelected() {
-		GuiListExtended.IGuiListEntry guilistextended$iguilistentry = this.serverListSelector.func_148193_k() < 0 ? null
-				: this.serverListSelector.getListEntry(this.serverListSelector.func_148193_k());
-		if (guilistextended$iguilistentry instanceof ServerListEntryNormal) {
-			this.connectToServer(((ServerListEntryNormal) guilistextended$iguilistentry).getServerData());
+		if (this.serverListSelector.func_148193_k() < this.serverListSelector.getOrigSize()) {
+			GuiListExtended.IGuiListEntry guilistextended$iguilistentry = this.serverListSelector.func_148193_k() < 0
+					? null
+					: this.serverListSelector.getListEntry(this.serverListSelector.func_148193_k());
+			if (guilistextended$iguilistentry instanceof ServerListEntryNormal) {
+				this.connectToServer(((ServerListEntryNormal) guilistextended$iguilistentry).getServerData());
+			}
+		} else {
+			int par1 = this.serverListSelector.func_148193_k() - this.serverListSelector.getOrigSize();
+
+			if (par1 < lanServerList.countServers()) {
+				LANServerList.LanServer var2 = lanServerList.getServer(par1);
+				connectToLAN("Connecting to '" + var2.getLanServerMotd() + "'...", var2.getLanServerCode(),
+						var2.getLanServerRelay());
+			}
 		}
 	}
 
 	private void connectToServer(ServerData server) {
 		this.mc.displayGuiScreen(new GuiConnecting(this, this.mc, server));
+	}
+
+	private void connectToLAN(String text, String code, RelayServer uri) {
+		this.mc.loadingScreen.resetProgressAndMessage(text);
+		this.mc.displayGuiScreen(new GuiScreenLANConnecting(this, code, uri));
 	}
 
 	public void selectServer(int index) {
@@ -317,7 +391,8 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 		this.btnDeleteServer.enabled = false;
 		if (guilistextended$iguilistentry != null) {
 			this.btnSelectServer.enabled = true;
-			if (guilistextended$iguilistentry instanceof ServerListEntryNormal) {
+			if (guilistextended$iguilistentry instanceof ServerListEntryNormal
+					&& ((ServerListEntryNormal) guilistextended$iguilistentry).getServerData() != null) {
 				this.btnEditServer.enabled = true;
 				this.btnDeleteServer.enabled = true;
 			}
@@ -333,8 +408,16 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 	 * clickedButton
 	 */
 	protected void mouseClicked(int parInt1, int parInt2, int parInt3) {
+		relaysButton.mouseClicked(parInt1, parInt2, parInt3);
 		super.mouseClicked(parInt1, parInt2, parInt3);
 		this.serverListSelector.mouseClicked(parInt1, parInt2, parInt3);
+		String text = EaglerXBungeeVersion.getPluginButton();
+		int w = mc.fontRendererObj.getStringWidth(text);
+		if (parInt1 > width - 5 - (w + 5) * 3 / 4 && parInt2 > 1 && parInt1 < width - 2 && parInt2 < 12) {
+			this.mc.getSoundHandler()
+					.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+			EaglerXBungeeVersion.startPluginDownload();
+		}
 	}
 
 	/**+
@@ -350,12 +433,16 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback {
 		return this.savedServerList;
 	}
 
+	static LANServerList getLanServerList() {
+		return lanServerList;
+	}
+
 	public boolean func_175392_a(ServerListEntryNormal parServerListEntryNormal, int parInt1) {
 		return parInt1 > 0;
 	}
 
 	public boolean func_175394_b(ServerListEntryNormal parServerListEntryNormal, int parInt1) {
-		return parInt1 < this.savedServerList.countServers() - 1;
+		return parInt1 < this.savedServerList.countServers();
 	}
 
 	public void func_175391_a(ServerListEntryNormal parServerListEntryNormal, int parInt1, boolean parFlag) {

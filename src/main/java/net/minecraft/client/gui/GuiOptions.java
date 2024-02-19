@@ -1,10 +1,11 @@
 package net.minecraft.client.gui;
 
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
-import net.lax1dude.eaglercraft.v1_8.Keyboard;
+import net.lax1dude.eaglercraft.v1_8.internal.EnumPlatformType;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.EaglerDeferredPipeline;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.gui.GuiShaderConfig;
 import net.lax1dude.eaglercraft.v1_8.opengl.ext.deferred.gui.GuiShadersNotSupported;
+import net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController;
 import net.lax1dude.eaglercraft.v1_8.vfs.SYS;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
@@ -18,16 +19,18 @@ import net.minecraft.world.EnumDifficulty;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
@@ -39,15 +42,10 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 	private GuiLockIconButton field_175356_r;
 	protected String field_146442_a = "Options";
 	private GuiButton broadcastSettings;
-	private boolean secret;
 
 	public GuiOptions(GuiScreen parGuiScreen, GameSettings parGameSettings) {
-		secret = false;
 		this.field_146441_g = parGuiScreen;
 		this.game_settings_1 = parGameSettings;
-		if(Keyboard.isKeyDown(42)) {
-			secret = true;
-		}
 	}
 
 	/**+
@@ -95,11 +93,8 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 
 		this.buttonList.add(new GuiButton(110, this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20,
 				I18n.format("options.skinCustomisation", new Object[0])));
-		GuiButton button;
-		this.buttonList.add(button = new GuiButton(8675309, this.width / 2 + 5, this.height / 6 + 48 - 6, 150, 20, "Super Secret Settings"));
-		if(!secret) {
-			button.enabled = false;
-		}
+		this.buttonList.add(new GuiButton(8675309, this.width / 2 + 5, this.height / 6 + 48 - 6, 150, 20,
+				I18n.format("shaders.gui.optionsButton")));
 		this.buttonList.add(new GuiButton(106, this.width / 2 - 155, this.height / 6 + 72 - 6, 150, 20,
 				I18n.format("options.sounds", new Object[0])));
 		this.buttonList.add(broadcastSettings = new GuiButton(107, this.width / 2 + 5, this.height / 6 + 72 - 6, 150,
@@ -116,10 +111,10 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 		GuiButton rp;
 		this.buttonList.add(rp = new GuiButton(105, this.width / 2 - 155, this.height / 6 + 144 - 6, 150, 20,
 				I18n.format("options.resourcepack", new Object[0])));
-		GuiButton b;
-		this.buttonList.add(b = new GuiButton(104, this.width / 2 + 5, this.height / 6 + 144 - 6, 150, 20,
-				I18n.format("options.snooper.view", new Object[0])));
-		b.enabled = false;
+		GuiButton dbg;
+		this.buttonList.add(dbg = new GuiButton(104, this.width / 2 + 5, this.height / 6 + 144 - 6, 150, 20,
+				I18n.format("options.debugConsoleButton", new Object[0])));
+		dbg.enabled = EagRuntime.getPlatformType() != EnumPlatformType.DESKTOP;
 		this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168,
 				I18n.format("gui.done", new Object[0])));
 
@@ -162,6 +157,8 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 			if (parGuiButton.id == 108) {
 				this.mc.theWorld.getWorldInfo().setDifficulty(
 						EnumDifficulty.getDifficultyEnum(this.mc.theWorld.getDifficulty().getDifficultyId() + 1));
+				SingleplayerServerController
+						.setDifficulty(this.mc.theWorld.getWorldInfo().getDifficulty().getDifficultyId());
 				this.field_175357_i.displayString = this.func_175355_a(this.mc.theWorld.getDifficulty());
 			}
 
@@ -183,14 +180,12 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 			}
 
 			if (parGuiButton.id == 8675309) {
-//				if (EaglerDeferredPipeline.isSupported()) {
-//					this.mc.displayGuiScreen(new GuiShaderConfig(this));
-//				} else {
-//					this.mc.displayGuiScreen(new GuiShadersNotSupported(this,
-//							I18n.format(EaglerDeferredPipeline.getReasonUnsupported())));
-//				}
-				mc.gameSettings.secret = !mc.gameSettings.secret;
-				mc.gameSettings.saveOptions();
+				if (EaglerDeferredPipeline.isSupported()) {
+					this.mc.displayGuiScreen(new GuiShaderConfig(this));
+				} else {
+					this.mc.displayGuiScreen(new GuiShadersNotSupported(this,
+							I18n.format(EaglerDeferredPipeline.getReasonUnsupported())));
+				}
 			}
 
 			if (parGuiButton.id == 101) {
@@ -231,6 +226,10 @@ public class GuiOptions extends GuiScreen implements GuiYesNoCallback {
 			if (parGuiButton.id == 107) {
 				EagRuntime.toggleRec();
 				broadcastSettings.displayString = I18n.format(EagRuntime.getRecText(), new Object[0]);
+			}
+
+			if (parGuiButton.id == 104) {
+				EagRuntime.showDebugConsole();
 			}
 		}
 	}

@@ -1,9 +1,11 @@
 package net.minecraft.world.chunk;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.MathHelper;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -11,21 +13,22 @@ import net.minecraft.util.MathHelper;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class ChunkPrimer {
-	private final short[] data = new short[4096];
-	private final short[] data_fast = new short[4096];
+	private final Map<Integer, Short> data = new HashMap<Integer, Short>();
 	private final IBlockState defaultState = Blocks.air.getDefaultState();
 
 	public IBlockState getBlockState(int x, int y, int z) {
@@ -34,20 +37,11 @@ public class ChunkPrimer {
 	}
 
 	public IBlockState getBlockState(int index) {
-		if (MathHelper.fastMath) {
-			if (index >= 0 && index < this.data.length) {
-				IBlockState iblockstate = (IBlockState) Block.BLOCK_STATE_IDS.getByValue(this.data[index]);
-				return iblockstate != null ? iblockstate : this.defaultState;
-			} else {
-				throw new IndexOutOfBoundsException("The coordinate is out of range");
-			}
-	    } else {
-			if (index >= 0 && index < this.data_fast.length) {
-				IBlockState iblockstate = (IBlockState) Block.BLOCK_STATE_IDS.getByValue(this.data_fast[index]);
-				return iblockstate != null ? iblockstate : this.defaultState;
-			} else {
-				throw new IndexOutOfBoundsException("The coordinate is out of range");
-			}
+		if (index >= 0 && index < this.data.size()) {
+			IBlockState iblockstate = (IBlockState) Block.BLOCK_STATE_IDS.getByValue(this.data.get(index));
+			return iblockstate != null ? iblockstate : this.defaultState;
+		} else {
+			throw new IndexOutOfBoundsException("The coordinate is out of range");
 		}
 	}
 
@@ -57,18 +51,10 @@ public class ChunkPrimer {
 	}
 
 	public void setBlockState(int index, IBlockState state) {
-		if(MathHelper.fastMath) {
-			if (index >= 0 && index < this.data.length) {
-				this.data[index] = (short) Block.BLOCK_STATE_IDS.get(state);
-			} else {
-				throw new IndexOutOfBoundsException("The coordinate is out of range");
-			}
-	    } else {
-			if (index >= 0 && index < this.data_fast.length) {
-				this.data_fast[index] = (short) Block.BLOCK_STATE_IDS.get(state);
-			} else {
-				throw new IndexOutOfBoundsException("The coordinate is out of range");
-			}
+		if (index >= 0 && index < this.data.size()) {
+			this.data.put(index, (short) Block.BLOCK_STATE_IDS.get(state));
+		} else {
+			throw new IndexOutOfBoundsException("The coordinate is out of range");
 		}
 	}
 }

@@ -1,8 +1,10 @@
 package net.PeytonPlayz585.shadow;
 
+import net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.world.WorldServer;
 import net.minecraft.block.BlockLeavesBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -11,7 +13,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.client.Minecraft;
 
 public class ClearWater {
   public static void updateWaterOpacity(GameSettings p_updateWaterOpacity_0_, World p_updateWaterOpacity_1_) {
@@ -77,7 +78,89 @@ public class ClearWater {
           }
 
           if (l1 > 0) {
-            Config.dbg("ClearWater (Server) relighted " + l1 + " chunks");
+            String s = "server";
+
+            if (Minecraft.getMinecraft().isIntegratedServerRunning()) {
+              s = "client";
+            }
+
+            Config.dbg("ClearWater (" + s + ") relighted " + l1 + " chunks");
+          }
+        }
+      }
+    }
+  }
+  
+  public static void updateWaterOpacity(GameSettings p_updateWaterOpacity_0_, WorldServer p_updateWaterOpacity_1_) {
+    if (p_updateWaterOpacity_0_ != null) {
+      int i = 3;
+
+      if (p_updateWaterOpacity_0_.ofClearWater) {
+        i = 1;
+      }
+
+      BlockLeavesBase.setLightOpacity(Blocks.water, i);
+      BlockLeavesBase.setLightOpacity(Blocks.flowing_water, i);
+    }
+
+    if (p_updateWaterOpacity_1_ != null) {
+    	net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.world.chunk.IChunkProvider ichunkprovider = p_updateWaterOpacity_1_.getChunkProvider();
+
+      if (ichunkprovider != null) {
+        Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
+
+        if (entity != null) {
+          int j = (int) entity.posX / 16;
+          int k = (int) entity.posZ / 16;
+          int l = j - 512;
+          int i1 = j + 512;
+          int j1 = k - 512;
+          int k1 = k + 512;
+          int l1 = 0;
+
+          for (int i2 = l; i2 < i1; ++i2) {
+            for (int j2 = j1; j2 < k1; ++j2) {
+              if (ichunkprovider.chunkExists(i2, j2)) {
+            	  net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.world.chunk.Chunk chunk = ichunkprovider.provideChunk(i2, j2);
+
+                if (chunk != null && !(chunk instanceof net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.world.chunk.EmptyChunk)) {
+                  int k2 = i2 << 4;
+                  int l2 = j2 << 4;
+                  int i3 = k2 + 16;
+                  int j3 = l2 + 16;
+                  BlockPosMSingleplayer blockposm = new BlockPosMSingleplayer(0, 0, 0);
+                  BlockPosMSingleplayer blockposm1 = new BlockPosMSingleplayer(0, 0, 0);
+
+                  for (int k3 = k2; k3 < i3; ++k3) {
+                    for (int l3 = l2; l3 < j3; ++l3) {
+                      blockposm.setXyz(k3, 0, l3);
+                      net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.util.BlockPos blockpos = p_updateWaterOpacity_1_.getPrecipitationHeight(blockposm);
+
+                      for (int i4 = 0; i4 < blockpos.getY(); ++i4) {
+                        blockposm1.setXyz(k3, i4, l3);
+                        net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.block.state.IBlockState iblockstate = p_updateWaterOpacity_1_.getBlockState(blockposm1);
+
+                        if (iblockstate.getBlock().getMaterial() == net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.block.material.Material.water) {
+                          p_updateWaterOpacity_1_.markBlocksDirtyVertical(k3, l3, blockposm1.getY(), blockpos.getY());
+                          ++l1;
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          if (l1 > 0) {
+            String s = "server";
+
+            if (Minecraft.getMinecraft().isIntegratedServerRunning()) {
+              s = "client";
+            }
+
+            Config.dbg("ClearWater (" + s + ") relighted " + l1 + " chunks");
           }
         }
       }

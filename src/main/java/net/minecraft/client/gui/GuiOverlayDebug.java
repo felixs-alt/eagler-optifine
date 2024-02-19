@@ -21,6 +21,7 @@ import net.lax1dude.eaglercraft.v1_8.internal.EnumPlatformType;
 import net.lax1dude.eaglercraft.v1_8.opengl.EaglercraftGPU;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.OpenGlHelper;
+import net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -49,21 +50,24 @@ import net.minecraft.world.chunk.Chunk;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GuiOverlayDebug extends Gui {
 	private final Minecraft mc;
 	private final FontRenderer fontRenderer;
+	public int playerOffset = 0;
 
 	public GuiOverlayDebug(Minecraft mc) {
 		this.mc = mc;
@@ -71,6 +75,7 @@ public class GuiOverlayDebug extends Gui {
 	}
 
 	public void renderDebugInfo(ScaledResolution scaledResolutionIn) {
+		playerOffset = 0;
 		int ww = scaledResolutionIn.getScaledWidth();
 		int hh = scaledResolutionIn.getScaledHeight();
 		this.mc.mcProfiler.startSection("debug");
@@ -87,12 +92,14 @@ public class GuiOverlayDebug extends Gui {
 
 			if (this.mc.gameSettings.hudFps) {
 				drawFPS(2, i);
+				playerOffset = drawSingleplayerStats(scaledResolutionIn);
 				i += 9;
 			}
 
 			if (this.mc.gameSettings.hudCoords) {
 				drawXYZ(2, i);
 			}
+
 		}
 
 		if (this.mc.currentScreen == null || !(this.mc.currentScreen instanceof GuiChat)) {
@@ -263,6 +270,38 @@ public class GuiOverlayDebug extends Gui {
 
 	private boolean isReducedDebug() {
 		return this.mc.thePlayer.hasReducedDebug() || this.mc.gameSettings.reducedDebugInfo;
+	}
+
+	private int drawSingleplayerStats(ScaledResolution parScaledResolution) {
+		if (mc.isDemo()) {
+			return 13;
+		}
+		int i = 0;
+		if (SingleplayerServerController.isWorldRunning()) {
+			long tpsAge = SingleplayerServerController.getTPSAge();
+			if (tpsAge < 20000l) {
+				int color = tpsAge > 2000l ? 0x777777 : 0xFFFFFF;
+				List<String> strs = SingleplayerServerController.getTPS();
+				int l;
+				boolean first = true;
+				for (String str : strs) {
+					l = (int) (this.fontRenderer.getStringWidth(str) * (!first ? 0.5f : 1.0f));
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(parScaledResolution.getScaledWidth() - 2 - l, i + 2, 0.0f);
+					if (!first) {
+						GlStateManager.scale(0.5f, 0.5f, 0.5f);
+					}
+					this.fontRenderer.drawStringWithShadow(str, 0, 0, color);
+					GlStateManager.popMatrix();
+					i += (int) (this.fontRenderer.FONT_HEIGHT * (!first ? 0.5f : 1.0f));
+					first = false;
+					if (color == 0xFFFFFF) {
+						color = 14737632;
+					}
+				}
+			}
+		}
+		return i > 0 ? i + 2 : i;
 	}
 
 	protected void renderDebugInfoLeft() {

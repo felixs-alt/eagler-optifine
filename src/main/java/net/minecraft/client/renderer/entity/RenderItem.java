@@ -77,16 +77,18 @@ import net.minecraft.util.Vec3i;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class RenderItem implements IResourceManagerReloadListener {
@@ -96,7 +98,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 	public float zLevel;
 	private final ItemModelMesher itemModelMesher;
 	private final TextureManager textureManager;
-
+	
 	private ModelResourceLocation modelLocation = null;
 
 	public RenderItem(TextureManager textureManager, ModelManager modelManager) {
@@ -130,7 +132,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 		this.registerItem(itm, 0, identifier);
 	}
 
-	public void renderModel(IBakedModel model, ItemStack stack) {
+	private void renderModel(IBakedModel model, ItemStack stack) {
 		this.renderModel(model, -1, stack);
 	}
 
@@ -138,7 +140,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 		this.renderModel(model, color, (ItemStack) null);
 	}
 
-	public void renderModel(IBakedModel model, int color, ItemStack stack) {
+	private void renderModel(IBakedModel model, int color, ItemStack stack) {
 		Tessellator tessellator = Tessellator.getInstance();
 		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 		worldrenderer.begin(7, DefaultVertexFormats.ITEM);
@@ -167,14 +169,12 @@ public class RenderItem implements IResourceManagerReloadListener {
 				GlStateManager.enableRescaleNormal();
 				TileEntityItemStackRenderer.instance.renderByItem(stack);
 			} else {
-
 				if (Config.isCustomItems()) {
                     model1 = CustomItems.getCustomItemModel(stack, model1, this.modelLocation);
                 }
-
 				final IBakedModel model = model1;
 				RenderItem itemRenderer = this;
-
+				
 				GlStateManager.translate(-0.5F, -0.5F, -0.5F);
 				if (DeferredStateManager.isInDeferredPass() && isTransparentItem(stack)) {
 					if (DeferredStateManager.forwardCallbackHandler != null) {
@@ -212,7 +212,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 						});
 					}
 				} else {
-					this.renderModel(model, stack);
+					this.renderModel(model1, stack);
 					if (stack.hasEffect()) {
 						if (DeferredStateManager.isInDeferredPass()) {
 							if (DeferredStateManager.forwardCallbackHandler != null
@@ -247,8 +247,8 @@ public class RenderItem implements IResourceManagerReloadListener {
 							}
 						} else {
 							GlStateManager.blendFunc(GL_SRC_COLOR, GL_ONE);
-							if (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model)) {
-                    			renderEffect(model);
+							if (!Config.isCustomItems() || !CustomItems.renderCustomEffect(this, stack, model1)) {
+                    			renderEffect(model1);
                 			}
 						}
 					}
@@ -379,7 +379,6 @@ public class RenderItem implements IResourceManagerReloadListener {
 				}
 
 				this.modelLocation = modelresourcelocation;
-
 				if (modelresourcelocation != null) {
 					ibakedmodel = this.itemModelMesher.getModelManager().getModel(modelresourcelocation);
 				}

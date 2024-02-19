@@ -3,6 +3,7 @@ package net.minecraft.client.gui;
 import static net.lax1dude.eaglercraft.v1_8.opengl.RealOpenGLEnums.*;
 
 import net.lax1dude.eaglercraft.v1_8.Mouse;
+import net.lax1dude.eaglercraft.v1_8.internal.EnumCursorType;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
@@ -12,6 +13,26 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.MathHelper;
 
+/**+
+ * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
+ * 
+ * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
+ * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
+ * 
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * 
+ */
 public abstract class GuiSlot {
 
 	private static final Logger excLogger = LogManager.getLogger("GuiSlotRenderer");
@@ -99,7 +120,7 @@ public abstract class GuiSlot {
 	 * Return the height of the content being scrolled
 	 */
 	protected int getContentHeight() {
-		return this.getSize() * this.slotHeight + this.headerPadding;
+		return (this.getSize() + 1) * this.slotHeight + this.headerPadding;
 	}
 
 	protected abstract void drawBackground();
@@ -226,7 +247,7 @@ public abstract class GuiSlot {
 				this.drawListHeader(k, l, tessellator);
 			}
 
-			this.drawSelectionBox(k, l, mouseXIn, mouseYIn);
+			this.drawSelectionBox(k, l, mouseXIn, mouseYIn, this.getSize());
 			GlStateManager.disableDepth();
 			byte b0 = 4;
 			this.overlayBackground(0, this.top, 255, 255);
@@ -401,10 +422,12 @@ public abstract class GuiSlot {
 	/**+
 	 * Draws the selection box around the selected slot element.
 	 */
-	protected void drawSelectionBox(int mouseXIn, int mouseYIn, int parInt3, int parInt4) {
-		int i = this.getSize();
+	protected void drawSelectionBox(int mouseXIn, int mouseYIn, int parInt3, int parInt4, int i) {
 		Tessellator tessellator = Tessellator.getInstance();
 		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+
+		int mx = Mouse.getX();
+		int my = Mouse.getY();
 
 		for (int j = 0; j < i; ++j) {
 			int k = mouseYIn + j * this.slotHeight + this.headerPadding;
@@ -437,6 +460,9 @@ public abstract class GuiSlot {
 						.endVertex();
 				tessellator.draw();
 				GlStateManager.enableTexture2D();
+				if (parInt3 >= i1 && parInt3 <= j1 && parInt4 >= k - 2 && parInt4 <= k + l + 1) {
+					Mouse.showCursor(EnumCursorType.HAND);
+				}
 			}
 
 			try {

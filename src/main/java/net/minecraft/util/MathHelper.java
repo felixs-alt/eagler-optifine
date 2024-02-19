@@ -9,16 +9,18 @@ import net.lax1dude.eaglercraft.v1_8.EaglercraftUUID;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class MathHelper {
@@ -39,14 +41,14 @@ public class MathHelper {
 	 * sin looked up in a table
 	 */
 	public static float sin(float parFloat1) {
-		return fastMath ? SIN_TABLE_FAST[(int)(parFloat1 * 651.8986F) & 4095] : SIN_TABLE[(int)(parFloat1 * 10430.378F) & 65535];
+		return fastMath ? SIN_TABLE_FAST[(int)(parFloat1 * 651.8986F) & 4095] : SIN_TABLE[(int) (parFloat1 * 10430.378F) & '\uffff'];
 	}
 
 	/**+
 	 * cos looked up in the sin table with the appropriate offset
 	 */
 	public static float cos(float value) {
-		return fastMath ? SIN_TABLE_FAST[(int)((value + ((float) Math.PI / 2F)) * 651.8986F) & 4095] : SIN_TABLE[(int)(value * 10430.378F + 16384.0F) & 65535];
+		return fastMath ? SIN_TABLE_FAST[(int)((value + ((float) Math.PI / 2F)) * 651.8986F) & 4095] : SIN_TABLE[(int) (value * 10430.378F + 16384.0F) & '\uffff'];
 	}
 
 	public static float sqrt_float(float value) {
@@ -490,10 +492,10 @@ public class MathHelper {
 
 	static {
 		for (int i = 0; i < 65536; ++i) {
-            SIN_TABLE[i] = (float) Math.sin((double) i * Math.PI * 2.0D / 65536.0D);
-        }
-
-        for (int j = 0; j < 4096; ++j) {
+			SIN_TABLE[i] = (float) Math.sin((double) i * 3.141592653589793D * 2.0D / 65536.0D);
+		}
+		
+		for (int j = 0; j < 4096; ++j) {
             SIN_TABLE_FAST[j] = (float) Math.sin((double)(((float) j + 0.5F) / 4096.0F * ((float) Math.PI * 2F)));
         }
 

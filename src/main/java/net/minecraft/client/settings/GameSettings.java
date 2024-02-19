@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.lax1dude.eaglercraft.v1_8.sp.relay.RelayManager;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import org.json.JSONArray;
 
 import com.google.common.collect.ImmutableSet;
@@ -16,11 +19,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import net.PeytonPlayz585.shadow.BetterGrass;
+import net.PeytonPlayz585.shadow.ClearWater;
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.CustomColors;
 import net.PeytonPlayz585.shadow.CustomSky;
 import net.PeytonPlayz585.shadow.DynamicLights;
-import net.PeytonPlayz585.shadow.shaders.Shaders;
 import net.lax1dude.eaglercraft.v1_8.ArrayUtils;
 import net.lax1dude.eaglercraft.v1_8.EagRuntime;
 import net.lax1dude.eaglercraft.v1_8.EaglerInputStream;
@@ -42,8 +46,6 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.network.play.client.C15PacketClientSettings;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
-import net.PeytonPlayz585.shadow.BetterGrass;
-import net.PeytonPlayz585.shadow.ClearWater;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -51,16 +53,18 @@ import net.PeytonPlayz585.shadow.ClearWater;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GameSettings {
@@ -75,6 +79,14 @@ public class GameSettings {
 			"options.particles.minimal" };
 	private static final String[] AMBIENT_OCCLUSIONS = new String[] { "options.ao.off", "options.ao.min",
 			"options.ao.max" };
+	private static final String[] STREAM_COMPRESSIONS = new String[] { "options.stream.compression.low",
+			"options.stream.compression.medium", "options.stream.compression.high" };
+	private static final String[] STREAM_CHAT_MODES = new String[] { "options.stream.chat.enabled.streaming",
+			"options.stream.chat.enabled.always", "options.stream.chat.enabled.never" };
+	private static final String[] STREAM_CHAT_FILTER_MODES = new String[] { "options.stream.chat.userFilter.all",
+			"options.stream.chat.userFilter.subs", "options.stream.chat.userFilter.mods" };
+	private static final String[] STREAM_MIC_MODES = new String[] { "options.stream.mic_toggle.mute",
+			"options.stream.mic_toggle.talk" };
 	private static final String[] field_181149_aW = new String[] { "options.off", "options.graphics.fast",
 			"options.graphics.fancy" };
 	public float mouseSensitivity = 0.5F;
@@ -84,6 +96,9 @@ public class GameSettings {
 	public boolean anaglyph;
 	public boolean fboEnable = true;
 	public int limitFramerate = 260;
+	/**+
+	 * Clouds flag
+	 */
 	public boolean fancyGraphics = false;
 	/**+
 	 * Smooth Lighting
@@ -125,23 +140,23 @@ public class GameSettings {
 	public KeyBinding keyBindRight = new KeyBinding("key.right", 32, "key.categories.movement");
 	public KeyBinding keyBindJump = new KeyBinding("key.jump", 57, "key.categories.movement");
 	public KeyBinding keyBindSneak = new KeyBinding("key.sneak", 42, "key.categories.movement");
-	public KeyBinding keyBindSprint = new KeyBinding(10, "key.sprint", KeyboardConstants.KEY_R, "key.categories.movement");
-	public KeyBinding keyBindInventory = new KeyBinding(3, "key.inventory", 18, "key.categories.inventory");
-	public KeyBinding keyBindUseItem = new KeyBinding(6, "key.use", -99, "key.categories.gameplay");
-	public KeyBinding keyBindDrop = new KeyBinding(13, "key.drop", 16, "key.categories.gameplay");
-	public KeyBinding keyBindAttack = new KeyBinding(7, "key.attack", -100, "key.categories.gameplay");
+	public KeyBinding keyBindSprint = new KeyBinding("key.sprint", KeyboardConstants.KEY_R, "key.categories.movement");
+	public KeyBinding keyBindInventory = new KeyBinding("key.inventory", 18, "key.categories.inventory");
+	public KeyBinding keyBindUseItem = new KeyBinding("key.use", -99, "key.categories.gameplay");
+	public KeyBinding keyBindDrop = new KeyBinding("key.drop", 16, "key.categories.gameplay");
+	public KeyBinding keyBindAttack = new KeyBinding("key.attack", -100, "key.categories.gameplay");
 	public KeyBinding keyBindPickBlock = new KeyBinding("key.pickItem", -98, "key.categories.gameplay");
-	public KeyBinding keyBindChat = new KeyBinding(15, "key.chat", 20, "key.categories.multiplayer");
+	public KeyBinding keyBindChat = new KeyBinding("key.chat", 20, "key.categories.multiplayer");
 	public KeyBinding keyBindPlayerList = new KeyBinding("key.playerlist", 15, "key.categories.multiplayer");
 	public KeyBinding keyBindCommand = new KeyBinding("key.command", 53, "key.categories.multiplayer");
 	public KeyBinding keyBindScreenshot = new KeyBinding("key.screenshot", 60, "key.categories.misc");
-	public KeyBinding keyBindTogglePerspective = new KeyBinding(12, "key.togglePerspective", 63, "key.categories.misc");
-	public KeyBinding keyBindSmoothCamera = new KeyBinding(14, "key.smoothCamera", KeyboardConstants.KEY_M,
+	public KeyBinding keyBindTogglePerspective = new KeyBinding("key.togglePerspective", 63, "key.categories.misc");
+	public KeyBinding keyBindSmoothCamera = new KeyBinding("key.smoothCamera", KeyboardConstants.KEY_M,
 			"key.categories.misc");
 	public KeyBinding keyBindZoomCamera = new KeyBinding("key.zoomCamera", KeyboardConstants.KEY_C,
 			"key.categories.misc");
 	public KeyBinding keyBindFunction = new KeyBinding("key.function", KeyboardConstants.KEY_F, "key.categories.misc");
-	public KeyBinding keyBindClose = new KeyBinding(9, "key.close", KeyboardConstants.KEY_GRAVE, "key.categories.misc");
+	public KeyBinding keyBindClose = new KeyBinding("key.close", KeyboardConstants.KEY_GRAVE, "key.categories.misc");
 	public KeyBinding[] keyBindsHotbar = new KeyBinding[] {
 			new KeyBinding("key.hotbar.1", 2, "key.categories.inventory"),
 			new KeyBinding("key.hotbar.2", 3, "key.categories.inventory"),
@@ -155,6 +170,9 @@ public class GameSettings {
 	public KeyBinding[] keyBindings;
 	protected Minecraft mc;
 	public EnumDifficulty difficulty;
+	public boolean hasCreatedDemoWorld;
+	public int relayTimeout;
+	public boolean hideJoinCode;
 	public boolean hideGUI;
 	public int thirdPersonView;
 	public boolean showDebugInfo;
@@ -180,90 +198,85 @@ public class GameSettings {
 	public boolean hudStats = false;
 	public boolean hud24h = false;
 	public boolean chunkFix = true;
+	public boolean fog = true;
 	public int fxaa = 0;
 	public boolean shaders = false;
 	public boolean shadersAODisable = false;
 	public EaglerDeferredConfig deferredShaderConf = new EaglerDeferredConfig();
+	public boolean enableUpdateSvc = true;
 	
 	//Main Menu Settings
-	public float ofAoLevel = 1.0F;
-	public boolean useVbo = false;
-	public int ofFogType = 1;
-	public float ofFogStart = 0.8F;
-	
-	//Quality Settings
-	public int ofMipmapType = 0;
-	public boolean ofCustomSky = true;
-	public boolean ofClearWater = false;
-	public boolean ofBetterSnow = false;
-	public boolean ofCustomFonts = true;
-	public int ofBetterGrass = 3;
-	public int ofDynamicLights = 3;
-	public boolean ofCustomColors = true;
-	public boolean ofSwampColors = true;
-	public boolean ofSmoothBiomes = true;
-	public boolean ofCustomItems = true;
-	
-	//Detail Settings
-	/** Clouds flag */
-    public int clouds = 2;
-	public int ofClouds = 0;
-	public float ofCloudsHeight = 0.0F;
-	public int ofTrees = 0;
-	public int ofRain = 0;
-	public boolean ofSky = false;
-	public boolean ofStars = false;
-    public boolean ofSunMoon = false;
-    public boolean ofShowCapes = false;
-    public int ofTranslucentBlocks = 0;
-    public boolean heldItemTooltips = false;
-    public int ofDroppedItems = 0;
-    public int ofVignette = 0;
-    public boolean ofDynamicFov = false;
-	
-	//Optifine Animations
-	public int ofAnimatedWater = 2;
-    public int ofAnimatedLava = 2;
-    public boolean ofAnimatedFire = false;
-    public boolean ofAnimatedPortal = false;
-    public boolean ofAnimatedRedstone = false;
-    public boolean ofAnimatedExplosion = false;
-    public boolean ofAnimatedFlame = false;
-    public boolean ofAnimatedSmoke = false;
-    public boolean ofVoidParticles = false;
-    public boolean ofWaterParticles = false;
-    public boolean ofPortalParticles = false;
-    public boolean ofPotionParticles = false;
-    public boolean ofFireworkParticles = false;
-    public boolean ofDrippingWaterLava = false;
-    public boolean ofAnimatedTerrain = false;
-    public boolean ofAnimatedTextures = false;
-    public boolean ofRainSplash = false;
-    
-    //Performance Settings
-    public boolean ofSmoothFps = false;
-    public int ofChunkUpdates = 1;
-    public static boolean ofFastMath = true;
-    
-    //Super Secret Setting :>
-    public boolean secret = false;
-    
-    //Shaders
-    public int profile = 1;
-    
-    
-    //Other...
-    private static final int[] OF_DYNAMIC_LIGHTS = new int[] {3, 1, 2};
-    private static final String[] KEYS_DYNAMIC_LIGHTS = new String[] {"options.off", "options.graphics.fast", "options.graphics.fancy"};
-    private static final int[] OF_TREES_VALUES = new int[] {0, 1, 4, 2};
+		public float ofAoLevel = 1.0F;
+		public boolean useVbo = false;
+		public int ofFogType = 1;
+		public float ofFogStart = 0.8F;
+		
+		//Quality Settings
+		public int ofMipmapType = 0;
+		public boolean ofCustomSky = true;
+		public boolean ofClearWater = false;
+		public boolean ofBetterSnow = false;
+		public boolean ofCustomFonts = true;
+		public int ofBetterGrass = 3;
+		public int ofDynamicLights = 3;
+		public boolean ofCustomColors = true;
+		public boolean ofSwampColors = true;
+		public boolean ofSmoothBiomes = true;
+		public boolean ofCustomItems = true;
+		
+		//Detail Settings
+		/** Clouds flag */
+	    public int clouds = 2;
+		public int ofClouds = 0;
+		public float ofCloudsHeight = 0.0F;
+		public int ofTrees = 0;
+		public int ofRain = 0;
+		public boolean ofSky = false;
+		public boolean ofStars = false;
+	    public boolean ofSunMoon = false;
+	    public boolean ofShowCapes = false;
+	    public int ofTranslucentBlocks = 0;
+	    public boolean heldItemTooltips = false;
+	    public int ofDroppedItems = 0;
+	    public int ofVignette = 0;
+	    public boolean ofDynamicFov = false;
+		
+		//Optifine Animations
+		public int ofAnimatedWater = 2;
+	    public int ofAnimatedLava = 2;
+	    public boolean ofAnimatedFire = false;
+	    public boolean ofAnimatedPortal = false;
+	    public boolean ofAnimatedRedstone = false;
+	    public boolean ofAnimatedExplosion = false;
+	    public boolean ofAnimatedFlame = false;
+	    public boolean ofAnimatedSmoke = false;
+	    public boolean ofVoidParticles = false;
+	    public boolean ofWaterParticles = false;
+	    public boolean ofPortalParticles = false;
+	    public boolean ofPotionParticles = false;
+	    public boolean ofFireworkParticles = false;
+	    public boolean ofDrippingWaterLava = false;
+	    public boolean ofAnimatedTerrain = false;
+	    public boolean ofAnimatedTextures = false;
+	    public boolean ofRainSplash = false;
+	    
+	    //Performance Settings
+	    public boolean ofSmoothFps = false;
+	    public int ofChunkUpdates = 1;
+	    public static boolean ofFastMath = true;
+ 
+	    //Other...
+	    private static final int[] OF_DYNAMIC_LIGHTS = new int[] {3, 1, 2};
+	    private static final String[] KEYS_DYNAMIC_LIGHTS = new String[] {"options.off", "options.graphics.fast", "options.graphics.fancy"};
+	    private static final int[] OF_TREES_VALUES = new int[] {0, 1, 4, 2};
 
-	public static boolean toggleSprint = false;
-	public static boolean toggleSprintEnabled = false;
-	public boolean leftHand = false;
-	public boolean chunkBorders = false;
-	public boolean ofLagometer = false;
-	public boolean ofProfiler = false;
-	public boolean hidePassword = true;
+		public static boolean toggleSprint = false;
+		public static boolean toggleSprintEnabled = false;
+		public boolean leftHand = false;
+		public boolean chunkBorders = false;
+		public boolean ofLagometer = false;
+		public boolean ofProfiler = false;
+		public boolean hidePassword = true;
 
 	public GameSettings(Minecraft mcIn) {
 		this.keyBindings = (KeyBinding[]) ArrayUtils.addAll(new KeyBinding[] { this.keyBindAttack, this.keyBindUseItem,
@@ -273,6 +286,8 @@ public class GameSettings {
 				this.keyBindTogglePerspective, this.keyBindSmoothCamera, this.keyBindZoomCamera, this.keyBindFunction,
 				this.keyBindClose }, this.keyBindsHotbar);
 		this.difficulty = EnumDifficulty.NORMAL;
+		this.relayTimeout = 4;
+		this.hideJoinCode = false;
 		this.lastServer = "";
 		this.fovSetting = 70.0F;
 		this.gammaSetting = 1.0F;
@@ -418,6 +433,10 @@ public class GameSettings {
 			this.viewBobbing = !this.viewBobbing;
 		}
 
+		if (parOptions == GameSettings.Options.RENDER_CLOUDS) {
+			this.clouds = (this.clouds + parInt1) % 3;
+		}
+
 		if (parOptions == GameSettings.Options.FORCE_UNICODE_FONT) {
 			this.forceUnicodeFont = !this.forceUnicodeFont;
 			this.mc.fontRendererObj
@@ -510,7 +529,11 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.CHUNK_FIX) {
 			this.chunkFix = !this.chunkFix;
 		}
-		
+
+		if (parOptions == GameSettings.Options.FOG) {
+			this.fog = !this.fog;
+		}
+
 		if (parOptions == GameSettings.Options.FXAA) {
 			this.fxaa = (this.fxaa + parInt1) % 3;
 		}
@@ -653,17 +676,6 @@ public class GameSettings {
             }
         }
 		
-		if(parOptions == GameSettings.Options.SHADER_PROFILE) {
-			++this.profile;
-			
-			if(this.profile > 4) {
-				this.profile = 1;
-			}
-			
-			Shaders shader = new Shaders();
-			shader.updateShaderProfile(profile);
-		}
-		
 		if (parOptions == GameSettings.Options.SMOOTH_FPS) {
             this.ofSmoothFps = !this.ofSmoothFps;
         }
@@ -695,6 +707,7 @@ public class GameSettings {
 		if (parOptions == GameSettings.Options.FAST_MATH) {
             ofFastMath = !ofFastMath;
             MathHelper.fastMath = ofFastMath;
+            net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.util.MathHelper.fastMath = ofFastMath;
         }
 		
 		if (parOptions == GameSettings.Options.RAIN) {
@@ -883,6 +896,8 @@ public class GameSettings {
 			return this.hud24h;
 		case CHUNK_FIX:
 			return this.chunkFix;
+		case FOG:
+			return this.fog;
 		case FULLSCREEN:
 			return this.mc.isFullScreen();
 		case USE_VBO:
@@ -928,7 +943,7 @@ public class GameSettings {
 		if (parInt1 < 0 || parInt1 >= parArrayOfString.length) {
 			parInt1 = 0;
 		}
-
+		
 		return I18n.format(parArrayOfString[parInt1], new Object[0]);
 	}
 
@@ -941,21 +956,22 @@ public class GameSettings {
 			float f1 = this.getOptionFloatValue(parOptions);
 			float f = parOptions.normalizeValue(f1);
 			return parOptions == GameSettings.Options.SENSITIVITY ? (f == 0.0F ? s + I18n.format("options.sensitivity.min", new Object[0]) : (f == 1.0F ? s + I18n.format("options.sensitivity.max", new Object[0]) : s + (int) (f * 200.0F) + "%"))
-				: (parOptions == GameSettings.Options.FOV ? (f1 == 70.0F ? s + I18n.format("options.fov.min", new Object[0]) : (f1 == 110.0F ? s + I18n.format("options.fov.max", new Object[0]) : s + (int) f1))
-				: (parOptions == GameSettings.Options.FRAMERATE_LIMIT ? (f1 == parOptions.valueMax ? s + I18n.format("options.framerateLimit.max", new Object[0]) : s + (int) f1 + " fps")
-				: (parOptions == GameSettings.Options.GAMMA ? (f == 0.0F ? s + I18n.format("options.gamma.min", new Object[0]) : (f == 1.0F ? s + I18n.format("options.gamma.max", new Object[0]) : s + "+" + (int) (f * 100.0F) + "%"))
-				: (parOptions == GameSettings.Options.SATURATION ? s + (int) (f * 400.0F) + "%"
-				: (parOptions == GameSettings.Options.CHAT_OPACITY ? s + (int) (f * 90.0F + 10.0F) + "%"
-			    : (parOptions == GameSettings.Options.CHAT_SCALE ? s + (int) (f * 90.0F + 10.0F) + "%"
-				: (parOptions == GameSettings.Options.CHAT_HEIGHT_UNFOCUSED ? s + GuiNewChat.calculateChatboxHeight(f) + "px"
-				: (parOptions == GameSettings.Options.CHAT_HEIGHT_FOCUSED ? s + GuiNewChat.calculateChatboxHeight(f) + "px"
-				: (parOptions == GameSettings.Options.CHAT_WIDTH ? s + GuiNewChat.calculateChatboxWidth(f) + "px"
-				: (parOptions == GameSettings.Options.RENDER_DISTANCE ? s + (int) f1 + (f1 == 1.0F ? " chunk" : " chunks")
-				: (parOptions == GameSettings.Options.MIPMAP_LEVELS ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
-				: (parOptions == GameSettings.Options.AO_LEVEL ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
-			    : (parOptions == GameSettings.Options.CLOUD_HEIGHT ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
-				: (parOptions == GameSettings.Options.MIPMAP_TYPE ? (ofMipmapType == 0 ? s + "Nearest" : ofMipmapType == 1 ? s + "Linear" : ofMipmapType == 2 ? s + "Bilinear" : ofMipmapType == 3 ? s + "Trilinear": s)
-				: "yee"))))))))))))));
+					: (parOptions == GameSettings.Options.FOV ? (f1 == 70.0F ? s + I18n.format("options.fov.min", new Object[0]) : (f1 == 110.0F ? s + I18n.format("options.fov.max", new Object[0]) : s + (int) f1))
+					: (parOptions == GameSettings.Options.FRAMERATE_LIMIT ? (f1 == parOptions.valueMax ? s + I18n.format("options.framerateLimit.max", new Object[0]) : s + (int) f1 + " fps")
+					: (parOptions == GameSettings.Options.RENDER_CLOUDS ? (f1 == parOptions.valueMin ? s + I18n.format("options.cloudHeight.min", new Object[0]) : s + ((int) f1 + 128))
+					: (parOptions == GameSettings.Options.GAMMA ? (f == 0.0F ? s + I18n.format("options.gamma.min", new Object[0]) : (f == 1.0F ? s + I18n.format("options.gamma.max", new Object[0]) : s + "+" + (int) (f * 100.0F) + "%"))
+					: (parOptions == GameSettings.Options.SATURATION ? s + (int) (f * 400.0F) + "%"
+					: (parOptions == GameSettings.Options.CHAT_OPACITY ? s + (int) (f * 90.0F + 10.0F) + "%"
+					: (parOptions == GameSettings.Options.CHAT_SCALE ? s + (int) (f * 90.0F + 10.0F) + "%"
+					: (parOptions == GameSettings.Options.CHAT_HEIGHT_UNFOCUSED ? s + GuiNewChat.calculateChatboxHeight(f) + "px"
+				    : (parOptions == GameSettings.Options.CHAT_HEIGHT_FOCUSED ? s + GuiNewChat.calculateChatboxHeight(f) + "px"
+				    : (parOptions == GameSettings.Options.CHAT_WIDTH ? s + GuiNewChat.calculateChatboxWidth(f) + "px"
+					: (parOptions == GameSettings.Options.RENDER_DISTANCE ? s + (int) f1 + (f1 == 1.0F ? " chunk" : " chunks")
+					: (parOptions == GameSettings.Options.MIPMAP_LEVELS ? (f == 0.0F ? s + I18n .format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
+					: (parOptions == GameSettings.Options.AO_LEVEL ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
+					: (parOptions == GameSettings.Options.CLOUD_HEIGHT ? (f == 0.0F ? s + I18n.format("options.off", new Object[0]) : s + (int) (f * 100.0F) + "%")
+					: (parOptions == GameSettings.Options.MIPMAP_TYPE ? (ofMipmapType == 0 ? s + "Nearest" : ofMipmapType == 1 ? s + "Linear" : ofMipmapType == 2 ? s + "Bilinear" : ofMipmapType == 3 ? s + "Trilinear": s)
+					: "yee")))))))))))))));
 		} else if (parOptions.getEnumBoolean()) {
 			boolean flag = this.getOptionOrdinalValue(parOptions);
 			return flag ? s + I18n.format("options.on", new Object[0]) : s + I18n.format("options.off", new Object[0]);
@@ -967,10 +983,13 @@ public class GameSettings {
 			return s + getTranslation(PARTICLES, this.particleSetting);
 		} else if (parOptions == GameSettings.Options.AMBIENT_OCCLUSION) {
 			return s + getTranslation(AMBIENT_OCCLUSIONS, this.ambientOcclusion);
+		} else if (parOptions == GameSettings.Options.RENDER_CLOUDS) {
+			return s + getTranslation(field_181149_aW, this.clouds);
 		} else if (parOptions == GameSettings.Options.GRAPHICS) {
 			if (this.fancyGraphics) {
 				return s + I18n.format("options.graphics.fancy", new Object[0]);
 			} else {
+				String s1 = "options.graphics.fast";
 				return s + I18n.format("options.graphics.fast", new Object[0]);
 			}
 		} else if (parOptions == GameSettings.Options.FXAA) {
@@ -983,215 +1002,198 @@ public class GameSettings {
 			}
 		} else if (parOptions == GameSettings.Options.ANIMATED_WATER) {
             switch (this.ofAnimatedWater) {
-                case 1:
-                    return s + "Dynamic";
+            case 1:
+                return s + "Dynamic";
 
-                case 2:
-                    return s + "OFF";
+            case 2:
+                return s + "OFF";
 
-                default:
-                    return s + "ON";
+            default:
+                return s + "ON";
             }
-        } else if (parOptions == GameSettings.Options.ANIMATED_LAVA) {
-            switch (this.ofAnimatedLava) {
-                case 1:
-                    return s + "Dynamic";
+		} else if (parOptions == GameSettings.Options.ANIMATED_LAVA) {
+			switch (this.ofAnimatedLava) {
+            	case 1:
+            		return s + "Dynamic";
 
-                case 2:
-                    return s + "OFF";
+            	case 2:
+            		return s + "OFF";
 
-                default:
-                    return s + "ON";
-            }
-        } else if (parOptions == GameSettings.Options.ANIMATED_FIRE) {
-            return this.ofAnimatedFire ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_PORTAL) {
-            return this.ofAnimatedPortal ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_REDSTONE) {
-            return this.ofAnimatedRedstone ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_EXPLOSION) {
-            return this.ofAnimatedExplosion ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_FLAME) {
-            return this.ofAnimatedFlame ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_SMOKE) {
-            return this.ofAnimatedSmoke ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.VOID_PARTICLES) {
-            return this.ofVoidParticles ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.WATER_PARTICLES) {
-            return this.ofWaterParticles ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.PORTAL_PARTICLES) {
-            return this.ofPortalParticles ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.POTION_PARTICLES) {
-            return this.ofPotionParticles ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.FIREWORK_PARTICLES) {
-            return this.ofFireworkParticles ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.DRIPPING_WATER_LAVA) {
-            return this.ofDrippingWaterLava ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_TERRAIN) {
-            return this.ofAnimatedTerrain ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.ANIMATED_TEXTURES) {
-            return this.ofAnimatedTextures ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.USE_VBO) {
+            	default:
+            		return s + "ON";
+			}
+		} else if (parOptions == GameSettings.Options.ANIMATED_FIRE) {
+			return this.ofAnimatedFire ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_PORTAL) {
+			return this.ofAnimatedPortal ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_REDSTONE) {
+			return this.ofAnimatedRedstone ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_EXPLOSION) {
+			return this.ofAnimatedExplosion ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_FLAME) {
+			return this.ofAnimatedFlame ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_SMOKE) {
+			return this.ofAnimatedSmoke ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.VOID_PARTICLES) {
+			return this.ofVoidParticles ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.WATER_PARTICLES) {
+			return this.ofWaterParticles ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.PORTAL_PARTICLES) {
+			return this.ofPortalParticles ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.POTION_PARTICLES) {
+			return this.ofPotionParticles ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.FIREWORK_PARTICLES) {
+			return this.ofFireworkParticles ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.DRIPPING_WATER_LAVA) {
+			return this.ofDrippingWaterLava ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_TERRAIN) {
+			return this.ofAnimatedTerrain ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.ANIMATED_TEXTURES) {
+			return this.ofAnimatedTextures ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.USE_VBO) {
 			return this.useVbo ? s + "ON" : s + "OFF";
 		} else if (parOptions == GameSettings.Options.CUSTOM_SKY) {
-            return this.ofCustomSky ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.CLEAR_WATER) {
-            return this.ofClearWater ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.BETTER_GRASS) {
-            switch (this.ofBetterGrass) {
-            	case 1:
-                    return s + "Fast";
+			return this.ofCustomSky ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.CLEAR_WATER) {
+			return this.ofClearWater ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.BETTER_GRASS) {
+			switch (this.ofBetterGrass) {
+				case 1:
+					return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+				case 2:
+					return s + "Fancy";
 
-                default:
-                    return s + "OFF";
-            } 
+				default:
+					return s + "OFF";
+			} 
 		} else if (parOptions == GameSettings.Options.FOG_FANCY) {
-            switch (this.ofFogType) {
-                case 1:
-                    return s + "Fast";
+			switch (this.ofFogType) {
+				case 1:
+					return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+				case 2:
+					return s + "Fancy";
 
-                case 3:
-                    return s + "OFF";
+				case 3:
+					return s + "OFF";
 
-                default:
-                    return s + "OFF";
-            }
-        } else if (parOptions == GameSettings.Options.FOG_START) {
-            return s + this.ofFogStart;
-        } else if (parOptions == GameSettings.Options.SHADER_PROFILE) {
-        	switch (this.profile) {
-        		case 1:
-        			return s + "Low";
-        			
-        		case 2:
-        			return s + "Medium";
-        			
-        		case 3:
-        			return s + "High";
-        			
-        		case 4:
-        			return s + "Ultra";
-        			
-        		default:
-        			return s + "Low";
-        	}
-        } else if (parOptions == GameSettings.Options.SMOOTH_FPS) {
-            return this.ofSmoothFps ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.CHUNK_UPDATES) {
-            return s + this.ofChunkUpdates;
-        } else if (parOptions == GameSettings.Options.CLOUDS) {
-            switch (this.ofClouds) {
-                case 1:
-                    return s + "Fast";
+				default:
+					return s + "OFF";
+			}
+		} else if (parOptions == GameSettings.Options.FOG_START) {
+			return s + this.ofFogStart;
+		} else if (parOptions == GameSettings.Options.SMOOTH_FPS) {
+			return this.ofSmoothFps ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.CHUNK_UPDATES) {
+			return s + this.ofChunkUpdates;
+		} else if (parOptions == GameSettings.Options.CLOUDS) {
+			switch (this.ofClouds) {
+				case 1:
+					return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+				case 2:
+					return s + "Fancy";
 
-                case 3:
-                    return s + "OFF";
+				case 3:
+					return s + "OFF";
 
-                default:
-                    return s + "Default";
-            }
-        } else if (parOptions == GameSettings.Options.DYNAMIC_LIGHTS) {
-            int k = indexOf(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
-            return s + getTranslation(KEYS_DYNAMIC_LIGHTS, k);
-        } else if (parOptions == GameSettings.Options.FAST_MATH) {
-            return ofFastMath ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.RAIN) {
-            switch (this.ofRain) {
-                case 1:
-                    return s + "Fast";
+				default:
+					return s + "Default";
+			}
+		} else if (parOptions == GameSettings.Options.DYNAMIC_LIGHTS) {
+			int k = indexOf(this.ofDynamicLights, OF_DYNAMIC_LIGHTS);
+			return s + getTranslation(KEYS_DYNAMIC_LIGHTS, k);
+		} else if (parOptions == GameSettings.Options.FAST_MATH) {
+			return ofFastMath ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.RAIN) {
+			switch (this.ofRain) {
+				case 1:
+					return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+				case 2:
+					return s + "Fancy";
 
-                case 3:
-                    return s + "OFF";
+				case 3:
+					return s + "OFF";
 
-                default:
-                    return s + "Default";
-            }
-        } else if (parOptions == GameSettings.Options.RAIN_SPLASH) {
-            return this.ofRainSplash ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.TREES) {
-            switch (this.ofTrees) {
-                case 1:
-                    return s + "Fast";
+				default:
+					return s + "Default";
+			}
+		} else if (parOptions == GameSettings.Options.RAIN_SPLASH) {
+			return this.ofRainSplash ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.TREES) {
+			switch (this.ofTrees) {
+            	case 1:
+            		return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+            	case 2:
+            		return s + "Fancy";
 
-                case 3:
-                default:
-                    return s + "Default";
+            	case 3:
+            	default:
+            		return s + "Default";
 
-                case 4:
-                    return s + "Smart";
-            }
-        } else if (parOptions == GameSettings.Options.SKY) {
-            return this.ofSky ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.STARS) {
-            return this.ofStars ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.SUN_MOON) {
-            return this.ofSunMoon ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.SHOW_CAPES) {
-            return this.ofShowCapes ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.TRANSLUCENT_BLOCKS) {
-            return this.ofTranslucentBlocks == 1 ? s + "Fast" : (this.ofTranslucentBlocks == 2 ? s + "Fancy" : s + "Default");
-        } else if (parOptions == GameSettings.Options.HELD_ITEM_TOOLTIPS) {
-            return this.heldItemTooltips ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.DROPPED_ITEMS) {
-            switch (this.ofDroppedItems) {
-                case 1:
-                    return s + "Fast";
+            	case 4:
+            		return s + "Smart";
+			}
+		} else if (parOptions == GameSettings.Options.SKY) {
+			return this.ofSky ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.STARS) {
+			return this.ofStars ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.SUN_MOON) {
+			return this.ofSunMoon ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.SHOW_CAPES) {
+			return this.ofShowCapes ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.TRANSLUCENT_BLOCKS) {
+			return this.ofTranslucentBlocks == 1 ? s + "Fast" : (this.ofTranslucentBlocks == 2 ? s + "Fancy" : s + "Default");
+		} else if (parOptions == GameSettings.Options.HELD_ITEM_TOOLTIPS) {
+			return this.heldItemTooltips ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.DROPPED_ITEMS) {
+			switch (this.ofDroppedItems) {
+				case 1:
+					return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+				case 2:
+					return s + "Fancy";
 
-                default:
-                    return s + "Default";
-            }
-        } else if (parOptions == GameSettings.Options.VIGNETTE) {
-            switch (this.ofVignette) {
-                case 1:
-                    return s + "Fast";
+				default:
+					return s + "Default";
+			}
+		} else if (parOptions == GameSettings.Options.VIGNETTE) {
+			switch (this.ofVignette) {
+            	case 1:
+            		return s + "Fast";
 
-                case 2:
-                    return s + "Fancy";
+            	case 2:
+            		return s + "Fancy";
 
-                default:
-                    return s + "Default";
-            }
-        } else if (parOptions == GameSettings.Options.DYNAMIC_FOV) {
-            return this.ofDynamicFov ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.BETTER_SNOW) {
-            return this.ofBetterSnow ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.CUSTOM_FONTS) {
-            return this.ofCustomFonts ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.TOGGLE_SPRINT) {
+            	default:
+            		return s + "Default";
+			}
+		} else if (parOptions == GameSettings.Options.DYNAMIC_FOV) {
+			return this.ofDynamicFov ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.BETTER_SNOW) {
+			return this.ofBetterSnow ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.CUSTOM_FONTS) {
+			return this.ofCustomFonts ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.TOGGLE_SPRINT) {
 			return toggleSprint ? s + "Toggle" : s + "Hold";
 		} else if (parOptions == GameSettings.Options.LAGOMETER) {
-            return this.ofLagometer ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.PROFILER) {
-            return this.ofProfiler ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.HIDE_PASSWORD) {
+			return this.ofLagometer ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.PROFILER) {
+			return this.ofProfiler ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.HIDE_PASSWORD) {
 			return hidePassword ? s + "ON" : s + "OFF";	
 		} else if (parOptions == GameSettings.Options.CUSTOM_COLORS) {
-            return this.ofCustomColors ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.SWAMP_COLORS) {
-            return this.ofSwampColors ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.SMOOTH_BIOMES) {
-            return this.ofSmoothBiomes ? s + "ON" : s + "OFF";
-        } else if (parOptions == GameSettings.Options.CUSTOM_ITEMS) {
-            return this.ofCustomItems ? s + "ON" : s + "OFF";
-        } else {
+			return this.ofCustomColors ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.SWAMP_COLORS) {
+			return this.ofSwampColors ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.SMOOTH_BIOMES) {
+			return this.ofSmoothBiomes ? s + "ON" : s + "OFF";
+		} else if (parOptions == GameSettings.Options.CUSTOM_ITEMS) {
+			return this.ofCustomItems ? s + "ON" : s + "OFF";
+		} else {
 			return s;
 		}
 	}
@@ -1265,6 +1267,18 @@ public class GameSettings {
 
 					if (astring[0].equals("difficulty")) {
 						this.difficulty = EnumDifficulty.getDifficultyEnum(Integer.parseInt(astring[1]));
+					}
+
+					if (astring[0].equals("hasCreatedDemoWorld")) {
+						this.hasCreatedDemoWorld = astring[1].equals("true");
+					}
+
+					if (astring[0].equals("relayTimeout")) {
+						this.relayTimeout = Integer.parseInt(astring[1]);
+					}
+
+					if (astring[0].equals("hideJoinCode")) {
+						this.hideJoinCode = astring[1].equals("true");
 					}
 
 					if (astring[0].equals("fancyGraphics")) {
@@ -1442,11 +1456,15 @@ public class GameSettings {
 						this.chunkFix = astring[1].equals("true");
 					}
 
+					if (astring[0].equals("fog")) {
+						this.fog = astring[1].equals("true");
+					}
+
 					if (astring[0].equals("fxaa")) {
 						this.fxaa = (astring[1].equals("true") || astring[1].equals("false")) ? 0
 								: Integer.parseInt(astring[1]);
 					}
-					
+
 					for (KeyBinding keybinding : this.keyBindings) {
 						if (astring[0].equals("key_" + keybinding.getKeyDescription())) {
 							keybinding.setKeyCode(Integer.parseInt(astring[1]));
@@ -1455,6 +1473,10 @@ public class GameSettings {
 
 					if (astring[0].equals("shaders")) {
 						this.shaders = astring[1].equals("true");
+					}
+
+					if (astring[0].equals("enableUpdateSvc")) {
+						this.enableUpdateSvc = astring[1].equals("true");
 					}
 					
 					if (astring[0].equals("ofAnimatedWater") && astring.length >= 2) {
@@ -1563,23 +1585,6 @@ public class GameSettings {
                         }
                     }
 					
-					if (astring[0].equals("secret") && astring.length >= 2) {
-                        this.secret = Boolean.valueOf(astring[1]).booleanValue();
-                    }
-					
-					if (astring[0].equals("profile")) {
-						if (astring[1].equals("low")) {
-							this.profile = 1;
-						} else if (astring[1].equals("mid")) {
-							this.profile = 2;
-						} else if (astring[1].equals("high")) {
-							this.profile = 3;
-						} else if(astring[1].equals("ultra")) {
-							this.profile = 4;
-						}
-						System.out.println("Loaded Shader Profile: " + this.profile);
-					}
-					
 					if (astring[0].equals("ofSmoothFps") && astring.length >= 2) {
                         this.ofSmoothFps = Boolean.valueOf(astring[1]).booleanValue();
                     }
@@ -1608,6 +1613,7 @@ public class GameSettings {
 					if (astring[0].equals("ofFastMath") && astring.length >= 2) {
                         ofFastMath = Boolean.valueOf(astring[1]).booleanValue();
                         MathHelper.fastMath = ofFastMath;
+                        net.lax1dude.eaglercraft.v1_8.sp.server.classes.net.minecraft.util.MathHelper.fastMath = ofFastMath;
                     }
 					
 					if (astring[0].equals("ofRain") && astring.length >= 2) {
@@ -1758,6 +1764,9 @@ public class GameSettings {
 			printwriter.println("maxFps:" + this.limitFramerate);
 			printwriter.println("fboEnable:" + this.fboEnable);
 			printwriter.println("difficulty:" + this.difficulty.getDifficultyId());
+			printwriter.println("hasCreatedDemoWorld:" + this.hasCreatedDemoWorld);
+			printwriter.println("relayTimeout:" + this.relayTimeout);
+			printwriter.println("hideJoinCode:" + this.hideJoinCode);
 			printwriter.println("fancyGraphics:" + this.fancyGraphics);
 			printwriter.println("ao:" + this.ambientOcclusion);
 			printwriter.println("resourcePacks:" + toJSONArray(this.resourcePacks));
@@ -1796,8 +1805,10 @@ public class GameSettings {
 			printwriter.println("hudStats:" + this.hudStats);
 			printwriter.println("hud24h:" + this.hud24h);
 			printwriter.println("chunkFix:" + this.chunkFix);
+			printwriter.println("fog:" + this.fog);
 			printwriter.println("fxaa:" + this.fxaa);
 			printwriter.println("shaders:" + this.shaders);
+			printwriter.println("enableUpdateSvc:" + this.enableUpdateSvc);
 			printwriter.println("ofAnimatedWater:" + this.ofAnimatedWater);
             printwriter.println("ofAnimatedLava:" + this.ofAnimatedLava);
             printwriter.println("ofAnimatedFire:" + this.ofAnimatedFire);
@@ -1821,20 +1832,6 @@ public class GameSettings {
 			printwriter.println("ofBetterGrass:" + this.ofBetterGrass);
 			printwriter.println("ofFogType:" + this.ofFogType);
 			printwriter.println("ofFogStart:" + this.ofFogStart);
-			switch(this.profile) {
-				case 1:
-					printwriter.println("profile:low");
-					break;
-				case 2:
-					printwriter.println("profile:mid");
-					break;
-				case 3:
-					printwriter.println("profile:high");
-					break;
-				case 4:
-					printwriter.println("profile:ultra");
-					break;
-			}
 			printwriter.println("ofSmoothFps:" + this.ofSmoothFps);
 			printwriter.println("ofChunkUpdates:" + this.ofChunkUpdates);
 			printwriter.println("ofClouds:" + this.ofClouds);
@@ -1885,6 +1882,8 @@ public class GameSettings {
 			printwriter.close();
 
 			EagRuntime.setStorage("g", bao.toByteArray());
+
+			RelayManager.relayManager.save();
 		} catch (Exception exception) {
 			logger.error("Failed to save options", exception);
 		}
@@ -1916,7 +1915,7 @@ public class GameSettings {
 			}
 
 			this.mc.thePlayer.sendQueue.addToSendQueue(new C15PacketClientSettings(this.language,
-					this.renderDistanceChunks, this.chatVisibility, this.chatColours, i));
+					Math.max(this.renderDistanceChunks, 2), this.chatVisibility, this.chatColours, i));
 		}
 
 	}
@@ -1944,7 +1943,11 @@ public class GameSettings {
 
 		this.sendSettingsToServer();
 	}
-	
+
+	public int func_181147_e() {
+		return this.renderDistanceChunks >= 4 ? this.clouds : 0;
+	}
+
 	public boolean func_181148_f() {
 		return this.field_181150_U;
 	}
@@ -1967,10 +1970,11 @@ public class GameSettings {
 		VIEW_BOBBING("options.viewBobbing", false, true), 
 		ANAGLYPH("options.anaglyph", false, true),
 		FRAMERATE_LIMIT("options.framerateLimit", true, false, 10.0F, 260.0F, 10.0F),
-		FBO_ENABLE("options.fboEnable", false, true),
+		FBO_ENABLE("options.fboEnable", false, true), 
+		RENDER_CLOUDS("options.renderClouds", false, false),
 		GRAPHICS("options.graphics", false, false), 
 		AMBIENT_OCCLUSION("options.ao", false, false),
-		GUI_SCALE("options.guiScale", false, false),
+		GUI_SCALE("options.guiScale", false, false), 
 		PARTICLES("options.particles", false, false),
 		CHAT_VISIBILITY("options.chat.visibility", false, false), 
 		CHAT_COLOR("options.chat.color", false, true),
@@ -1988,8 +1992,7 @@ public class GameSettings {
 		STREAM_BYTES_PER_PIXEL("options.stream.bytesPerPixel", true, false),
 		STREAM_VOLUME_MIC("options.stream.micVolumne", true, false),
 		STREAM_VOLUME_SYSTEM("options.stream.systemVolume", true, false),
-		STREAM_KBPS("options.stream.kbps", true, false), 
-		STREAM_FPS("options.stream.fps", true, false),
+		STREAM_KBPS("options.stream.kbps", true, false), STREAM_FPS("options.stream.fps", true, false),
 		STREAM_COMPRESSION("options.stream.compression", false, false),
 		STREAM_SEND_METADATA("options.stream.sendMetadata", false, true),
 		STREAM_CHAT_ENABLED("options.stream.chat.enabled", false, false),
@@ -2005,9 +2008,10 @@ public class GameSettings {
 		HUD_PLAYER("options.hud.player", false, true),
 		HUD_24H("options.hud.24h", false, true), 
 		CHUNK_FIX("options.chunkFix", false, true),
+		FOG("options.fog", false, true), 
 		FXAA("options.fxaa", false, false),
 		FULLSCREEN("options.fullscreen", false, true), 
-		FAST_MATH("options.fastMath", false, true),
+		FAST_MATH("options.fastMath", false, false),
 		ANIMATED_WATER("Water Animated", false, false),
         ANIMATED_LAVA("Lava Animated", false, false),
         ANIMATED_FIRE("Fire Animated", false, false),
@@ -2193,11 +2197,12 @@ public class GameSettings {
         this.ofAnimatedTextures = p_setAllAnimations_1_;
         this.ofRainSplash = p_setAllAnimations_1_;
     }
-
-	public void resetSettings() {
-	}
-
+	
 	private void updateWaterOpacity() {
+        if (this.mc.isIntegratedServerRunning()) {
+            Config.waterOpacityChanged = true;
+        }
+
         ClearWater.updateWaterOpacity(this, this.mc.theWorld);
     }
 	

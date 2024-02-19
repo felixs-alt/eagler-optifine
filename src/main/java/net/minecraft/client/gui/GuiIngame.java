@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.FatalCodes.shadow.Shadow;
-import net.FatalCodes.shadow.module.RenderModule;
 import net.PeytonPlayz585.shadow.Config;
 import net.PeytonPlayz585.shadow.CustomColors;
 import net.PeytonPlayz585.shadow.gui.ArmorGui;
@@ -54,7 +52,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
-import net.FatalCodes.shadow.module.Module;
 
 /**+
  * This portion of EaglercraftX contains deobfuscated Minecraft 1.8 source code.
@@ -62,16 +59,18 @@ import net.FatalCodes.shadow.module.Module;
  * Minecraft 1.8.8 bytecode is (c) 2015 Mojang AB. "Do not distribute!"
  * Mod Coder Pack v9.18 deobfuscation configs are (c) Copyright by the MCP Team
  * 
- * EaglercraftX 1.8 patch files are (c) 2022-2023 LAX1DUDE. All Rights Reserved.
+ * EaglercraftX 1.8 patch files (c) 2022-2024 lax1dude, ayunami2000. All Rights Reserved.
  * 
- * WITH THE EXCEPTION OF PATCH FILES, MINIFIED JAVASCRIPT, AND ALL FILES
- * NORMALLY FOUND IN AN UNMODIFIED MINECRAFT RESOURCE PACK, YOU ARE NOT ALLOWED
- * TO SHARE, DISTRIBUTE, OR REPURPOSE ANY FILE USED BY OR PRODUCED BY THE
- * SOFTWARE IN THIS REPOSITORY WITHOUT PRIOR PERMISSION FROM THE PROJECT AUTHOR.
- * 
- * NOT FOR COMMERCIAL OR MALICIOUS USE
- * 
- * (please read the 'LICENSE' file this repo's root directory for more info) 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
 public class GuiIngame extends Gui {
@@ -80,7 +79,7 @@ public class GuiIngame extends Gui {
 	private static final ResourceLocation pumpkinBlurTexPath = new ResourceLocation("textures/misc/pumpkinblur.png");
 	private final EaglercraftRandom rand = new EaglercraftRandom();
 	private final Minecraft mc;
-	public static RenderItem itemRenderer;
+	public static RenderItem itemRenderer = null;
 	private final GuiNewChat persistantChatGUI;
 	private int updateCounter;
 	/**+
@@ -96,7 +95,7 @@ public class GuiIngame extends Gui {
 	public float prevVignetteBrightness = 1.0F;
 	private int remainingHighlightTicks;
 	private ItemStack highlightingItemStack;
-	private final GuiOverlayDebug overlayDebug;
+	public final GuiOverlayDebug overlayDebug;
 	private final GuiSpectator spectatorGui;
 	private final GuiPlayerTabOverlay overlayPlayerList;
 	private int field_175195_w;
@@ -118,7 +117,7 @@ public class GuiIngame extends Gui {
 
 	public GuiIngame(Minecraft mcIn) {
 		this.mc = mcIn;
-		this.itemRenderer = mcIn.getRenderItem();
+		itemRenderer = mcIn.getRenderItem();
 		this.overlayDebug = new GuiOverlayDebug(mcIn);
 		this.spectatorGui = new GuiSpectator(mcIn);
 		this.persistantChatGUI = new GuiNewChat(mcIn);
@@ -315,12 +314,6 @@ public class GuiIngame extends Gui {
 		} else {
 			this.overlayPlayerList.updatePlayerList(true);
 			this.overlayPlayerList.renderPlayerlist(i, scoreboard, scoreobjective1);
-		}
-
-		for(Module m : Shadow.moduleManager.mods) {
-			if(m.isToggled() && m instanceof RenderModule) {
-				((RenderModule)m).draw();
-			}
 		}
 
 		ArmorGui.draw();
