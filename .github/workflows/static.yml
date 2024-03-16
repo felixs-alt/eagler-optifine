@@ -32,10 +32,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: download assets
       run: wget https://objectstorage.eu-stockholm-1.oraclecloud.com/n/axxofxpueq7w/b/eagler/o/assets.epk -O ./javascript/assets.epk
-    - uses: actions/upload-artifact@v4
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        name: upload offline download and classes.js
-        path: javascript/
+        # Upload entire repository
+        path: 'javascript/'
   deploy:
    environment:
     name: github-pages
