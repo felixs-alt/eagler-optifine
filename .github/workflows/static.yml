@@ -23,18 +23,15 @@ concurrency:
 
 jobs:
   build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pages: write
       id-token: write
     steps:
+    - uses: actions/checkout@v4
     - name: download assets
       run: wget https://objectstorage.eu-stockholm-1.oraclecloud.com/n/axxofxpueq7w/b/eagler/o/assets.epk -O ./javascript/assets.epk
-    - uses: actions/checkout@v4
     - uses: actions/upload-artifact@v4
       with:
         name: upload offline download and classes.js
