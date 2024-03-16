@@ -39,5 +39,3 @@ jobs:
         name: upload offline download and classes.js
         path: javascript/
 
-    - name: Write changes to repository
-      uses: stefanzweifel/git-auto-commit-action@v4
